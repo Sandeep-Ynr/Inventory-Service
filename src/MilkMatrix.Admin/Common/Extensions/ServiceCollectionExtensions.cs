@@ -1,0 +1,20 @@
+using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Admin.Business.Auth.Contracts;
+using MilkMatrix.Admin.Business.Auth.Contracts.Service;
+using MilkMatrix.Admin.Business.Auth.Services;
+
+namespace MilkMatrix.Admin.Common.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    // This method can be used to register services in the IServiceCollection
+    public static IServiceCollection AddAdminServices(this IServiceCollection services)
+    {
+        // Register your services here
+        // Example:
+        services.AddScoped<IAuth, Auth>();
+        services.AddScoped<ITokenProcess, TokenProcess>();
+
+        return services;
+    }
+}

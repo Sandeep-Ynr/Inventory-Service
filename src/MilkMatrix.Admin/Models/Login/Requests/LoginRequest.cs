@@ -1,0 +1,22 @@
+using MilkMatrix.Domain.Entities.Common;
+
+namespace MilkMatrix.Admin.Models.Login.Requests;
+
+public class LoginRequest
+{
+    public string? UserId { get; set; }
+    public string? Password { get; set; }
+    public string? Mobile { get; set; }
+    public int Otp { get; set; }
+    public string? BrowserName { get; set; }
+    public string? PrivateIP { get; set; }
+    public string? PublicIP { get; set; }
+    public string? LoginDevice { get; set; }
+    public TokenEntity? TokenEntity { get; set; }
+    public string? HostName { get; set; }
+    public int BusinessId { get; set; }
+    public bool IsLoginWithOtp { get; set; }
+
+    public string Latitude { get; set; } = string.Empty;
+    public string Longitude { get; set; } = string.Empty;
+}

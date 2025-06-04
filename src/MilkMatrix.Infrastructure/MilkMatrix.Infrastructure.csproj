@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <None Remove="Factories\RepositoryFactory.cs~RF1a7dd47.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MilkMatrix.DataAccess.Ado\MilkMatrix.DataAccess.Ado.csproj" />
+    <ProjectReference Include="..\MilkMatrix.DataAccess.Dapper\MilkMatrix.DataAccess.Dapper.csproj" />
+    <ProjectReference Include="..\MilkMatrix.Domain\MilkMatrix.Domain.csproj" />
+    <ProjectReference Include="..\MilkMatrix.Logging\MilkMatrix.Logging.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
