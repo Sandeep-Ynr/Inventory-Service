@@ -10,7 +10,10 @@ public sealed record DatabaseConfig
     /// <summary>
     ///     The database connection string.
     /// </summary>
-    public string ConnectionString { get; init; } // we use init in the configuration files because the configured values shouldn't be changed once set.
+    public string RptConnectionString { get; init; } // we use init in the configuration files because the configured values shouldn't be changed once set.
+
+
+    public string MainConnectionString { get; init; }
 
     /// <summary>
     /// Database commands timeout

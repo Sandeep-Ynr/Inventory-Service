@@ -1,21 +1,17 @@
-using Microsoft.AspNetCore.Authorization;
 using System.Net;
-using System.Reflection.Metadata;
-using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Domain.Entities.Responses;
-using static MilkMatrix.Api.Common.Constants.Constants;
 using Asp.Versioning;
-using MilkMatrix.Logging.Config;
-using MilkMatrix.Admin.Business.Auth.Contracts.Service;
-using MilkMatrix.Infrastructure.Models.Config;
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
-using MilkMatrix.Api.Models.Request.Login;
-using MilkMatrix.Admin.Models.Login.Requests;
-using MilkMatrix.Admin.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Admin.Business.Auth.Contracts.Service;
+using MilkMatrix.Admin.Models;
+using MilkMatrix.Admin.Models.Login.Requests;
+using MilkMatrix.Api.Models.Request.Login;
+using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Admin.Models.Login.Response;
-using System.Security.Claims;
+using MilkMatrix.Infrastructure.Models.Config;
+using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
@@ -26,16 +22,22 @@ namespace MilkMatrix.Api.Controllers.v1
     public class LoginController : ControllerBase
     {
         private readonly IAuth iAuthentication;
-        private readonly AppConfig iConfiguration;
         private readonly IHttpContextAccessor ihttpContextAccessor;
         private readonly IMapper mapper;
         private ILogging logger;
-        private IConfiguration configuration;
+
+        public LoginController(IAuth iAuthentication, IHttpContextAccessor ihttpContextAccessor, IMapper mapper, ILogging logger)
+        {
+            this.iAuthentication = iAuthentication;
+            this.ihttpContextAccessor = ihttpContextAccessor;
+            this.mapper = mapper;
+            this.logger = logger.ForContext("ServiceName",nameof(LoginController));
+        }
 
         [AllowAnonymous]
         [HttpPost]
         [Route("user-login/{isLogingWithOtp}")]
-        public IActionResult AuthenticateUserLogin(bool isLogingWithOtp, LoginModel login)
+        public async Task<IActionResult> AuthenticateUserLogin(bool isLogingWithOtp, LoginModel login)
         {
             if (login == null)
             {
@@ -54,7 +56,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.BadRequest, ErrorMessage = string.Format(ErrorMessage.BadRequest, "UserId", "Password") });
             }
             GetUserBrowserDetails(out var publicIpAddress, out var privateIpAddress, out var userAgent);
-            var loginResponse = iAuthentication.AuthenticateUserLogin(mapper.MapWithOptions<LoginRequest, LoginModel>(login
+            var loginResponse = await iAuthentication.AuthenticateUserLogin(mapper.MapWithOptions<LoginRequest, LoginModel>(login
                 , new Dictionary<string, object> {
                 { Constants.AutoMapper.HostName ,ihttpContextAccessor?.HttpContext?.Request?.Host.ToString() },
                 { Constants.AutoMapper.PrivateIp ,privateIpAddress?.ToString() },

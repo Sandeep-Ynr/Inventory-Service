@@ -18,26 +18,33 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
 
         public override async Task<IEnumerable<T>> QueryAsync<T>(string query, Dictionary<string, object> parameters, int? commandTimeOut, CommandType commandType = CommandType.StoredProcedure)
         {
-            using var conn = new SqlConnection(_connectionString);
-
-            // Convert Dictionary to Dapper's DynamicParameters
-            var dynamicParams = new DynamicParameters();
-            if (parameters != null)
+            try
             {
-                foreach (var param in parameters)
-                {
-                    dynamicParams.Add(param.Key, param.Value);
-                }
+                using var conn = new SqlConnection(_connectionString);
+
+                // Convert Dictionary to Dapper's DynamicParameters
+                //var dynamicParams = new DynamicParameters();
+                //if (parameters != null)
+                //{
+                //    foreach (var param in parameters)
+                //    {
+                //        dynamicParams.Add(param.Key, param.Value);
+                //    }
+                //}
+
+                var result = await conn.QueryAsync<T>(
+                    sql: query,
+                    param: parameters,
+                    commandType: commandType,
+                    commandTimeout: commandTimeOut
+                );
+
+                return result;
             }
-
-            var result = await conn.QueryAsync<T>(
-                sql: query,
-                param: dynamicParams,
-                commandType: commandType,
-                commandTimeout: commandTimeOut
-            );
-
-            return result;
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

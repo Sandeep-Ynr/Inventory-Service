@@ -9,6 +9,7 @@ using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Infrastructure.Contracts.Repositories;
+using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Auth.Services;
@@ -62,7 +63,7 @@ public class Auth : IAuth
                 { "BusinessId", login.BusinessId }
             };
             var repo = repositoryFactory
-                        .ConnectDapper<UserLoginResponse>("MainConnectionString");
+                        .ConnectDapper<UserLoginResponse>(DbConstants.Main);
             var data = await repo.QueryAsync<UserLoginResponse>(AuthSpName.UserLogin, requestParam, null);
 
             loginId = data.FirstOrDefault(data => data.Result.Equals("SUCCESS", StringComparison.InvariantCultureIgnoreCase))?.ID ?? 0;
@@ -71,7 +72,7 @@ public class Auth : IAuth
             if (loginId > 0)
             {
                 var repoLogin = repositoryFactory
-                       .ConnectDapper<LoginResponse>("MainConnectionString");
+                       .ConnectDapper<LoginResponse>(DbConstants.Main);
                 lResponse = (await repoLogin.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", loginId } }, null))!.SingleOrDefault()!;
                 logger.LogInfo("login successful");
             }
@@ -116,7 +117,7 @@ public class Auth : IAuth
 
             if (sysHostmane.Contains(tokenEntity.hostName))//Validate HostName
             {
-                var repo = repositoryFactory.ConnectDapper<string>("MainConnectionString");
+                var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
                 var res = (await repo.QueryAsync<string>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "Emailid", tokenEntity.userID }
                 ,{"SecKey", token } }, null))?.FirstOrDefault();
                 Meta.Message = res;
@@ -137,7 +138,7 @@ public class Auth : IAuth
         try
         {
             Meta.UserId = request.EmailId;
-            var repo = repositoryFactory.ConnectDapper<string>("MainConnectionString");
+            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "Emailid", request.EmailId }
                 ,{"SecKey", request.Token },{"RefreshToken", request.RefreshToken } }, null))?.FirstOrDefault();
             Meta.Message = res;
@@ -158,7 +159,7 @@ public class Auth : IAuth
         try
         {
             Meta.UserId = request.EmailId;
-            var repo = repositoryFactory.ConnectDapper<string>("MainConnectionString");
+            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "Emailid", request.EmailId }
                 ,{"SecKey", request.Token },{"RefreshToken", request.RefreshToken } }, null))?.FirstOrDefault();
             Meta.Message = res;
@@ -175,7 +176,7 @@ public class Auth : IAuth
         TokenStatusResponse finalResult = new TokenStatusResponse();
         try
         {
-            var repo = repositoryFactory.ConnectDapper<string>("MainConnectionString");
+            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "LoginId", logout.LoginId }
                 ,{"UserId", logout.UserId } }, null))?.FirstOrDefault();
             finalResult.Message = res;

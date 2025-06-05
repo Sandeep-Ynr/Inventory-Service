@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Features;
 using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Extensions;
 using MilkMatrix.Admin.Common.Extensions;
+using DetaServices.Models.Automapper;
 
 internal static class AppServicesConfigurationExtenstion
 {
@@ -15,7 +16,12 @@ internal static class AppServicesConfigurationExtenstion
     builder.ConfigureAppConfigurations()
         .ConfigureServices((hostContext, services) =>
         {
-            services.AddConfiguration(hostContext.Configuration)
+            services
+            .AddAutoMapper(o =>
+             {
+                 o.AddProfile<AutomapperProfile>();
+             })
+            .AddConfiguration(hostContext.Configuration)
             .AddCoreServices()
             .AddConfigs(hostContext.Configuration)
             .ConfigureInfraservices(hostContext.Configuration)

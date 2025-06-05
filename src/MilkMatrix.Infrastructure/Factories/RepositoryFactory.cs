@@ -3,18 +3,36 @@ using MilkMatrix.DataAccess.Ado.Contracts;
 using MilkMatrix.DataAccess.Ado.Implementations;
 using MilkMatrix.DataAccess.Dapper.Contracts;
 using MilkMatrix.DataAccess.Dapper.Implementations;
+using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Infrastructure.Contracts.Repositories;
+using MilkMatrix.Infrastructure.Models.Config;
 
 namespace MilkMatrix.Infrastructure.Factories;
 
 public class RepositoryFactory : IRepositoryFactory
 {
-    private readonly IConfiguration _configuration;
-    public RepositoryFactory(IConfiguration configuration) => _configuration = configuration;
+    private readonly IConfiguration configuration;
 
-    public IAdoRepository<T> Connect<T>(string connKey) where T : class =>
-        (IAdoRepository<T>)Activator.CreateInstance(typeof(AdoRepository<>).MakeGenericType(typeof(T)), _configuration.GetConnectionString(connKey))!;
+    private IConfigurationSection configurationSection;
 
-    public IDapperRepository<T> ConnectDapper<T>(string connKey) where T : class =>
-        (IDapperRepository<T>)Activator.CreateInstance(typeof(DapperRepository<>).MakeGenericType(typeof(T)), _configuration.GetConnectionString(connKey))!;
+    private string encryptKey;
+    public RepositoryFactory(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+        this.configurationSection = configuration.GetSection(DatabaseConfig.SectionName);
+        this.encryptKey = configuration.GetSection("AppConfiguration:Base64EncryptKey").Value!;
+    }
+
+    // Fix for IDE0290: Use primary constructor
+    public IAdoRepository<T> Connect<T>(string connectionStringName) where T : class
+    {
+        var connectionString = encryptKey.DecryptString(configurationSection.GetValue<string>(connectionStringName)!);
+        return new AdoRepository<T>(connectionString);
+    }
+
+    public IDapperRepository<T> ConnectDapper<T>(string connectionStringName) where T : class
+    {
+        var connectionString = encryptKey.DecryptString(configurationSection.GetValue<string>(connectionStringName)!);
+        return new DapperRepository<T>(connectionString);
+    }
 }

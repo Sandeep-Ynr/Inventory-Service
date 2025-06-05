@@ -22,6 +22,12 @@ public static class AppConfigurationExtenstions
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
 
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger(provider, app.Environment);
+            app.UseSwaggerUI();
+        }
+
         app
             .AddCustomErrorMiddleware()
             .UseHttpsRedirection()
@@ -34,12 +40,7 @@ public static class AppConfigurationExtenstions
                 endpoints.MapControllers();
             })
             .UseHealthChecks("/health");
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger(provider, app.Environment);
-        }
-
-
+      
         return app;
     }
 }

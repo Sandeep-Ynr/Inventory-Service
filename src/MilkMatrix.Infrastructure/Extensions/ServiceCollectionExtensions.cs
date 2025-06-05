@@ -25,10 +25,10 @@ namespace MilkMatrix.Infrastructure.Extensions
 
         public static IServiceCollection ConfigureInfraservices(this IServiceCollection services, IConfiguration configuration) =>
             services
-              .AddSingleton<IRepositoryFactory, RepositoryFactory>()
+
               .RegisterLoggingDependencies()
               .AddSingleton<ILogging, LoggingAdapter>()
-              .AddDataAccess(configuration);
+              .AddDataAccess();
 
         public static IServiceCollection AddConfigs(this IServiceCollection services, IConfiguration configuration) =>
             // This method can be used to register configuration settings if needed
@@ -38,16 +38,7 @@ namespace MilkMatrix.Infrastructure.Extensions
             .Configure<LoggerConfig>(configuration.GetSection(LoggerConfig.SectionName))
             .Configure<AppConfig>(configuration.GetSection(AppConfig.SectionName));
 
-        public static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration) =>
-            services.AddScoped(typeof(IAdoRepository<>), provider =>
-            {
-                var connectionString = configuration.GetConnectionString("MainConnectionString");
-                return (Type repoType) =>
-                {
-                    var entityType = repoType.GenericTypeArguments[0];
-                    var adoRepoType = typeof(AdoRepository<>).MakeGenericType(entityType);
-                    return Activator.CreateInstance(adoRepoType, connectionString);
-                };
-            });
+        public static IServiceCollection AddDataAccess(this IServiceCollection services) =>
+            services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
     }
 }

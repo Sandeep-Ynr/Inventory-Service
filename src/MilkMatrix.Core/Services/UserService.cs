@@ -9,7 +9,7 @@ public class UserService : BaseService<User>, IUserService
     private readonly IRepositoryFactory _repoFactory;
 
     public UserService(IRepositoryFactory repoFactory)
-        : base(repoFactory.Connect<User>("MainConnectionString"))
+        : base(repoFactory.Connect<User>("DbConstants.Main"))
     {
         _repoFactory = repoFactory;
     }
