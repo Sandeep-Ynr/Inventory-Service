@@ -5,6 +5,7 @@ using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Domain.Entities.Common;
+using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
@@ -23,11 +24,12 @@ public class Auth : IAuth
     private readonly IConfiguration configuration;
 
     private readonly ILogging logger;
+
     public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IConfiguration configuration, ILogging logging)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
-        this.configuration = configuration;
+        this.configuration = configuration ?? throw new ArgumentNullException(nameof(Auth));
         this.logger = logging.ForContext("ServiceName", nameof(Auth));
     }
 
@@ -56,8 +58,6 @@ public class Auth : IAuth
                 { "IsLoginWithOTP", login.IsLoginWithOtp },
                 { "Otp", login.Otp },
                 { "Mobile", login.Mobile },
-                { "IsAppLogin", isAppLogin },
-                { "FireBaseToken", firebase_token },
                 { "Latitude", login.Latitude },
                 { "Longitude", login.Longitude },
                 { "BusinessId", login.BusinessId }
@@ -74,6 +74,12 @@ public class Auth : IAuth
                 var repoLogin = repositoryFactory
                        .ConnectDapper<LoginResponse>(DbConstants.Main);
                 lResponse = (await repoLogin.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", loginId } }, null))!.SingleOrDefault()!;
+                finalResult.Data = new TokenResponse
+                {
+                    AccessToken = lResponse.SecKey!,
+                    ExpiresIn = lResponse.SecKeyExpiryOn,
+                    RefreshToken = lResponse.Refresh_Token!
+                };
                 logger.LogInfo("login successful");
             }
 
@@ -94,7 +100,6 @@ public class Auth : IAuth
             finalResult.Status = HttpStatusCode.InternalServerError.ToString();
             logger.LogError("Some error occurred while signIn", ex);
         }
-        finalResult.Data = lResponse;
         return finalResult;
     }
     public async Task<TokenStatusResponse> ValidateAppToken(string token)
@@ -195,5 +200,33 @@ public class Auth : IAuth
             finalResult.Message = HttpStatusCode.InternalServerError.ToString();
         }
         return finalResult;
+    }
+
+    public async Task<IEnumerable<LoginResponse>> GetUserDetailsAsync(string id, YesOrNo isEncryptionNeeded)
+    {
+        try
+        {
+            var repo = repositoryFactory
+                       .ConnectDapper<LoginResponse>(DbConstants.Main);
+            var data = await repo.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "Id", id } }, null);
+
+            return data.Any() ? new List<LoginResponse>() { MaskAndEncryptUserResponse(data.FirstOrDefault()!, isEncryptionNeeded) } : Enumerable.Empty<LoginResponse>();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(Constants.ErrorMessage.GetError.FormatString(nameof(GetUserDetailsAsync)), ex);
+            return Enumerable.Empty<LoginResponse>();
+        }
+    }
+
+    private LoginResponse MaskAndEncryptUserResponse(LoginResponse response, YesOrNo isEncryptionNeeded)
+    {
+        var emailToEncrypt = response.Email_Id!;
+        var mobilToEncrypt = response.Mobile_No!;
+        response.MaskedMobile = response?.Mobile_No?.MaskString();
+        response.MaskedEmail = response?.Email_Id?.MaskString();
+        response.Mobile_No = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(emailToEncrypt) : emailToEncrypt;
+        response.Email_Id = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(mobilToEncrypt) : mobilToEncrypt;
+        return response;
     }
 }

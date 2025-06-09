@@ -91,6 +91,33 @@ public static class CommonUtils
             action(enumerator.Current);
         }
     }
+
+    public static string MaskString(this string keyToMask, int startVisible = 2, int endVisible = 2, char maskChar = '*')
+    {
+        if (keyToMask.Length <= startVisible + endVisible)
+        {
+            // If the string is too short, return the original string
+            return keyToMask;
+        }
+
+        int maskLength = keyToMask.Length - startVisible - endVisible;
+        string maskedSubstring = new string(maskChar, maskLength);
+
+        // Concatenate the visible portions with the masked substring
+        string maskedString = keyToMask.Substring(0, startVisible) +
+                              maskedSubstring +
+                              keyToMask.Substring(keyToMask.Length - endVisible);
+
+        return maskedString;
+    }
+
+    /// <summary>
+    /// Format String message
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="arg"></param>
+    /// <returns>A formatted string</returns>
+    public static string FormatString(this string message, string arg) => string.Format(message, arg);
 }
 public static class AutoMapperExtensions
 {

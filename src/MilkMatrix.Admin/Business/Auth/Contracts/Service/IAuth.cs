@@ -1,5 +1,6 @@
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
+using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
 
 namespace MilkMatrix.Admin.Business.Auth.Contracts.Service;
@@ -11,4 +12,6 @@ public interface IAuth
     Task<TokenStatusResponse> ValidateAppToken(string token);
     Task<TokenStatusResponse> ValidateRefreshToken(RefreshTokenRequest request);
     Task<TokenStatusResponse> UpdateAccessToken(RefreshTokenRequest request);
+
+    Task<IEnumerable<LoginResponse>> GetUserDetailsAsync(string id, YesOrNo isEncryptionNeeded);
 }

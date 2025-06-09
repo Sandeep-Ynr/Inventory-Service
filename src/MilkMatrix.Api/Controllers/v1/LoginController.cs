@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -7,10 +8,10 @@ using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Api.Models.Request.Login;
+using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -68,6 +69,18 @@ namespace MilkMatrix.Api.Controllers.v1
                 return NotFound();
             else
                 return Ok(loginResponse);
+        }
+
+        [HttpGet("logged-in-details")]
+        public async Task<ActionResult> GetUserDetails([FromQuery] YesOrNo e = YesOrNo.Yes)
+        {
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var response = await iAuthentication.GetUserDetailsAsync(UserId, e);
+
+            return response != null && response.Any()
+                ? Ok(response)
+                : NotFound();
         }
 
         private void GetUserBrowserDetails(out IPAddress? publicIpAddress, out IPAddress? privateIpAddress, out string? userAgent)
