@@ -15,7 +15,7 @@ namespace MilkMatrix.Admin.Models
             public const string ValidateToken = "usp_validate_token";//To validating sekKey
             public const string ValidateRefreshToken = "usp_validate_refresh_token";//To validate secKey and refreshToken
             public static readonly string GetUserIdFromEmailId = "usp_Get_User_With_Email_id"; //For getting userid using email or mobilenumber
-            public const string GetCommonDetails = "usp_common_details";
+            public const string GetCommonDetails = "usp_user_common_details";
             public static readonly string RoleList = "usp_User_RoleList";//To retriving user role list
             public static readonly string PageMenuList = "usp_user_page_menu_list";//To retriving user menu list
             public static readonly string ActionList = "usp_User_ActionList";//To retriving user acton list

@@ -209,7 +209,7 @@ public class Auth : IAuth
         {
             var repo = repositoryFactory
                        .ConnectDapper<LoginResponse>(DbConstants.Main);
-            var data = await repo.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "Id", id } }, null);
+            var data = await repo.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
             return data.Any() ? new List<LoginResponse>() { MaskAndEncryptUserResponse(data.FirstOrDefault()!, isEncryptionNeeded) } : Enumerable.Empty<LoginResponse>();
         }
