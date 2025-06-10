@@ -3,10 +3,12 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Login.Requests;
+using MilkMatrix.Api.Common.Utils;
 using MilkMatrix.Api.Models.Request.Login;
 using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
@@ -56,7 +58,7 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.BadRequest, ErrorMessage = string.Format(ErrorMessage.BadRequest, "UserId", "Password") });
             }
-            GetUserBrowserDetails(out var publicIpAddress, out var privateIpAddress, out var userAgent);
+            ihttpContextAccessor.GetUserBrowserDetails(out var publicIpAddress, out var privateIpAddress, out var userAgent);
             var loginResponse = await iAuthentication.AuthenticateUserLogin(mapper.MapWithOptions<LoginRequest, LoginModel>(login
                 , new Dictionary<string, object> {
                 { Constants.AutoMapper.HostName ,ihttpContextAccessor?.HttpContext?.Request?.Host.ToString() },
@@ -81,29 +83,6 @@ namespace MilkMatrix.Api.Controllers.v1
             return response != null && response.Any()
                 ? Ok(response)
                 : NotFound();
-        }
-
-        private void GetUserBrowserDetails(out IPAddress? publicIpAddress, out IPAddress? privateIpAddress, out string? userAgent)
-        {
-            publicIpAddress = ihttpContextAccessor?.HttpContext?.Connection.RemoteIpAddress;
-            privateIpAddress = ihttpContextAccessor?.HttpContext?.Connection.LocalIpAddress;
-            userAgent = ihttpContextAccessor?.HttpContext?.Request?.Headers["User-Agent"].ToString();
-            GetIpAddress(ref publicIpAddress, ref privateIpAddress);
-        }
-
-        private static void GetIpAddress(ref IPAddress? publicIpAddress, ref IPAddress? privateIpAddress)
-        {
-            if (publicIpAddress?.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-            {
-                publicIpAddress = Dns.GetHostEntry(publicIpAddress).AddressList
-          .First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-            }
-            if (privateIpAddress?.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-            {
-                privateIpAddress = Dns.GetHostEntry(privateIpAddress).AddressList
-          .First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            }
         }
     }
 }

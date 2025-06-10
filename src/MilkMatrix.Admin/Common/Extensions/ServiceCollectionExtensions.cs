@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Business.Auth.Services;
@@ -13,6 +15,7 @@ public static class ServiceCollectionExtensions
         // Register your services here
         // Example:
         services.AddScoped<IAuth, Auth>();
+        services.AddScoped<ICommonModules, CommonModules>();
         services.AddScoped<ITokenProcess, TokenProcess>();
 
         return services;

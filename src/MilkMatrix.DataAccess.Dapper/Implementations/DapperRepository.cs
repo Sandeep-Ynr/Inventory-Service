@@ -22,15 +22,15 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
             {
                 using var conn = new SqlConnection(_connectionString);
 
-                // Convert Dictionary to Dapper's DynamicParameters
-                //var dynamicParams = new DynamicParameters();
-                //if (parameters != null)
-                //{
-                //    foreach (var param in parameters)
-                //    {
-                //        dynamicParams.Add(param.Key, param.Value);
-                //    }
-                //}
+                //Convert Dictionary to Dapper's DynamicParameters
+                var dynamicParams = new DynamicParameters();
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        dynamicParams.Add(param.Key, param.Value);
+                    }
+                }
 
                 var result = await conn.QueryAsync<T>(
                     sql: query,
@@ -41,9 +41,39 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<SqlMapper.GridReader> QueryMultipleAsync<T>(string query, Dictionary<string, object>? parameters, int? commandTimeOut, CommandType commandType = CommandType.StoredProcedure)
+        {
+            try
+            {
+                var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                var dynamicParams = new DynamicParameters();
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        if (param.Value == null ||
+                            param.Value is string ||
+                            param.Value.GetType().IsValueType)
+                        {
+                            dynamicParams.Add(param.Key, param.Value);
+                        }
+                    }
+                }
+
+                return await connection.QueryMultipleAsync(query, dynamicParams, commandTimeout: commandTimeOut ?? 30, commandType: commandType);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

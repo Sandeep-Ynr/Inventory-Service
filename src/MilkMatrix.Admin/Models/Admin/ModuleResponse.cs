@@ -1,0 +1,7 @@
+namespace MilkMatrix.Admin.Models.Admin;
+
+public class ModuleResponse
+{
+    public IEnumerable<Module>? ModuleList { get; set; }
+    public IEnumerable<PageList>? PageList { get; set; }
+}

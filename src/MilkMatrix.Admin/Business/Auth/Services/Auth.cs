@@ -78,7 +78,7 @@ public class Auth : IAuth
                 {
                     AccessToken = lResponse.SecKey!,
                     ExpiresIn = lResponse.SecKeyExpiryOn,
-                    RefreshToken = lResponse.Refresh_Token!
+                    RefreshToken = lResponse.RefreshToken!
                 };
                 logger.LogInfo("login successful");
             }
@@ -122,10 +122,11 @@ public class Auth : IAuth
 
             if (sysHostmane.Contains(tokenEntity.hostName))//Validate HostName
             {
-                var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
-                var res = (await repo.QueryAsync<string>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "Emailid", tokenEntity.userID }
+                var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+                var res = (await repo.QueryAsync<string>(AuthSpName.ValidateToken, new Dictionary<string, object> { { "Emailid", tokenEntity.userID }
                 ,{"SecKey", token } }, null))?.FirstOrDefault();
                 Meta.Message = res;
+                Meta.Status = string.IsNullOrEmpty(res) ? HttpStatusCode.OK.ToString() : HttpStatusCode.Unauthorized.ToString();
             }
         }
         catch (Exception ex)
@@ -143,7 +144,7 @@ public class Auth : IAuth
         try
         {
             Meta.UserId = request.EmailId;
-            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "Emailid", request.EmailId }
                 ,{"SecKey", request.Token },{"RefreshToken", request.RefreshToken } }, null))?.FirstOrDefault();
             Meta.Message = res;
@@ -164,7 +165,7 @@ public class Auth : IAuth
         try
         {
             Meta.UserId = request.EmailId;
-            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "Emailid", request.EmailId }
                 ,{"SecKey", request.Token },{"RefreshToken", request.RefreshToken } }, null))?.FirstOrDefault();
             Meta.Message = res;
@@ -181,7 +182,7 @@ public class Auth : IAuth
         TokenStatusResponse finalResult = new TokenStatusResponse();
         try
         {
-            var repo = repositoryFactory.ConnectDapper<string>("DbConstants.Main");
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
             var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "LoginId", logout.LoginId }
                 ,{"UserId", logout.UserId } }, null))?.FirstOrDefault();
             finalResult.Message = res;
@@ -221,12 +222,12 @@ public class Auth : IAuth
 
     private LoginResponse MaskAndEncryptUserResponse(LoginResponse response, YesOrNo isEncryptionNeeded)
     {
-        var emailToEncrypt = response.Email_Id!;
-        var mobilToEncrypt = response.Mobile_No!;
-        response.MaskedMobile = response?.Mobile_No?.MaskString();
-        response.MaskedEmail = response?.Email_Id?.MaskString();
-        response.Mobile_No = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(emailToEncrypt) : emailToEncrypt;
-        response.Email_Id = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(mobilToEncrypt) : mobilToEncrypt;
+        var emailToEncrypt = response.EmailId!;
+        var mobilToEncrypt = response.MobileNo!;
+        response.MaskedMobile = response?.MobileNo?.MaskString();
+        response.MaskedEmail = response?.EmailId?.MaskString();
+        response.MobileNo = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(emailToEncrypt) : emailToEncrypt;
+        response.EmailId = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(mobilToEncrypt) : mobilToEncrypt;
         return response;
     }
 }

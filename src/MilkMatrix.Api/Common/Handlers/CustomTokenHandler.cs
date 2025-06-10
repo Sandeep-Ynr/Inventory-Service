@@ -10,7 +10,7 @@ namespace MilkMatrix.Api.Common.Handlers
 {
     public class CustomTokenHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private const string ApiKeyHeaderName = "token";
+        private const string ApiKeyHeaderName = "Authorization";
         private const string CustomAuthenticationType = "custom";
         private readonly IAuth authClient;
 
@@ -40,7 +40,7 @@ namespace MilkMatrix.Api.Common.Handlers
 
             var authResponse = await authClient.ValidateAppToken(potentalApiKey!);
 
-            if (authResponse.Message != "")
+            if (!string.IsNullOrEmpty(authResponse.Message))
             {
                 this.Context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return AuthenticateResult.Fail(new Exception(StatusCodeMessage.Unauthorized));
