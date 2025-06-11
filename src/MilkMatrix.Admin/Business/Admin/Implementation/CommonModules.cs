@@ -94,15 +94,10 @@ public class CommonModules : ICommonModules
 
     private async Task<LoggedInUser?> GetUserData(string userId, string mobileNumber, int businessId = 0)
     {
-        var requestParam = new Dictionary<string, object>
-                                    {
-                                        { "Emailid", string.IsNullOrWhiteSpace(userId) ? null : userId.Trim() },
-                                        { "Mobile", string.IsNullOrWhiteSpace(mobileNumber) ? null : mobileNumber.Trim() },
-                                        { "BusinessId", businessId }
-                                    };
+        var requestParam = new Dictionary<string, object> { { "UserId", userId } };
         var repo = repositoryFactory
                        .ConnectDapper<LoggedInUser>(DbConstants.Main);
-        var data = await repo.QueryAsync<LoggedInUser>(AuthSpName.GetUserIdFromEmailId, requestParam, null);
+        var data = await repo.QueryAsync<LoggedInUser>(AuthSpName.LoginUserDetails, requestParam, null);
         var user = new LoggedInUser();
         if (data != null && data.Count() > 0)
         {

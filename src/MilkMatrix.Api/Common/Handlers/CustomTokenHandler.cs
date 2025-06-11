@@ -49,8 +49,8 @@ namespace MilkMatrix.Api.Common.Handlers
             // Create claims
             var claims = new List<Claim>
             {
-            new Claim(ClaimTypes.UserData, authResponse.UserId??string.Empty),
-            new Claim(ClaimTypes.MobilePhone, authResponse.Mobile??string.Empty),
+            new Claim(ClaimTypes.UserData, authResponse.UserId ?? string.Empty),
+            new Claim(ClaimTypes.MobilePhone, authResponse.Mobile ?? string.Empty),
             new Claim(ClaimTypes.NameIdentifier, authResponse.BusinessId.ToString())
             };
             var identity = new ClaimsIdentity(claims, CustomAuthenticationType);

@@ -133,6 +133,11 @@ public class Auth : IAuth
         {
             logger.LogError("ValidateAppToken failed", ex);
         }
+
+        var repoFact = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+        var response = (await repoFact.QueryAsync<int>(AuthSpName.GetUserId, new Dictionary<string, object> { { "Id", Meta.UserId } }, null))?.FirstOrDefault();
+
+        Meta.UserId = response?.ToString();
         return Meta;
     }
 
