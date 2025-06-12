@@ -1,8 +1,10 @@
 using System.Data;
+using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Common;
 using MilkMatrix.Infrastructure.Common.Logger.Interface;
+using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Infrastructure.Contracts.Repositories;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
@@ -15,10 +17,12 @@ public class CommonModules : ICommonModules
 
     private readonly IRepositoryFactory repositoryFactory;
 
-    public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory)
+    private readonly AppConfig appConfig;
+    public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig)
     {
         this.repositoryFactory = repositoryFactory;
         this.logger = logger.ForContext("ServiceName", nameof(CommonModules));
+        this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
     }
     public async Task<CommonUserDetails> GetCommonDetails(string userId, string mobileNumber)
     {
@@ -76,6 +80,11 @@ public class CommonModules : ICommonModules
                 var businessDetails = (await gridReader.ReadAsync<BusinessData>())?.ToList();
                 var roles = (await gridReader.ReadAsync<Roles>())?.ToList();
                 var reportingDetails = (await gridReader.ReadAsync<ReportingDetails>())?.ToList();
+                reportingDetails.ForEach(item =>
+                {
+                    if (!string.IsNullOrEmpty(item.EmailId))
+                        item.EmailId = appConfig.Base64EncryptKey.EncryptString(item.EmailId);
+                });
                 var userTypes = (await gridReader.ReadAsync<CommonProps>())?.ToList();
                 var siteDetails = (await gridReader.ReadAsync<SiteDetails>())?.ToList();
 

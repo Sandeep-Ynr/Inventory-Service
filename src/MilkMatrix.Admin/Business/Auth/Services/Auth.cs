@@ -1,11 +1,11 @@
 using System.Net;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
+using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Domain.Entities.Common;
-using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
@@ -21,15 +21,15 @@ public class Auth : IAuth
 
     private readonly IRepositoryFactory repositoryFactory;
 
-    private readonly IConfiguration configuration;
+    private readonly AppConfig appConfig;
 
     private readonly ILogging logger;
 
-    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IConfiguration configuration, ILogging logging)
+    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, ILogging logging)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
-        this.configuration = configuration ?? throw new ArgumentNullException(nameof(Auth));
+        this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(AppConfig));
         this.logger = logging.ForContext("ServiceName", nameof(Auth));
     }
 
@@ -110,8 +110,8 @@ public class Auth : IAuth
         try
         {
             TokenEntity tokenEntity = new TokenEntity(); string decryptVal = string.Empty;
-            var encrypt_Key = configuration.GetSection("AppConfiguration:Base64EncryptKey").Value;
-            var sysHostmane = configuration.GetSection("AppConfiguration:HostName").Value?.ToLower();
+            var encrypt_Key = appConfig.Base64EncryptKey;
+            var sysHostmane = appConfig.HostName.ToLower();
             decryptVal = encrypt_Key.DecryptString(token.Split('`')[0]);
             var decryptedValues = decryptVal.Split('|');
             tokenEntity.hostName = decryptVal.Split('|')[0];
@@ -208,31 +208,29 @@ public class Auth : IAuth
         return finalResult;
     }
 
-    public async Task<IEnumerable<LoginResponse>> GetUserDetailsAsync(string id, YesOrNo isEncryptionNeeded)
+    public async Task<IEnumerable<UserDetails>> GetUserDetailsAsync(string id)
     {
         try
         {
             var repo = repositoryFactory
-                       .ConnectDapper<LoginResponse>(DbConstants.Main);
-            var data = await repo.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
+                       .ConnectDapper<UserDetails>(DbConstants.Main);
+            var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            return data.Any() ? new List<LoginResponse>() { MaskAndEncryptUserResponse(data.FirstOrDefault()!, isEncryptionNeeded) } : Enumerable.Empty<LoginResponse>();
+            return data.Any() ? new List<UserDetails>() { MaskAndEncryptUserResponse(data.FirstOrDefault()!) } : Enumerable.Empty<UserDetails>();
         }
         catch (Exception ex)
         {
             logger.LogError(Constants.ErrorMessage.GetError.FormatString(nameof(GetUserDetailsAsync)), ex);
-            return Enumerable.Empty<LoginResponse>();
+            return Enumerable.Empty<UserDetails>();
         }
     }
 
-    private LoginResponse MaskAndEncryptUserResponse(LoginResponse response, YesOrNo isEncryptionNeeded)
+    private UserDetails MaskAndEncryptUserResponse(UserDetails response)
     {
-        var emailToEncrypt = response.EmailId!;
-        var mobilToEncrypt = response.MobileNo!;
         response.MaskedMobile = response?.MobileNo?.MaskString();
         response.MaskedEmail = response?.EmailId?.MaskString();
-        response.MobileNo = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(emailToEncrypt) : emailToEncrypt;
-        response.EmailId = isEncryptionNeeded == YesOrNo.Yes ? mobilToEncrypt?.EncryptString(mobilToEncrypt) : mobilToEncrypt;
+        response.MobileNo = !string.IsNullOrEmpty(response.MobileNo) ? appConfig.Base64EncryptKey?.EncryptString(response.MobileNo) : string.Empty;
+        response.EmailId = !string.IsNullOrEmpty(response.EmailId) ? appConfig.Base64EncryptKey?.EncryptString(response.EmailId) : string.Empty;
         return response;
     }
 }

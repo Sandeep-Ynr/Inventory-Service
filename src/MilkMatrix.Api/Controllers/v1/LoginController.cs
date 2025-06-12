@@ -74,11 +74,11 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpGet("logged-in-details")]
-        public async Task<ActionResult> GetUserDetails([FromQuery] YesOrNo e = YesOrNo.Yes)
+        public async Task<ActionResult> GetUserDetails()
         {
             var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var response = await iAuthentication.GetUserDetailsAsync(UserId, e);
+            var response = await iAuthentication.GetUserDetailsAsync(UserId);
 
             return response != null && response.Any()
                 ? Ok(response)

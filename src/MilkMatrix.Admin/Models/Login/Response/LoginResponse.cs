@@ -1,11 +1,13 @@
-using MilkMatrix.Domain.Entities.Responses;
-
 namespace MilkMatrix.Admin.Models.Login.Response;
 
 public class LoginResponse
 {
     public int UserId { get; set; }
     public string? EmailId { get; set; }
+
+    public string? RoleId { get; set; }
+
+    public string? BusinessId { get; set; }
     public string? UserName { get; set; }
     public string? HrmsCode { get; set; }
     public string? MobileNo { get; set; }

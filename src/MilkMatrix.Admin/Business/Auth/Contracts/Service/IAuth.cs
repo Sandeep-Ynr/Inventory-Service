@@ -1,3 +1,4 @@
+using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Domain.Entities.Enums;
@@ -13,5 +14,5 @@ public interface IAuth
     Task<TokenStatusResponse> ValidateRefreshToken(RefreshTokenRequest request);
     Task<TokenStatusResponse> UpdateAccessToken(RefreshTokenRequest request);
 
-    Task<IEnumerable<LoginResponse>> GetUserDetailsAsync(string id, YesOrNo isEncryptionNeeded);
+    Task<IEnumerable<UserDetails>> GetUserDetailsAsync(string id);
 }
