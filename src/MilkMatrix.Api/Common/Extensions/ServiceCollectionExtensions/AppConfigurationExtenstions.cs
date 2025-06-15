@@ -9,7 +9,7 @@ public static class AppConfigurationExtenstions
 {
     public static WebApplication ConfigureApp(this WebApplicationBuilder builder)
     {
-        builder.Host.AddInfra();
+       
         var app = builder.Build();
         var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.

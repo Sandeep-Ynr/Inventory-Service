@@ -1,4 +1,4 @@
-using MilkMatrix.Admin.Models.Admin;
+using MilkMatrix.Admin.Models.Admin.Responses;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Domain.Entities.Enums;

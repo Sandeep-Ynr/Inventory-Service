@@ -12,9 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MilkMatrix.Core\MilkMatrix.Core.csproj" />
     <ProjectReference Include="..\MilkMatrix.DataAccess.Ado\MilkMatrix.DataAccess.Ado.csproj" />
     <ProjectReference Include="..\MilkMatrix.DataAccess.Dapper\MilkMatrix.DataAccess.Dapper.csproj" />
-    <ProjectReference Include="..\MilkMatrix.Domain\MilkMatrix.Domain.csproj" />
     <ProjectReference Include="..\MilkMatrix.Logging\MilkMatrix.Logging.csproj" />
   </ItemGroup>
 

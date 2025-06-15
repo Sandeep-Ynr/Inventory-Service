@@ -2,14 +2,14 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
-using MilkMatrix.Admin.Models.Admin;
+using MilkMatrix.Admin.Models.Admin.Responses;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
+using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Domain.Entities.Common;
 using MilkMatrix.Domain.Entities.Responses;
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Contracts.Repositories;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
 
@@ -23,7 +23,7 @@ public class Auth : IAuth
 
     private readonly AppConfig appConfig;
 
-    private readonly ILogging logger;
+    private ILogging logger;
 
     public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, ILogging logging)
     {
@@ -216,7 +216,7 @@ public class Auth : IAuth
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            return data.Any() ? new List<UserDetails>() { MaskAndEncryptUserResponse(data.FirstOrDefault()!) } : Enumerable.Empty<UserDetails>();
+            return data.Any() ? [MaskAndEncryptUserResponse(data.FirstOrDefault()!)] : Enumerable.Empty<UserDetails>();
         }
         catch (Exception ex)
         {

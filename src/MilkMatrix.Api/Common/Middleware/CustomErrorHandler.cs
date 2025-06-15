@@ -2,25 +2,25 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Domain.Entities.Responses;
 using Serilog;
 using static MilkMatrix.Api.Common.Constants.Constants;
-using ILogger = Serilog.ILogger;
 
 namespace MilkMatrix.Api.Common.Middleware
 {
     public class CustomErrorHandler
     {
         private readonly IDiagnosticContext _diagnosticContext;
-        private readonly ILogger _logger;
+        private ILogging logger;
         private readonly RequestDelegate _next;
         public CustomErrorHandler(
             RequestDelegate next,
-            ILogger logger,
+            ILogging logger,
             IDiagnosticContext diagnosticContext)
         {
             this._next = next;
-            _logger = logger;
+            this.logger = logger;
             _diagnosticContext = diagnosticContext;
         }
 
@@ -48,7 +48,7 @@ namespace MilkMatrix.Api.Common.Middleware
 
         private Task HandleException(HttpContext context, Exception ex)
         {
-            _logger.Error(ex, ErrorMessage.GenericException);
+            logger.LogError(ErrorMessage.GenericException, ex);
 
             const int code = (int)HttpStatusCode.InternalServerError;
             var type = ex.GetType();

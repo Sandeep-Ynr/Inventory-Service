@@ -16,6 +16,11 @@ public static partial class Constants
         public const string GetUserId = "usp_get_user_id";
     }
 
+    public static class UserSpName
+    {
+        public const string UserUpsert = "usp_user_registration_insupd"; //For User Login
+    }
+
     public static class AutoMapper
     {
         public const string HostName = "HostName";

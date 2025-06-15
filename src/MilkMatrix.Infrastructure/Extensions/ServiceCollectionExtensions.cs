@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MilkMatrix.DataAccess.Ado.Contracts;
-using MilkMatrix.DataAccess.Ado.Implementations;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Infrastructure.Common.Logger.Implementation;
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
-using MilkMatrix.Infrastructure.Contracts.Repositories;
 using MilkMatrix.Infrastructure.Factories;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Logging.Config;
@@ -20,15 +20,22 @@ namespace MilkMatrix.Infrastructure.Extensions
             // Register any infrastructure services here  
             // For example, logging, caching, etc.  
             hostBuilder.AddLogging(logFilePath);
+            hostBuilder.ConfigureServices((context, services) =>
+            {
+                // Register the infrastructure services
+                services
+                    .AddConfigs(context.Configuration)
+                    .ConfigureInfraservices(context.Configuration);
+            });
             return hostBuilder;
         }
 
         public static IServiceCollection ConfigureInfraservices(this IServiceCollection services, IConfiguration configuration) =>
             services
-
               .RegisterLoggingDependencies()
-              .AddSingleton<ILogging, LoggingAdapter>()
-              .AddDataAccess();
+              .AddSingleton<ILogging, LoggingAdapter>() // Ensure Serilog's logger is available
+              .AddDataAccess()
+              .AddScoped<IQueryMultipleData, QueryMultipleData>();
 
         public static IServiceCollection AddConfigs(this IServiceCollection services, IConfiguration configuration) =>
             // This method can be used to register configuration settings if needed

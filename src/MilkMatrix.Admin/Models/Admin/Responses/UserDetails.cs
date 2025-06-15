@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin;
+namespace MilkMatrix.Admin.Models.Admin.Responses;
 
 public class UserDetails
 {

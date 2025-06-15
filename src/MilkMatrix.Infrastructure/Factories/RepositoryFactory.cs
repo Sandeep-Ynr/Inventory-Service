@@ -1,38 +1,37 @@
 using Microsoft.Extensions.Configuration;
-using MilkMatrix.DataAccess.Ado.Contracts;
+using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Repository;
+using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.DataAccess.Ado.Implementations;
-using MilkMatrix.DataAccess.Dapper.Contracts;
 using MilkMatrix.DataAccess.Dapper.Implementations;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Contracts.Repositories;
 using MilkMatrix.Infrastructure.Models.Config;
 
 namespace MilkMatrix.Infrastructure.Factories;
 
 public class RepositoryFactory : IRepositoryFactory
 {
+    private readonly ILogging logger;
     private readonly IConfiguration configuration;
-
     private IConfigurationSection configurationSection;
-
     private string encryptKey;
-    public RepositoryFactory(IConfiguration configuration)
+    public RepositoryFactory(IConfiguration configuration, ILogging logger)
     {
         this.configuration = configuration;
         this.configurationSection = configuration.GetSection(DatabaseConfig.SectionName);
         this.encryptKey = configuration.GetSection("AppConfiguration:Base64EncryptKey").Value!;
+        this.logger = logger.ForContext("ServiceName", nameof(RepositoryFactory));
     }
 
-    // Fix for IDE0290: Use primary constructor
-    public IAdoRepository<T> Connect<T>(string connectionStringName) where T : class
+    public IBaseRepository<T> Connect<T>(string connectionStringName) where T : class
     {
         var connectionString = encryptKey.DecryptString(configurationSection.GetValue<string>(connectionStringName)!);
-        return new AdoRepository<T>(connectionString);
+        return new AdoRepository<T>(connectionString, logger);
     }
 
-    public IDapperRepository<T> ConnectDapper<T>(string connectionStringName) where T : class
+    public IBaseRepository<T> ConnectDapper<T>(string connectionStringName) where T : class
     {
         var connectionString = encryptKey.DecryptString(configurationSection.GetValue<string>(connectionStringName)!);
-        return new DapperRepository<T>(connectionString);
+        return new DapperRepository<T>(connectionString, logger);
     }
 }

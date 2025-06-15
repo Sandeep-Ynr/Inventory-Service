@@ -1,6 +1,4 @@
-using MilkMatrix.Logging.Contracts;
-
-namespace MilkMatrix.Infrastructure.Common.Logger.Interface;
+namespace MilkMatrix.Core.Abstractions.Logger;
 
 public interface ILogging
 {

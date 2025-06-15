@@ -3,9 +3,10 @@ using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Common;
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Contracts.Repositories;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
 
@@ -13,16 +14,19 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation;
 
 public class CommonModules : ICommonModules
 {
-    private readonly ILogging logger;
+    private ILogging logger;
 
     private readonly IRepositoryFactory repositoryFactory;
 
+    private readonly IQueryMultipleData queryMultipleData;
+
     private readonly AppConfig appConfig;
-    public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig)
+    public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.repositoryFactory = repositoryFactory;
         this.logger = logger.ForContext("ServiceName", nameof(CommonModules));
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
+        this.queryMultipleData = queryMultipleData;
     }
     public async Task<CommonUserDetails> GetCommonDetails(string userId, string mobileNumber)
     {
@@ -73,30 +77,23 @@ public class CommonModules : ICommonModules
                                             { "UserId", userData.UserId }
                                         };
 
-            var repo = repositoryFactory.ConnectDapper<CommonUserDetails>(DbConstants.Main);
 
-            using (var gridReader = await repo.QueryMultipleAsync<object>(AuthSpName.GetCommonDetails, requestParam, null))
-            {
-                var businessDetails = (await gridReader.ReadAsync<BusinessData>())?.ToList();
-                var roles = (await gridReader.ReadAsync<Roles>())?.ToList();
-                var reportingDetails = (await gridReader.ReadAsync<ReportingDetails>())?.ToList();
-                reportingDetails.ForEach(item =>
+            var (businessDetails, roles, reportingDetails, userTypes, siteDetails) = await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails>(AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
+
+            reportingDetails.ForEach(item =>
                 {
                     if (!string.IsNullOrEmpty(item.EmailId))
                         item.EmailId = appConfig.Base64EncryptKey.EncryptString(item.EmailId);
                 });
-                var userTypes = (await gridReader.ReadAsync<CommonProps>())?.ToList();
-                var siteDetails = (await gridReader.ReadAsync<SiteDetails>())?.ToList();
+            commonList = new CommonUserDetails
+            {
+                BusinessDetails = businessDetails,
+                Roles = roles,
+                ReportingDetails = reportingDetails,
+                UserTypes = userTypes,
+                SiteDetails = siteDetails
+            };
 
-                commonList = new CommonUserDetails
-                {
-                    BusinessDetails = businessDetails,
-                    Roles = roles,
-                    ReportingDetails = reportingDetails,
-                    UserTypes = userTypes,
-                    SiteDetails = siteDetails
-                };
-            }
         }
         return commonList;
     }

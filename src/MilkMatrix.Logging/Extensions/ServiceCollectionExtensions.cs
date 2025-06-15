@@ -21,8 +21,9 @@ public static class ServiceCollectionExtensions
         builder.UseSerilog((context, configuration) =>  
         {
             var config = context.Configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
-            context.Configuration.ConfigureLogger(logFilePath);
+            Log.Logger = context.Configuration.ConfigureLogger(logFilePath);
         });
+
 
         return builder;
     }

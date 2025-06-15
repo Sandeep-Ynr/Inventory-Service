@@ -1,4 +1,4 @@
-using MilkMatrix.Domain.Interfaces.Repositories;
+using MilkMatrix.Core.Abstractions.Repository;
 
 namespace MilkMatrix.DataAccess.Ado.Contracts;
 

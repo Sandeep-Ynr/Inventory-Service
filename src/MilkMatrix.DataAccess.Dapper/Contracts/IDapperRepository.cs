@@ -1,6 +1,6 @@
-using Dapper;
 using System.Data;
-using MilkMatrix.Domain.Interfaces.Repositories;
+using Dapper;
+using MilkMatrix.Core.Abstractions.Repository;
 
 namespace MilkMatrix.DataAccess.Dapper.Contracts;
 

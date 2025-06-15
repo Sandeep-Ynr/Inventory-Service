@@ -1,9 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Microsoft.Extensions.Configuration;
-using MilkMatrix.Domain.Entities.Common;
-using MilkMatrix.Domain.Entities.Responses;
 
 namespace MilkMatrix.Infrastructure.Common.Utils;
 
@@ -122,6 +119,6 @@ public static class CommonUtils
 public static class AutoMapperExtensions
 {
     public static TResult MapWithOptions<TResult, T1>(this IMapper mapper, T1 model, Dictionary<string, object> options) =>
-        mapper.Map<TResult>(model, opt => options.ForEach(x => opt.Items[x.Key] = x.Value));
+        mapper.Map<TResult>(model, opt => options.ForEach(x => opt.Items[x.Key] = x.Value))!;
 }
 

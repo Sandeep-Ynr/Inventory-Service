@@ -3,16 +3,14 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Api.Common.Utils;
 using MilkMatrix.Api.Models.Request.Login;
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Domain.Entities.Responses;
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
 

@@ -21,6 +21,7 @@ public static partial class Constants
         public const string Error = "Some error occurred during creation please connect with administrator!!";
         public const string Exception = "Some error occurred in {0} method exception {1} :: stacktrace {2}";
         public const string MissingParameter = "Any of following required parameters not passed {0}";
+        public const string InvalidRequest = "Invalid request";
         public const string GetError = "An error occurred in a GET for {0}";
     }
 }

@@ -1,14 +1,14 @@
 using System.Data;
 
-namespace MilkMatrix.Domain.Interfaces.Repositories;
+namespace MilkMatrix.Core.Abstractions.Repository;
 
 public interface IBaseRepository<T> where T : class
 {
     Task<IEnumerable<T>> GetAllAsync();
-    Task<T?> GetByIdAsync(int id);
-    Task AddAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(int id);
+    Task<T?> GetByIdAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure);
+    Task<string> AddAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure);
+    Task<string> UpdateAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure);
+    Task<string> DeleteAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure);
 
     /// <summary>
     /// Use this method when we need set of records or need to get data

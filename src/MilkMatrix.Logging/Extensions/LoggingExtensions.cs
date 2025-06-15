@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Enrichers.Sensitive;
 using Serilog.Formatting.Json;
+using Serilog.Exceptions;
 
 namespace MilkMatrix.Logging.Extensions;
 
@@ -11,13 +12,22 @@ public static class LoggingExtensions
     public static ILogger ConfigureLogger(this IConfiguration configuration, string filePath = "")
     {
         var loggerConfig = configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
-        var logBasePath = string.IsNullOrEmpty(filePath)
-            ? loggerConfig?.DefaultLogPath ?? "logs"
-            : filePath;
+        //var logBasePath = string.IsNullOrEmpty(filePath)
+        //    ? loggerConfig?.DefaultLogPath ?? "logs"
+        //    : filePath;
+
+        var logBasePath = @"D:\Temp\logs";
+        ;
 
         var logger = new LoggerConfiguration()
-            .Enrich.FromLogContext()
+            .ReadFrom
+            .Configuration(configuration)
             .ConfigureLogMasking(configuration)
+             .Enrich.FromLogContext()
+    .Enrich.WithMachineName()
+    .Enrich.WithProcessId()
+            .Enrich.WithProcessName()
+    .Enrich.WithExceptionDetails()
             .WriteTo.Map(
                 keyPropertyName: "ServiceName",
                 defaultKey: "General",
@@ -29,6 +39,19 @@ public static class LoggingExtensions
                 )
             )
             .CreateLogger();
+
+        //var loggerConfig = configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
+        //return new LoggerConfiguration()
+        //    .ReadFrom
+        //    .Configuration(configuration)
+        //    .ConfigureLogMasking(configuration)
+        //        .WriteTo
+        //        .File(
+        //    new JsonFormatter(renderMessage: true),
+        //    string.IsNullOrEmpty(filePath) ? loggerConfig!.DefaultLogPath : filePath,
+        //    rollingInterval: RollingInterval.Day,
+        //    rollOnFileSizeLimit: true)
+        //        .CreateLogger();
         return logger;
     }
 

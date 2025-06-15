@@ -1,4 +1,4 @@
-using MilkMatrix.Infrastructure.Common.Logger.Interface;
+using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Logging.Contracts;
 
 namespace MilkMatrix.Infrastructure.Common.Logger.Implementation;
