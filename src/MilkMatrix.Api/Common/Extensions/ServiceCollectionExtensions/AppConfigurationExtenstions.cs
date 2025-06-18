@@ -1,9 +1,9 @@
 namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
 
 using Asp.Versioning.ApiExplorer;
-using MilkMatrix.Api.Common.Helpers;
-using MilkMatrix.Infrastructure.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
+using MilkMatrix.Api.Common.Helpers;
+using static MilkMatrix.Api.Common.Constants.Constants;
 
 public static class AppConfigurationExtenstions
 {
@@ -32,9 +32,10 @@ public static class AppConfigurationExtenstions
             .AddCustomErrorMiddleware()
             .UseHttpsRedirection()
             .UseRouting()
+            .UseCors(AppConstants.AllowAllOrigin)
             .UseAuthentication()
             .UseAuthorization()
-            .UseCors("AllowAllOrigins")
+ 
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
