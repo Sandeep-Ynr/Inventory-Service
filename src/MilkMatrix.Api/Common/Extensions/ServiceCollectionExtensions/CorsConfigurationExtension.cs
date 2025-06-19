@@ -1,44 +1,34 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using static MilkMatrix.Api.Common.Constants.Constants;
-
-namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
 
 public static class CorsConfigurationExtension
 {
-    public static IServiceCollection AddCors(this IServiceCollection services, string environmentName)
+    public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration)
     {
+        // Read the comma-separated origins from configuration
+        var origins = configuration.GetSection("AppConfiguration:HostName").Value?
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
         services.AddCors(options =>
         {
-            switch (environmentName)
+            options.AddPolicy(AppConstants.AllowCredentials, builder =>
             {
-                case AppConstants.DevEnvironment:
-                case AppConstants.SandboxEnvironment:
-                    {
-                        options.AddDefaultPolicy(builder =>
-                        {
-                            builder.SetIsOriginAllowed(origin => new Uri(origin).Host == AppConstants.Localhost);
-                            builder.AllowAnyMethod();
-                            builder.AllowAnyHeader();
-                            builder.AllowCredentials();
-                        });
-                        break;
-                    }
+                builder.WithOrigins(origins ?? Array.Empty<string>())
+                       .AllowCredentials()
+                       .AllowAnyHeader()
+                       .AllowAnyMethod();
+            });
 
-            }
-
-            options.AddPolicy(AppConstants.AllowAllOrigin,
-                builder =>
-                {
-                    builder.AllowAnyOrigin();
-                    builder.AllowAnyMethod();
-                    builder.AllowAnyHeader();
-                });
-
-            options.AddPolicy(AppConstants.AllowCredentials,
-                builder =>
-                {
-                    builder.AllowCredentials();
-                });
+            options.AddPolicy(AppConstants.AllowAllOrigin, policy =>
+            {
+                policy.WithOrigins(origins ?? Array.Empty<string>())
+                      .AllowCredentials()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
         });
+
         return services;
     }
 }

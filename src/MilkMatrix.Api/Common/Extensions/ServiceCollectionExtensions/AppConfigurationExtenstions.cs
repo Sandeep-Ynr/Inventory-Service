@@ -7,12 +7,13 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 public static class AppConfigurationExtenstions
 {
+    public const string AllowAllOrigin = "AllowAllOrigins";
+
     public static WebApplication ConfigureApp(this WebApplicationBuilder builder)
     {
        
         var app = builder.Build();
         var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         _ = app.Environment.IsDevelopment()
       ? app.UseDeveloperExceptionPage()
       : app.UseHsts();
