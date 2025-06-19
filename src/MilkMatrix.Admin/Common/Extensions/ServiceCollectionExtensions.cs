@@ -15,7 +15,10 @@ public static class ServiceCollectionExtensions
         // Register your services here
         // Example:
         services.AddScoped<IAuth, Auth>()
-            .AddScoped<IUserService, UserService>();
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IRoleService, RoleService>()
+            .AddScoped<IPageService, PageService>()
+            .AddScoped<IRolePageService, RolePageService>();
         services.AddScoped<ICommonModules, CommonModules>();
         services.AddScoped<ITokenProcess, TokenProcess>();
 

@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests;
+namespace MilkMatrix.Admin.Models.Admin.Requests.User;
 
 public class UserUpdateRequest
 {

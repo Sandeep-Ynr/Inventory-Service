@@ -18,7 +18,25 @@ public static partial class Constants
 
     public static class UserSpName
     {
-        public const string UserUpsert = "usp_user_registration_insupd"; //For User Login
+        public const string UserUpsert = "usp_user_registration_insupd"; //For User Insert/Update
+    }
+
+    public static class RoleSpName
+    {
+        public const string RoleUpsert = "usp_role_manager_insupd"; //For Role insert/update
+        public const string GetRoles = "usp_role_manager"; //For getting roles
+    }
+
+    public static class PageSpName
+    {
+        public const string PageUpsert = "usp_page_manager_insupd"; //For page insert/update
+        public const string GetPages = "usp_page_manager"; //For getting pages
+    }
+
+    public static class RolePageSpName
+    {
+        public const string RolePageUpsert = "usp_page_role_permission_manager_ins"; //For rolepage insert/update
+        public const string GetRolePages = "usp_page_role_permission_manager"; //For getting rolepages
     }
 
     public static class AutoMapper

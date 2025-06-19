@@ -2,7 +2,7 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
-using MilkMatrix.Admin.Models.Admin.Responses;
+using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Core.Abstractions.Logger;

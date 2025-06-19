@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MilkMatrix.Admin\MilkMatrix.Admin.csproj" />
-    <ProjectReference Include="..\MilkMatrix.Infrastructure\MilkMatrix.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

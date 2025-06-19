@@ -1,4 +1,4 @@
-using MilkMatrix.Admin.Models.Admin.Responses;
+using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Infrastructure.Common.Utils;
 
 namespace MilkMatrix.Admin.Common.Extensions;

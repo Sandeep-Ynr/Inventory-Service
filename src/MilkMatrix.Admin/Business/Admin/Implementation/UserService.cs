@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Common.Extensions;
-using MilkMatrix.Admin.Models.Admin.Requests;
-using MilkMatrix.Admin.Models.Admin.Responses;
+using MilkMatrix.Admin.Models.Admin.Requests.User;
+using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Domain.Entities.Enums;
@@ -131,5 +131,10 @@ public class UserService : IUserService
             logger.LogError($"Error in UpdateAsync for user: {request.Username}", ex);
             throw;
         }
+    }
+
+    public Task<IEnumerable<UserDetails>> GetAllAsync(Dictionary<string, object> filters)
+    {
+        throw new NotImplementedException();
     }
 }

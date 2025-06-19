@@ -1,11 +1,12 @@
 namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
-using DetaServices.Models.Automapper;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http.Features;
 using MilkMatrix.Admin.Common.Extensions;
 using MilkMatrix.Api.Common.Filters;
 using MilkMatrix.Api.Common.Handlers;
 using MilkMatrix.Api.Common.Helpers;
+using MilkMatrix.Api.Models.AutomapperProfiles;
 
 internal static class AppServicesConfigurationExtenstion
 {
@@ -16,8 +17,9 @@ internal static class AppServicesConfigurationExtenstion
         services
             .AddAutoMapper(o =>
              {
-             o.AddProfile<AutomapperProfile>();
-           })
+                 o.AddProfile<AdminProfile>();
+                 o.AddProfile<RolePagesPermissionsProfile>();
+             })
             .AddConfiguration(hostContext.Configuration)
             .AddAdminServices()
             .ConfigureApiVersioning()

@@ -1,4 +1,4 @@
-namespace MilkMatrix.Api.Models.Request.Admin
+namespace MilkMatrix.Api.Models.Request.Admin.User
 {
     public class UserUpsertModel
     {
