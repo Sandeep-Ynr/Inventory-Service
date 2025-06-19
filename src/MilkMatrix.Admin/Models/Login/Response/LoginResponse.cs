@@ -20,6 +20,7 @@ public class LoginResponse
     public string? ImageUrl { get; set; }
 
     public string? BusinessId { get; set; }
+    public string? IsMFA { get; set; }
 
     public int Loginid { get; set; }
     public int FinancialYearId { get; set; }

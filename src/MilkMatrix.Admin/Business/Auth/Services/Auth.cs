@@ -78,6 +78,7 @@ public class Auth : IAuth
                 {
                     AccessToken = lResponse.SecKey!,
                     ExpiresIn = lResponse.SecKeyExpiryOn,
+                    IsMFA=lResponse.IsMFA,
                     RefreshToken = lResponse.RefreshToken!
                 };
                 logger.LogInfo("login successful");

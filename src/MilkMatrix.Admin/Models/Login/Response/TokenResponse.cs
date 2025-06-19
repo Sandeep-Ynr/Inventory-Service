@@ -11,7 +11,8 @@ namespace MilkMatrix.Admin.Models.Login.Response
         /// <summary>
         /// Access token
         /// </summary>
-        public string AccessToken { get; set; }
+        public string? AccessToken { get; set; }
+        public string? IsMFA { get; set; }
         /// <summary>
         /// Expiration time in seconds
         /// </summary>
@@ -19,6 +20,6 @@ namespace MilkMatrix.Admin.Models.Login.Response
         /// <summary>
         /// Refresh token
         /// </summary>
-        public string RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }
