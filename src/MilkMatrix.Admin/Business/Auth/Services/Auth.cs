@@ -229,8 +229,8 @@ public class Auth : IAuth
     {
         response.MaskedMobile = response?.MobileNo?.MaskString();
         response.MaskedEmail = response?.EmailId?.MaskString();
-        response.MobileNo = !string.IsNullOrEmpty(response.MobileNo) ? appConfig.Base64EncryptKey?.EncryptString(response.MobileNo) : string.Empty;
-        response.EmailId = !string.IsNullOrEmpty(response.EmailId) ? appConfig.Base64EncryptKey?.EncryptString(response.EmailId) : string.Empty;
+        //response.MobileNo = !string.IsNullOrEmpty(response.MobileNo) ? appConfig.Base64EncryptKey?.EncryptString(response.MobileNo) : string.Empty;
+        //response.EmailId = !string.IsNullOrEmpty(response.EmailId) ? appConfig.Base64EncryptKey?.EncryptString(response.EmailId) : string.Empty;
         return response;
     }
 }
