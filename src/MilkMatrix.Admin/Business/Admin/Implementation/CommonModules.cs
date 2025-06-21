@@ -82,11 +82,6 @@ public class CommonModules : ICommonModules
 
             var (businessDetails, roles, reportingDetails, userTypes, siteDetails) = await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails>(AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
 
-            reportingDetails.ForEach(item =>
-                {
-                    if (!string.IsNullOrEmpty(item.EmailId))
-                        item.EmailId = appConfig.Base64EncryptKey.EncryptString(item.EmailId);
-                });
             commonList = new CommonUserDetails
             {
                 BusinessDetails = businessDetails,

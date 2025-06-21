@@ -9,7 +9,9 @@ using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.User;
+using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -119,5 +121,12 @@ public class UserController : ControllerBase
             logger.LogError($"Error retrieving user with id: {id}", ex);
             return StatusCode(500, "An error occurred while retrieving the user.");
         }
+    }
+
+    [HttpPost("list")]
+    public async Task<IActionResult> List([FromBody] ListsRequest request)
+    {
+        var result = await userService.GetAllAsync(request);
+        return Ok(result);
     }
 }

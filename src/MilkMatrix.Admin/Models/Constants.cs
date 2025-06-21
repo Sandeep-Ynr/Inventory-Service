@@ -19,6 +19,7 @@ public static partial class Constants
     public static class UserSpName
     {
         public const string UserUpsert = "usp_user_registration_insupd"; //For User Insert/Update
+        public const string GetUsers = "usp_get_users"; //For getting users
     }
 
     public static class RoleSpName

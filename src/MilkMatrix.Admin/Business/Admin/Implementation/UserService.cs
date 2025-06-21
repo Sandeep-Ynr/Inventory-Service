@@ -1,10 +1,16 @@
+using System.Data;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Common.Extensions;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
@@ -15,12 +21,15 @@ public class UserService : IUserService
 
     private readonly IRepositoryFactory repositoryFactory;
 
+    private readonly IQueryMultipleData queryMultipleData;
+
     private readonly AppConfig appConfig;
-    public UserService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig)
+    public UserService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.logger = logger.ForContext("ServiceName", nameof(UserService));
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
+        this.queryMultipleData = queryMultipleData;
     }
 
     public async Task AddAsync(UserInsertRequest request)
@@ -133,8 +142,32 @@ public class UserService : IUserService
         }
     }
 
-    public Task<IEnumerable<UserDetails>> GetAllAsync(Dictionary<string, object> filters)
+    public async Task<IListsResponse<UserDetails>> GetAllAsync(IListsRequest request)
     {
-        throw new NotImplementedException();
+        var parameters = new Dictionary<string, object>() {
+            { "Limit", request.Limit },
+            { "Offset", request.Offset },
+            { "SearchString", JsonSerializer.Serialize(request.Search ?? new Dictionary<string, object>()) },
+            { "SortString", JsonSerializer.Serialize(request.Sort ?? new Dictionary<string, object>()) } };
+
+        var repo = repositoryFactory.ConnectDapper<UserDetails>(DbConstants.Main);
+
+        var (userDetails, count, filters) = await queryMultipleData.GetMultiDetailsAsync<UserDetails, int, FiltersMeta>(UserSpName.GetUsers, DbConstants.Main, parameters, null);
+
+
+        var filtersResponse = filters
+            .Select(f =>
+            {
+                if (f.ValuesAllowed != null && f.ValuesAllowed.Count() == 1 && f.ValuesAllowed.FirstOrDefault()?.Contains(",") == true)
+                    f.ValuesAllowed = f.ValuesAllowed.FirstOrDefault()?.Split(',').Select(x => x.Trim()).ToList();
+                return f;
+            }).ToList();
+
+        return new ListsResponse<UserDetails>
+        {
+            Count = count.FirstOrDefault(),
+            Results = userDetails,
+            Filters = filters
+        };
     }
 }
