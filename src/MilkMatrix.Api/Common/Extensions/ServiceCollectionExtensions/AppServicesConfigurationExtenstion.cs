@@ -7,6 +7,7 @@ using MilkMatrix.Api.Common.Filters;
 using MilkMatrix.Api.Common.Handlers;
 using MilkMatrix.Api.Common.Helpers;
 using MilkMatrix.Api.Models.AutomapperProfiles;
+using MilkMatrix.Milk.Common.Extensions;
 
 internal static class AppServicesConfigurationExtenstion
 {
@@ -20,6 +21,7 @@ internal static class AppServicesConfigurationExtenstion
                  o.AddProfile<AdminProfile>();
                  o.AddProfile<RolePagesPermissionsProfile>();
              })
+            .AddMilkServicesDependencies(hostContext.Configuration)
             .AddConfiguration(hostContext.Configuration)
             .AddAdminServices()
             .ConfigureApiVersioning()
