@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Page;
+using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.Page;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -100,7 +101,7 @@ public class PageController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDetails?>> GetById(int id)
+    public async Task<ActionResult<Pages?>> GetById(int id)
     {
         try
         {

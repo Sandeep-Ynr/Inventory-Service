@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Role;
+using MilkMatrix.Admin.Models.Admin.Responses.Role;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.Role;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -100,7 +101,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDetails?>> GetById(int id)
+    public async Task<ActionResult<Roles?>> GetById(int id)
     {
         try
         {
