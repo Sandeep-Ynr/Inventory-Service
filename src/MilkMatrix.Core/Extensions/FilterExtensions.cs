@@ -14,7 +14,7 @@ Dictionary<string, object>? search)
 
         foreach (var meta in filterMetas)
         {
-            if (search.TryGetValue(meta.Key, out var value) && value != null)
+            if (search.TryGetValue(meta.Key.ToLower(), out var value) && value != null)
             {
                 // Restrict to allowed values if specified
                 if (meta.ValuesAllowed != null && meta.ValuesAllowed.Any())

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 
@@ -11,12 +12,45 @@ public static class PagingExtensions
         if (filters == null) return query;
         foreach (var filter in filters)
         {
-            var param = Expression.Parameter(typeof(T), "x");
-            var member = filter.Property.Split('.').Aggregate((Expression)param, Expression.PropertyOrField);
-
             Expression? body = null;
-            var constant = Expression.Constant(Convert.ChangeType(filter.Value, member.Type));
+            var param = Expression.Parameter(typeof(T), "x");
+            var member = filter.Property.Split('.')
+                .Aggregate((Expression)param, Expression.PropertyOrField);
 
+            var targetType = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
+
+            object? convertedValue = null;
+
+            if (filter.Value is JsonElement jsonElement)
+            {
+                if (jsonElement.ValueKind == JsonValueKind.Number)
+                {
+                    // Example: try parsing as double or int depending on your needs
+                    if (targetType == typeof(int))
+                        convertedValue = jsonElement.GetInt32();
+                    else if (targetType == typeof(double))
+                        convertedValue = jsonElement.GetDouble();
+                    else if (targetType == typeof(long))
+                        convertedValue = jsonElement.GetInt64();
+                    else
+                        throw new InvalidOperationException($"Unsupported numeric type: {targetType}");
+                }
+                else if (jsonElement.ValueKind == JsonValueKind.String)
+                {
+                    var strVal = jsonElement.GetString()?.ToLower();
+                    convertedValue = Convert.ChangeType(strVal, targetType);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unsupported ValueKind: {jsonElement.ValueKind}");
+                }
+            }
+            else
+            {
+                convertedValue = Convert.ChangeType(filter.Value, targetType);
+            }
+
+            var constant = Expression.Constant(convertedValue, member.Type);
             switch (filter.Operator.ToLowerInvariant())
             {
                 case "eq": body = Expression.Equal(member, constant); break;

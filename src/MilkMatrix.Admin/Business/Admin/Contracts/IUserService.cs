@@ -12,5 +12,5 @@ public interface IUserService
     Task UpdateAsync(UserUpdateRequest request);
     Task DeleteAsync(int id, int userId);
 
-    Task<IListsResponse<UserDetails>> GetAllAsync(IListsRequest request);
+    Task<IListsResponse<Users>> GetAllAsync(IListsRequest request, int userId);
 }

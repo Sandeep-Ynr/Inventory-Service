@@ -126,7 +126,8 @@ public class UserController : ControllerBase
     [HttpPost("list")]
     public async Task<IActionResult> List([FromBody] ListsRequest request)
     {
-        var result = await userService.GetAllAsync(request);
+        var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        var result = await userService.GetAllAsync(request,Convert.ToInt32(UserId));
         return Ok(result);
     }
 }

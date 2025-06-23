@@ -144,17 +144,15 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IListsResponse<UserDetails>> GetAllAsync(IListsRequest request)
+    public async Task<IListsResponse<Users>> GetAllAsync(IListsRequest request, int userId)
     {
+        var user = await GetByIdAsync(userId);
         var parameters = new Dictionary<string, object>() {
-            { "Limit", request.Limit },
-            { "Offset", request.Offset },
-            { "SearchString", JsonSerializer.Serialize(request.Search ?? new Dictionary<string, object>()) },
-            { "SortString", JsonSerializer.Serialize(request.Sort ?? new Dictionary<string, object>()) } };
+            { "BusinessId", user.UserType == 0 ? default : user.BusinessId } };
 
         // 1. Fetch all results, count, and filter meta from stored procedure
         var (allResults, countResult, filterMetas) = await queryMultipleData
-            .GetMultiDetailsAsync<UserDetails, int, FiltersMeta>(
+            .GetMultiDetailsAsync<Users, int, FiltersMeta>(
                 UserSpName.GetUsers,
                 DbConstants.Main,
                 parameters,
@@ -174,7 +172,7 @@ public class UserService : IUserService
         var filteredCount = filtered.Count();
 
         // 5. Return result
-        return new ListsResponse<UserDetails>
+        return new ListsResponse<Users>
         {
             Count = filteredCount,
             Results = paged.ToList(),
