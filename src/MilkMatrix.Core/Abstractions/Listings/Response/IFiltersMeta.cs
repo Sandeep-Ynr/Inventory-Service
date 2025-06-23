@@ -6,4 +6,8 @@ public interface IFiltersMeta
     string Type { get; set; }
     string Label { get; set; }
     IEnumerable<string>? ValuesAllowed { get; set; }
+
+    string? Operator { get; set; }
+    object? DefaultValue { get; set; }
+
 }

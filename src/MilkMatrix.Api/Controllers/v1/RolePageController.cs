@@ -10,6 +10,7 @@ using MilkMatrix.Admin.Models.Admin.Requests.RolePage;
 using MilkMatrix.Admin.Models.Admin.Responses.RolePage;
 using MilkMatrix.Api.Models.Request.Admin.RolePage;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -118,7 +119,7 @@ public class RolePageController : ControllerBase
     }
 
     [HttpGet("{roleId}/{businessId}")]
-    public async Task<ActionResult<RolePages?>> GetById(int roleId, int businessId)
+    public async Task<ActionResult> GetById(int roleId, int businessId)
     {
         try
         {
@@ -137,5 +138,12 @@ public class RolePageController : ControllerBase
             logger.LogError($"Error retrieving RolePage with id: {roleId}", ex);
             return StatusCode(500, "An error occurred while retrieving the RolePage.");
         }
+    }
+
+    [HttpPost("list")]
+    public async Task<IActionResult> List([FromBody] ListsRequest request)
+    {
+        var result = await rolePageService.GetAllAsync(request);
+        return Ok(result);
     }
 }

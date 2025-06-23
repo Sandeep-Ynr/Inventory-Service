@@ -5,12 +5,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Role;
 using MilkMatrix.Admin.Models.Admin.Responses.Role;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.Role;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -101,7 +103,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Roles?>> GetById(int id)
+    public async Task<ActionResult> GetById(int id)
     {
         try
         {
@@ -120,5 +122,12 @@ public class RoleController : ControllerBase
             logger.LogError($"Error retrieving role with id: {id}", ex);
             return StatusCode(500, "An error occurred while retrieving the role.");
         }
+    }
+
+    [HttpPost("list")]
+    public async Task<IActionResult> List([FromBody] ListsRequest request)
+    {
+        var result = await roleService.GetAllAsync(request);
+        return Ok(result);
     }
 }

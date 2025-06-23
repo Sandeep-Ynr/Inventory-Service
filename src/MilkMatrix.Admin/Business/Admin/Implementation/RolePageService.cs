@@ -1,12 +1,16 @@
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Models.Admin.Requests.Page;
 using MilkMatrix.Admin.Models.Admin.Requests.RolePage;
 using MilkMatrix.Admin.Models.Admin.Responses.Page;
-using MilkMatrix.Admin.Models.Admin.Responses.Role;
 using MilkMatrix.Admin.Models.Admin.Responses.RolePage;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Filters;
+using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
 using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
@@ -19,12 +23,15 @@ public class RolePageService : IRolePageService
 
     private readonly IRepositoryFactory repositoryFactory;
 
+    private readonly IQueryMultipleData queryMultipleData;
+
     private readonly AppConfig appConfig;
-    public RolePageService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig)
+    public RolePageService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.logger = logger.ForContext("ServiceName", nameof(RolePageService));
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
+        this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
     }
 
     public async Task AddAsync(RolePageInsertRequest request)
@@ -124,5 +131,36 @@ public class RolePageService : IRolePageService
             logger.LogError($"Error in UpdateAsync for role page: {request.RoleId} , {request.PageId}", ex);
             throw;
         }
+    }
+
+    public async Task<IListsResponse<RolePages>> GetAllAsync(IListsRequest request)
+    {
+        // 1. Fetch all results, count, and filter meta from stored procedure
+        var (allResults, countResult, filterMetas) = await queryMultipleData
+            .GetMultiDetailsAsync<RolePages, int, FiltersMeta>(RolePageSpName.GetRolePages,
+            DbConstants.Main,
+            new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
+            null);
+
+        // 2. Build criteria from client request and filter meta
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+        var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+        var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+        // 3. Apply filtering, sorting, and paging
+        var filtered = allResults.AsQueryable().ApplyFilters(filters);
+        var sorted = filtered.ApplySorting(sorts);
+        var paged = sorted.ApplyPaging(paging);
+
+        // 4. Get count after filtering (before paging)
+        var filteredCount = filtered.Count();
+
+        // 5. Return result
+        return new ListsResponse<RolePages>
+        {
+            Count = filteredCount,
+            Results = paged.ToList(),
+            Filters = filterMetas
+        };
     }
 }

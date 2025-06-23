@@ -10,7 +10,9 @@ using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
 using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Infrastructure.Models.Config;
 using static MilkMatrix.Admin.Models.Constants;
@@ -150,24 +152,33 @@ public class UserService : IUserService
             { "SearchString", JsonSerializer.Serialize(request.Search ?? new Dictionary<string, object>()) },
             { "SortString", JsonSerializer.Serialize(request.Sort ?? new Dictionary<string, object>()) } };
 
-        var repo = repositoryFactory.ConnectDapper<UserDetails>(DbConstants.Main);
+        // 1. Fetch all results, count, and filter meta from stored procedure
+        var (allResults, countResult, filterMetas) = await queryMultipleData
+            .GetMultiDetailsAsync<UserDetails, int, FiltersMeta>(
+                UserSpName.GetUsers,
+                DbConstants.Main,
+                parameters,
+                null);
 
-        var (userDetails, count, filters) = await queryMultipleData.GetMultiDetailsAsync<UserDetails, int, FiltersMeta>(UserSpName.GetUsers, DbConstants.Main, parameters, null);
+        // 2. Build criteria from client request and filter meta
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+        var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+        var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
+        // 3. Apply filtering, sorting, and paging
+        var filtered = allResults.AsQueryable().ApplyFilters(filters);
+        var sorted = filtered.ApplySorting(sorts);
+        var paged = sorted.ApplyPaging(paging);
 
-        var filtersResponse = filters
-            .Select(f =>
-            {
-                if (f.ValuesAllowed != null && f.ValuesAllowed.Count() == 1 && f.ValuesAllowed.FirstOrDefault()?.Contains(",") == true)
-                    f.ValuesAllowed = f.ValuesAllowed.FirstOrDefault()?.Split(',').Select(x => x.Trim()).ToList();
-                return f;
-            }).ToList();
+        // 4. Get count after filtering (before paging)
+        var filteredCount = filtered.Count();
 
+        // 5. Return result
         return new ListsResponse<UserDetails>
         {
-            Count = count.FirstOrDefault(),
-            Results = userDetails,
-            Filters = filters
+            Count = filteredCount,
+            Results = paged.ToList(),
+            Filters = filterMetas
         };
     }
 }

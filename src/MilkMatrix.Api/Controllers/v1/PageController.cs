@@ -11,6 +11,7 @@ using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.Page;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -120,5 +121,12 @@ public class PageController : ControllerBase
             logger.LogError($"Error retrieving page with id: {id}", ex);
             return StatusCode(500, "An error occurred while retrieving the page.");
         }
+    }
+
+    [HttpPost("list")]
+    public async Task<IActionResult> List([FromBody] ListsRequest request)
+    {
+        var result = await pageService.GetAllAsync(request);
+        return Ok(result);
     }
 }
