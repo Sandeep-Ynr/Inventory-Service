@@ -1,6 +1,6 @@
 using MilkMatrix.Admin.Models.Admin.Responses.Page;
 
-namespace MilkMatrix.Admin.Models.Admin;
+namespace MilkMatrix.Admin.Models.Admin.Responses.Modules;
 
 public class ModuleResponse
 {

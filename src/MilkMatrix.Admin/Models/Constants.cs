@@ -40,6 +40,18 @@ public static partial class Constants
         public const string GetRolePages = "usp_page_role_permission_manager"; //For getting rolepages
     }
 
+    public static class ModuleSpName
+    {
+        public const string ModuleUpsert = "usp_module_manager_insupd"; //For Role insert/update
+        public const string GetModules = "usp_module_manager"; //For getting roles
+    }
+
+    public static class SubModuleSpName
+    {
+        public const string SubModuleUpsert = "usp_sub_module_manager_insupd"; //For Role insert/update
+        public const string GetSubModules = "usp_sub_module_manager"; //For getting roles
+    }
+
     public static class AutoMapper
     {
         public const string HostName = "HostName";

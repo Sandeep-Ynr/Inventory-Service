@@ -1,5 +1,5 @@
-using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Common;
+using MilkMatrix.Admin.Models.Admin.Responses.Modules;
 
 namespace MilkMatrix.Admin.Business.Admin.Contracts;
 

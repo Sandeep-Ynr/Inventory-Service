@@ -9,7 +9,6 @@ using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.User;
-using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Domain.Entities.Responses;

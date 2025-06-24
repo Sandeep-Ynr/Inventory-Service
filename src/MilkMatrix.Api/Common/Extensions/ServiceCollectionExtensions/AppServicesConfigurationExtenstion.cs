@@ -11,42 +11,43 @@ using MilkMatrix.Milk.Common.Extensions;
 
 internal static class AppServicesConfigurationExtenstion
 {
-  public static IWebHostBuilder ConfigureServices(this WebApplicationBuilder builder) =>
-  builder.ConfigureAppConfigurations()
-      .ConfigureServices((hostContext, services) =>
-      {
-        services
-            .AddAutoMapper(o =>
-             {
-                 o.AddProfile<AdminProfile>();
-                 o.AddProfile<RolePagesPermissionsProfile>();
-             })
-            .AddMilkServicesDependencies(hostContext.Configuration)
-            .AddConfiguration(hostContext.Configuration)
-            .AddAdminServices()
-            .ConfigureApiVersioning()
-            .AddEndpointsApiExplorer()
-            .ConfigureMvc()
-            .AddCors(options =>
-            {
-            options.AddPolicy(hostContext.HostingEnvironment.EnvironmentName, builder =>
-                {
-                builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-              });
-          })
-            .AddCustomCors(hostContext.Configuration)
-            .AddCache()
-            .AddSwagger(hostContext.Configuration)
-            .AddHttpClient()
-            .AddHttpContextAccessor()
-            .Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 268435456; });
-        // Add the healthChecks
-        services.AddHealthChecks();
+    public static IWebHostBuilder ConfigureServices(this WebApplicationBuilder builder) =>
+    builder.ConfigureAppConfigurations()
+        .ConfigureServices((hostContext, services) =>
+        {
+            services
+              .AddAutoMapper(o =>
+               {
+                   o.AddProfile<AdminProfile>();
+                   o.AddProfile<RolePagesPermissionsProfile>();
+                   o.AddProfile<ModuleSubModuleMapping>();
+               })
+              .AddMilkServicesDependencies(hostContext.Configuration)
+              .AddConfiguration(hostContext.Configuration)
+              .AddAdminServices()
+              .ConfigureApiVersioning()
+              .AddEndpointsApiExplorer()
+              .ConfigureMvc()
+              .AddCors(options =>
+              {
+                  options.AddPolicy(hostContext.HostingEnvironment.EnvironmentName, builder =>
+                    {
+                      builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                  });
+              })
+              .AddCustomCors(hostContext.Configuration)
+              .AddCache()
+              .AddSwagger(hostContext.Configuration)
+              .AddHttpClient()
+              .AddHttpContextAccessor()
+              .Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 268435456; });
+            // Add the healthChecks
+            services.AddHealthChecks();
 
-        services.AddAuthentication("custom").AddScheme<AuthenticationSchemeOptions, CustomTokenHandler>("custom", opt => { });
-        // custom action filter
-        services.AddScoped<ModelValidationAttribute>();
-      });
+            services.AddAuthentication("custom").AddScheme<AuthenticationSchemeOptions, CustomTokenHandler>("custom", opt => { });
+            // custom action filter
+            services.AddScoped<ModelValidationAttribute>();
+        });
 }

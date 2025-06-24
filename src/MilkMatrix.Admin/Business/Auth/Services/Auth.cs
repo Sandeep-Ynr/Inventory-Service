@@ -37,11 +37,9 @@ public class Auth : IAuth
     {
         LoginMasterResponse finalResult = new();
         LoginResponse lResponse = new();
-        bool isAppLogin = false;
         try
         {
             login.TokenEntity = tokenProcess.GenerateToken(login.HostName, login.UserId, login.Mobile, login.BusinessId);
-            string firebase_token = string.Empty;
             int loginId = 0;
             if (!login.IsLoginWithOtp)
             {

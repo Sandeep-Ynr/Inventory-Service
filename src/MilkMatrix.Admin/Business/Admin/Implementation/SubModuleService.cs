@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Models.Admin.Requests.Role;
-using MilkMatrix.Admin.Models.Admin.Responses.Role;
+using MilkMatrix.Admin.Models.Admin.Requests.SubModule;
+using MilkMatrix.Admin.Models.Admin.Responses.SubModules;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -17,7 +17,7 @@ using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation;
 
-public class RoleService : IRoleService
+public class SubModuleService : ISubModuleService
 {
     private ILogging logger;
 
@@ -26,34 +26,34 @@ public class RoleService : IRoleService
     private readonly IQueryMultipleData queryMultipleData;
 
     private readonly AppConfig appConfig;
-    public RoleService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
+    public SubModuleService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
-        this.logger = logger.ForContext("ServiceName", nameof(RoleService));
+        this.logger = logger.ForContext("ServiceName", nameof(SubModuleService));
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
         this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
     }
 
-    public async Task AddAsync(RoleInsertRequest request)
+    public async Task AddAsync(SubModuleInsertRequest request)
     {
         try
         {
-            logger.LogInfo($"AddAsync called for role: {request.RoleName}");
+            logger.LogInfo($"AddAsync called for subModule: {request.Name}");
             var repo = repositoryFactory.ConnectDapper<UserDetails>(DbConstants.Main);
             var parameters = new Dictionary<string, object>
             {
-                ["RoleName"] = request.RoleName,
-                ["BusinessId"] = request.BusinessId,
+                ["SubModuleName"] = request.Name,
+                ["OrderNumber"] = request.Order,
                 ["CreatedBy"] = request.CreatedBy,
                 ["Status"] = true,
-                ["ActionType"] = (int)CrudActionType.Create
+                ["ActionType"] = request.ActionType
             };
-            await repo.AddAsync(RoleSpName.RoleUpsert, parameters);
-            logger.LogInfo($"Role {request.RoleName} added successfully.");
+            await repo.AddAsync(SubModuleSpName.SubModuleUpsert, parameters);
+            logger.LogInfo($"subModule {request.Name} added successfully.");
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in AddAsync for user: {request.RoleName}", ex);
+            logger.LogError($"Error in AddAsync for user: {request.Name}", ex);
             throw;
         }
     }
@@ -62,78 +62,78 @@ public class RoleService : IRoleService
     {
         try
         {
-            logger.LogInfo($"DeleteAsync called for role id: {id}");
-            var repo = repositoryFactory.ConnectDapper<Roles>(DbConstants.Main);
+            logger.LogInfo($"DeleteAsync called for subModule id: {id}");
+            var repo = repositoryFactory.ConnectDapper<SubModuleDetails>(DbConstants.Main);
             var parameters = new Dictionary<string, object>
-            {
-                {"RoleID", id },
-                {"Status", false },
-                {"ModifyBy", userId },
-                {"ActionType" , (int)CrudActionType.Delete }
-            };
-            await repo.DeleteAsync(RoleSpName.RoleUpsert, parameters);
-            logger.LogInfo($"Role with id {id} deleted successfully.");
+        {
+            {"SubModuleId", id },
+            {"Status", false },
+            {"ModifyBy", userId },
+            {"ActionType" , (int)CrudActionType.Delete }
+        };
+            await repo.DeleteAsync(SubModuleSpName.SubModuleUpsert, parameters);
+            logger.LogInfo($"subModule with id {id} deleted successfully.");
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in DeleteAsync for role id: {id}", ex);
+            logger.LogError($"Error in DeleteAsync for subModule id: {id}", ex);
             throw;
         }
     }
 
-    public async Task<Roles?> GetByIdAsync(int id)
+    public async Task<SubModuleDetails?> GetByIdAsync(int id)
     {
         try
         {
-            logger.LogInfo($"GetByIdAsync called for role id: {id}");
+            logger.LogInfo($"GetByIdAsync called for subModule id: {id}");
             var repo = repositoryFactory
-                       .ConnectDapper<Roles>(DbConstants.Main);
-            var data = await repo.QueryAsync<Roles>(RoleSpName.GetRoles, new Dictionary<string, object> { { "RoleId", id },
-                                                                                { "ActionType", (int)ReadActionType.Individual } }, null);
+                       .ConnectDapper<SubModuleDetails>(DbConstants.Main);
+            var data = await repo.QueryAsync<SubModuleDetails>(SubModuleSpName.GetSubModules, new Dictionary<string, object> { { "SubModuleId", id },
+                                                                            { "ActionType", (int)ReadActionType.Individual } }, null);
 
             var result = data.Any() ? data.FirstOrDefault() : default;
             logger.LogInfo(result != null
-                ? $"Role with id {id} retrieved successfully."
-                : $"Role with id {id} not found.");
+                ? $"subModule with id {id} retrieved successfully."
+                : $"subModule with id {id} not found.");
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in GetByIdAsync for user id: {id}", ex);
+            logger.LogError($"Error in GetByIdAsync for subModule id: {id}", ex);
             throw;
         }
     }
 
-    public async Task UpdateAsync(RoleUpdateRequest request)
+    public async Task UpdateAsync(SubModuleUpdateRequest request)
     {
         try
         {
-            logger.LogInfo($"UpdateAsync called for user: {request.RoleName}");
-            var repo = repositoryFactory.ConnectDapper<UserDetails>(DbConstants.Main);
+            logger.LogInfo($"UpdateAsync called for user: {request.Name}");
+            var repo = repositoryFactory.ConnectDapper<SubModuleDetails>(DbConstants.Main);
             var parameters = new Dictionary<string, object>
             {
-                ["RoleID"] = request.RoleId,
-                ["RoleName"] = request.RoleName,
-                ["BusinessId"] = request.BusinessId,
+                ["SubModuleName"] = request.Name,
+                ["SubModuleId"] = request.Id,
+                ["OrderNumber"] = request.Order,
                 ["ModifyBy"] = request.ModifyBy,
-                ["Status"] = request.IsActive,
-                ["ActionType"] = (int)CrudActionType.Update
+                ["Status"] = request.IsAcive,
+                ["ActionType"] = request.ActionType
             };
-            await repo.UpdateAsync(RoleSpName.RoleUpsert, parameters);
-            logger.LogInfo($"Role {request.RoleName} updated successfully.");
+            await repo.UpdateAsync(SubModuleSpName.SubModuleUpsert, parameters);
+            logger.LogInfo($"subModule {request.Name} updated successfully.");
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in UpdateAsync for role: {request.RoleName}", ex);
+            logger.LogError($"Error in UpdateAsync for subModule: {request.Name}", ex);
             throw;
         }
     }
 
-    public async Task<IListsResponse<RoleDetails>> GetAllAsync(IListsRequest request)
+    public async Task<IListsResponse<SubModuleDetails>> GetAllAsync(IListsRequest request)
     {
         // 1. Fetch all results, count, and filter meta from stored procedure
         var (allResults, countResult, filterMetas) = await queryMultipleData
-            .GetMultiDetailsAsync<RoleDetails, int, FiltersMeta>(RoleSpName.GetRoles,
+            .GetMultiDetailsAsync<SubModuleDetails, int, FiltersMeta>(SubModuleSpName.GetSubModules,
             DbConstants.Main,
             new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
             null);
@@ -152,7 +152,7 @@ public class RoleService : IRoleService
         var filteredCount = filtered.Count();
 
         // 5. Return result
-        return new ListsResponse<RoleDetails>
+        return new ListsResponse<SubModuleDetails>
         {
             Count = filteredCount,
             Results = paged.ToList(),

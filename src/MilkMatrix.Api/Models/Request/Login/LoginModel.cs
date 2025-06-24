@@ -7,7 +7,6 @@ namespace MilkMatrix.Api.Models.Request.Login
         public string? Mobile { get; set; }
         public int? BusinessId { get; set; }
         public int? Otp { get; set; }
-        public MobileAppFields? MobileAppFields { get; set; }
     }
     
 }
