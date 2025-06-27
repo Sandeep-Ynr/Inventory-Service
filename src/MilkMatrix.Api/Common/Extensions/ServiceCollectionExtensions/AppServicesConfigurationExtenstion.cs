@@ -21,6 +21,7 @@ internal static class AppServicesConfigurationExtenstion
                    o.AddProfile<AdminProfile>();
                    o.AddProfile<RolePagesPermissionsProfile>();
                    o.AddProfile<ModuleSubModuleMapping>();
+                   o.AddProfile<GeographicalMappingProfile>();
                })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)

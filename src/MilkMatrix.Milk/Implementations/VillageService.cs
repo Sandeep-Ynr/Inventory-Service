@@ -6,7 +6,8 @@ using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations
@@ -27,6 +28,7 @@ namespace MilkMatrix.Milk.Implementations
 
         }
 
+      
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request)
         {
             var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
@@ -35,8 +37,8 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"VillageId", request.VillageId},
                 {"TehsilId", request.TehsilId },
-                {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"DistrictId", request.DistrictId},
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -46,6 +48,7 @@ namespace MilkMatrix.Milk.Implementations
 
         }
 
+       
         public async Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request)
         {
             var repository = repositoryFactory.Connect<VillageResponse>(DbConstants.Main);
@@ -54,8 +57,8 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"VillageId", request.VillageId},
                 {"TehsilId", request.TehsilId },
-                {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"DistrictId", request.DistrictId},
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -64,6 +67,38 @@ namespace MilkMatrix.Milk.Implementations
             return response;
         }
 
+        public async Task<string> AddVillage(VillageRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+            {
+                { "ActionType", 1 },
+                { "VillageId", request.VillageId },
+                { "VillageName", request.VillageName ?? (object)DBNull.Value },
+                { "TehsilId", request.TehsilId },
+                //{ "DistrictId", request.DistrictId },
+                //{ "StateId", request.StateId },
+                { "IsStatus", request.IsStatus },
+                { "IsDeleted", request.IsDeleted },
+                { "CreatedBy", request.CreatedBy },
+                { "ModifyBy", request.ModifyBy },
 
+            };
+
+                var response = await repository.QueryAsync<CommonLists>(
+                    VillageQueries.AddVillage, requestParams, null, CommandType.StoredProcedure
+                );
+
+                // Return the inserted StateId or Name, etc. depending on your SP response
+                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return "Error occurred";
+            }
+        }
     }
 }

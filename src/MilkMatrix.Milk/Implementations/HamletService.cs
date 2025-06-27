@@ -5,9 +5,8 @@ using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
-
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations
@@ -33,9 +32,9 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
-                {"TehsilId", request.TehsilId },
-                {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"TehsilId", request.TehsilId },
+                //{"DistrictId", request.DistrictId},
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -52,15 +51,49 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
-                {"TehsilId", request.TehsilId },
-                {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"TehsilId", request.TehsilId },
+                //{"DistrictId", request.DistrictId},
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
             var response = await repository.QueryAsync<HamletResponse>(HamletQueries.GetHamlet, requestParams, null, CommandType.StoredProcedure);
 
             return response;
+        }
+
+        public async Task<string> AddHamlet(HamletRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+            {
+                 { "ActionType", 1 },
+                 { "HamletId", request.HamletId ?? (object)DBNull.Value },
+                 { "HamletName", request.HamletName ?? (object)DBNull.Value },
+                 { "VillageId", request.VillageId ?? (object)DBNull.Value },
+                 //{ "TehsilId", request.TehsilId?? (object)DBNull.Value },
+                 //{ "DistrictId", request.DistrictId?? (object)DBNull.Value },
+                 //{ "StateId", request.StateId ?? (object)DBNull.Value},
+                 { "IsStatus", request.IsStatus ?? (object)DBNull.Value },
+                 { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value },
+                 { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                 { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+            };
+
+                var response = await repository.QueryAsync<CommonLists>(
+                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
+                );
+
+                // Return the inserted StateId or Name, etc. depending on your SP response
+                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return "Error occurred";
+            }
         }
     }
 

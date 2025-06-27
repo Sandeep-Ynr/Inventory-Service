@@ -1,6 +1,6 @@
 using MilkMatrix.Domain.Entities.Responses;
 
-namespace MilkMatrix.Milk.Models.Response
+namespace MilkMatrix.Milk.Models.Response.Geographical
 {
     public class HamletResponse : CommonLists
     {

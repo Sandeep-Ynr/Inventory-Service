@@ -7,6 +7,8 @@ namespace MilkMatrix.Api.Models.Request.Geographical.Village
         public GetActionType? ActionType { get; set; } = GetActionType.All;
 
         public int? VillageId { get; set; }
+
+        public string? VillageName { get; set; }
         public int? TehsilId { get; set; }
         public int? DistrictId { get; set; }
 

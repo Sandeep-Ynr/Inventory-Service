@@ -1,13 +1,24 @@
+using System.Net;
+using System.Security.Claims;
 using Asp.Versioning;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Admin.Business.Admin.Implementation;
+using MilkMatrix.Admin.Models.Admin.Requests.Role;
+using MilkMatrix.Api.Models.Request.Admin.Role;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
 using MilkMatrix.Api.Models.Request.Geographical.Tehsil;
 using MilkMatrix.Api.Models.Request.Geographical.Village;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Domain.Entities.Dtos;
+using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Infrastructure.Common.Utils;
+using MilkMatrix.Admin.Models;
 using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
@@ -31,16 +42,20 @@ namespace MilkMatrix.Api.Controllers.v1
 
         private readonly IHamletService hamletService;
 
-        public GeographicalController(IHttpContextAccessor httpContextAccessor, ILogging logging, IStateService stateService, IDistrictService districtService, ITehsilService tehsilService, IVillageService villageService, IHamletService hamletService)
+        private readonly IMapper mapper;
+
+        public GeographicalController(IHttpContextAccessor httpContextAccessor, ILogging logging, IStateService stateService, IDistrictService districtService, ITehsilService tehsilService, IVillageService villageService, IHamletService hamletService, IMapper mapper)
         {
             // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logging.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logging));
-            this.stateService = stateService ?? throw new ArgumentNullException(nameof(stateService));
+            //this.stateService = stateService ?? throw new ArgumentNullException(nameof(stateService));
+            this.stateService = stateService;
             this.districtService = districtService ?? throw new ArgumentNullException(nameof(districtService));
             this.tehsilService = tehsilService ?? throw new ArgumentNullException(nameof(tehsilService));
             this.villageService = villageService ?? throw new ArgumentNullException(nameof(villageService));
-            this.hamletService = hamletService?? throw new ArgumentNullException(nameof(hamletService));
+            this.hamletService = hamletService ?? throw new ArgumentNullException(nameof(hamletService));
+            this.mapper = mapper;
         }
 
         /// <summary>
@@ -72,6 +87,74 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
 
+        [HttpPost("state-upsert")]
+        public async Task<IActionResult> UpsertState([FromBody] StateUpsertModel request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                // If Id is present and > 0, treat as update, else add
+                if (request.StateId != null && request.StateId > 0)
+                {
+                    logger.LogInfo($"Upsert: Update called for State id: {request.StateId}");
+                    var requestParams = mapper.MapWithOptions<StateUpdateRequest, StateUpsertModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+                    await stateService.UpdateStateAsync(requestParams);
+                    logger.LogInfo($"State with id {request.StateId} updated successfully.");
+                    return Ok(new { message = "State updated successfully." });
+                }
+                else
+                {
+                    logger.LogInfo($"Upsert: Add called for State: {request.StateName}");
+                    var requestParams = mapper.MapWithOptions<StateInsertRequest, StateUpsertModel>(request
+                        , new Dictionary<string, object> {
+                            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                    });
+                    await stateService.AddStateAsync(requestParams);
+                    logger.LogInfo($"State {request.StateName} added successfully.");
+                    return Ok(new { message = "State added successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert State", ex);
+                return StatusCode(500, "An error occurred while adding the State.");
+            }
+        }
+
+        /// <summary>
+        /// Delete State
+        /// </summary>
+        /// <returns>Delete State</returns>
+        [HttpDelete("state-delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Delete role called for id: {id}");
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await stateService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"role with id {id} deleted successfully.");
+                return Ok(new { message = "State deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting role with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the role.");
+            }
+        }
+
+
         /// <summary>
         /// Get the List of District
         /// </summary>
@@ -93,6 +176,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
                 IsActive = true
             };
+
+            //var districtParams = mapper.MapWithOptions<DistrictRequest, DistrictRequestModel>(request
+            //        , new Dictionary<string, object> {
+            //{Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+            //    });
 
             var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
                 ? await districtService.GetDistricts(districtRequest)
@@ -119,7 +207,7 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 TehsilId = request.TehsilId,
                 DistrictId = request.DistrictId,
-                StateId = request.StateId,
+                //StateId = request.StateId,
                 //ActionType = request.ActionType,
                 ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
                 IsActive = true
@@ -151,8 +239,8 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 VillageId = request.VillageId,
                 TehsilId = request.TehsilId,
-                DistrictId = request.DistrictId,
-                StateId = request.StateId,
+                //DistrictId = request.DistrictId,
+                //StateId = request.StateId,
                 //ActionType = request.ActionType,
                 ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
                 IsActive = true
@@ -184,9 +272,9 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 HamletId = request.HamletId,
                 VillageId = request.VillageId,
-                TehsilId = request.TehsilId,
-                DistrictId = request.DistrictId,
-                StateId = request.StateId,
+                //TehsilId = request.TehsilId,
+                //DistrictId = request.DistrictId,
+                //StateId = request.StateId,
                 //ActionType = request.ActionType,
                 ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
                 IsActive = true
@@ -199,40 +287,53 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
 
+        //[HttpPost]
+        //[Route("add-state")]
+        //public async Task<IActionResult> AddState([FromBody] StateRequestModel request)
+        //{
+
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+        //    var state = mapper.Map<StateRequest>(request);
+        //    var created = await stateService.AddStateAsync(state);
+        //    if (created == "Failed.")
+        //        return StatusCode(500, "Failed to add state.");
+        //    return CreatedAtAction(
+        //        nameof(GetStates),
+        //        new
+        //        {
+        //            version = HttpContext.GetRequestedApiVersion()?.ToString(),
+        //            controller = "Geographical",
+        //            id = state.StateId
+        //        },
+        //        state
+        //    );
+        //}
+
         [HttpPost]
-        [Route("add-state")]
-        public async Task<IActionResult> AddState([FromBody] StateRequestModel request)
+        [Route("add-village")]
+        public async Task<IActionResult> AddVillage([FromBody] VillageRequestModel request)
         {
-            // 1.Validate incoming JSON
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var state = new StateRequest
-            {
-                ActionType = request.ActionType,
-                StateId = request.StateId,
-                StateName = request.StateName,
-                AreaCode = request.AreaCode,
-                CountryId = request.CountryId,
-                CreatedBy = request.CreatedBy,
-                ModifyBy = request.ModifyBy,
-                IsActive = request.IsActive,
-            };
-            var created = await stateService.AddStateAsync(state);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add state.");
+            var village = mapper.Map<VillageRequest>(request);
 
-            // 5. Return 201 Created with the new resource
+            var created = await villageService.AddVillage(village);
+            if (created == "Failed.")
+                return StatusCode(500, "Failed to add village.");
+
             return CreatedAtAction(
-                nameof(GetStates),
+                nameof(GetVillages),  
                 new
                 {
                     version = HttpContext.GetRequestedApiVersion()?.ToString(),
                     controller = "Geographical",
-                    id = state.StateId
+                    id = village.VillageId
                 },
-                state
+                village
             );
         }
+
 
 
         [HttpPost]
@@ -241,16 +342,12 @@ namespace MilkMatrix.Api.Controllers.v1
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var district = new DistrictRequest
-            {
-                DistrictId = request.DistrictId,
-                ModifyBy = request.ModifyBy
-            };
+            var district = mapper.Map<DistrictRequest>(request);
+
             var created = await districtService.AddDistrictsAsync(district);
             if (created == "Failed.")
-                return StatusCode(500, "Failed to add state.");
+                return StatusCode(500, "Failed to add District.");
 
-            // 5. Return 201 Created with the new resource
             return CreatedAtAction(
                 nameof(GetDistricts),
                 new
@@ -271,23 +368,13 @@ namespace MilkMatrix.Api.Controllers.v1
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var Tehsil = new TehsilRequest
-            {
-                TehsilId = request.TehsilId,
-                TehsilName = request.TehsilName,
-                DistrictId = request.DistrictId,
-                StateId = request.StateId,
-                IsStatus = request.IsStatus,
-                CreatedBy = request.CreatedBy,
-                ModifyBy = request.ModifyBy,
-            };
+            var Tehsil = mapper.Map<TehsilRequest>(request);
             var created = await tehsilService.AddTehsil(Tehsil);
             if (created == "Failed.")
-                return StatusCode(500, "Failed to add state.");
+                return StatusCode(500, "Failed to add Tehsil.");
 
-            // 5. Return 201 Created with the new resource
             return CreatedAtAction(
-                nameof(GetDistricts),
+                nameof(GetTehsils),
                 new
                 {
                     version = HttpContext.GetRequestedApiVersion()?.ToString(),
@@ -298,6 +385,27 @@ namespace MilkMatrix.Api.Controllers.v1
             );
         }
 
+        [HttpPost]
+        [Route("add-Hamlet")]
+        public async Task<IActionResult> AddHamlet([FromBody] HamletRequestModel request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var Hamlet = mapper.Map<HamletRequest>(request);
+            var created = await hamletService.AddHamlet(Hamlet);
+            if (created == "Failed.")
+                return StatusCode(500, "Failed to add Hamlet.");
 
+            return CreatedAtAction(
+                nameof(GetHamlets),
+                new
+                {
+                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
+                    controller = "Geographical",
+                    id = Hamlet.HamletId
+                },
+                Hamlet
+            );
+        }
     }
 }

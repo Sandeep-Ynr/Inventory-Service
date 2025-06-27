@@ -23,11 +23,14 @@ public static partial class GeographicalQueries
     public static class VillageQueries 
     { 
         public const string GetVillage = "usp_village_details";
+        public const string AddVillage = "usp_village_insupd";
+
     }
 
     public static class HamletQueries
     {
         public const string GetHamlet = "usp_hamlet_details";
+        public const string AddHamlet = "usp_Hamlet_insupd";
     }
 
 }

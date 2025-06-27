@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\Request\Geographical\VillageRequest.cs\**" />
+    <EmbeddedResource Remove="Models\Request\Geographical\VillageRequest.cs\**" />
+    <None Remove="Models\Request\Geographical\VillageRequest.cs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MilkMatrix.Infrastructure\MilkMatrix.Infrastructure.csproj" />
   </ItemGroup>
 

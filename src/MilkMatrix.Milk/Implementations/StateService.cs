@@ -1,12 +1,14 @@
 using System.Data;
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Domain.Entities.Enums;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations;
@@ -24,28 +26,29 @@ public class StateService : IStateService
         this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
     }
 
-    public async Task<string> AddStateAsync(StateRequest request)
+    public async Task<string> AddStateAsync(StateInsertRequest request)
     {
         try
         {
             var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
             var requestParams = new Dictionary<string, object>
-        {
-                { "ActionType", request.ActionType},    // 1 for insert
-                { "StateId", request.StateId ?? (object)DBNull.Value },   
+            {
+                { "ActionType", (int)CrudActionType.Create},
                 { "StateName", request.StateName ?? (object)DBNull.Value },
-                { "AreaCode",  request.AreaCode ?? (object)DBNull.Value },
+                { "CountryId", request.CountryId ?? (object)DBNull.Value },
+                { "AreaCode", request.AreaCode ?? (object)DBNull.Value },
                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
-                { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
-                { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                { "CountryId", request.CountryId ?? (object)DBNull.Value }
-        };
+                { "CreatedBy", request.CreatedBy }
+                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+                //{ "ActionType", request.ActionType (int)CrudActionType.Create},
+            
+            };
 
             var response = await repository.QueryAsync<CommonLists>(
                 StateQueries.AddStates, requestParams, null, CommandType.StoredProcedure
             );
 
-            // Return the inserted StateId or Name, etc. depending on your SP response
             return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
         }
         catch (Exception ex)
@@ -55,6 +58,65 @@ public class StateService : IStateService
         }
     }
 
+    public async Task<string> UpdateStateAsync(StateUpdateRequest request)
+    {
+        try
+        {
+            var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+            var requestParams = new Dictionary<string, object>
+            {
+                { "ActionType", (int)CrudActionType.Update },
+                { "StateId", request.StateId},
+                { "StateName", request.StateName ?? (object)DBNull.Value },
+                { "CountryId", request.CountryId ?? (object)DBNull.Value },
+                { "AreaCode", request.AreaCode ?? (object)DBNull.Value },
+                { "IsStatus", request.IsActive ?? (object)DBNull.Value },
+                { "ModifyBy", request.ModifyBy }
+            
+                //{ "StateId", request.StateId ?? (object)DBNull.Value },
+                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+            };
+
+            var response = await repository.QueryAsync<CommonLists>(
+                StateQueries.AddStates, requestParams, null, CommandType.StoredProcedure
+            );
+
+            return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+            return "Error occurred";
+        }
+    }
+    public async Task<string> DeleteAsync(int id, int userId)
+    {
+        try
+        {
+            var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+            var requestParams = new Dictionary<string, object>
+            {
+                {"StateId", id },
+                {"IsStatus", false },
+                {"ModifyBy", userId },
+                {"ActionType" , (int)CrudActionType.Delete }
+            };
+
+            var response = await repository.QueryAsync<CommonLists>(
+                StateQueries.AddStates, requestParams, null, CommandType.StoredProcedure
+            );
+
+            return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+            return "Error occurred";
+        }
+
+    }
     public async Task<IEnumerable<CommonLists>> GetSpecificLists(StateRequest request)
     {
         var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);

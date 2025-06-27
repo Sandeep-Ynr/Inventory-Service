@@ -1,6 +1,6 @@
 using MilkMatrix.Domain.Entities.Enums;
 
-namespace MilkMatrix.Milk.Models.Request;
+namespace MilkMatrix.Milk.Models.Request.Geographical;
 
 public class StateRequest
 {

@@ -1,7 +1,7 @@
 using MilkMatrix.Domain.Entities.Common;
 using MilkMatrix.Domain.Entities.Responses;
-using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 
 
 namespace MilkMatrix.Milk.Contracts.Geographical
@@ -10,5 +10,7 @@ namespace MilkMatrix.Milk.Contracts.Geographical
     {
         Task<IEnumerable<HamletResponse>> GetHamlets(HamletRequest request);
         Task<IEnumerable<CommonLists>> GetSpecificLists(HamletRequest request);
+
+        Task<string> AddHamlet(HamletRequest request);
     }
 }

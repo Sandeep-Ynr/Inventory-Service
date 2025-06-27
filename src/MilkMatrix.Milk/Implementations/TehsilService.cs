@@ -5,8 +5,8 @@ using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations
@@ -34,7 +34,7 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"TehsilId", request.TehsilId},
                 {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -52,7 +52,7 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"TehsilId", request.TehsilId},
                 {"DistrictId", request.DistrictId},
-                {"StateId", request.StateId },
+                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -73,7 +73,7 @@ namespace MilkMatrix.Milk.Implementations
                 { "TehsilId", request.TehsilId },
                 { "TehsilName", request.TehsilName },
                 { "DistrictId", request.DistrictId },
-                { "StateId", request.StateId  },
+                //{ "StateId", request.StateId  },
                 { "IsStatus", request.IsStatus  },
                 { "IsDeleted", request.IsStatus  },
                 { "CreatedBy", request.CreatedBy },

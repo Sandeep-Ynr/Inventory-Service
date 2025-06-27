@@ -5,8 +5,8 @@ using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Domain.Entities.Responses;
 using MilkMatrix.Infrastructure.Models.Config;
 using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request;
-using MilkMatrix.Milk.Models.Response;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations

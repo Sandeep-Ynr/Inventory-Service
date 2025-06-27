@@ -1,6 +1,6 @@
 using MilkMatrix.Domain.Entities.Enums;
 
-namespace MilkMatrix.Milk.Models.Request
+namespace MilkMatrix.Milk.Models.Request.Geographical
 {
     public class TehsilRequest
     {
@@ -9,7 +9,7 @@ namespace MilkMatrix.Milk.Models.Request
         public string? TehsilName { get; set; }
 
         public int DistrictId { get; set; }
-        public int StateId { get; set; }
+        //public int StateId { get; set; }
 
         public bool IsStatus { get; set; }      // Usually used to indicate active/inactive
         public bool IsDeleted { get; set; }     // Soft delete flag
