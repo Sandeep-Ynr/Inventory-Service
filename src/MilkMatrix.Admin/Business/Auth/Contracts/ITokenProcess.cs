@@ -1,4 +1,4 @@
-using MilkMatrix.Domain.Entities.Common;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Business.Auth.Contracts
 {

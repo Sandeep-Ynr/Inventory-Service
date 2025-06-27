@@ -1,11 +1,10 @@
 using System.Data;
-using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
-using MilkMatrix.Domain.Entities.Enums;
-using MilkMatrix.Domain.Entities.Responses;
-using MilkMatrix.Infrastructure.Models.Config;
+using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Response.Geographical;

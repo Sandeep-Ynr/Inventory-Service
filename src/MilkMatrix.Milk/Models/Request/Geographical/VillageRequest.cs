@@ -1,15 +1,13 @@
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Entities.Enums;
 
 namespace MilkMatrix.Milk.Models.Request.Geographical
 {
     public class VillageRequest
     {
-        public GetActionType ActionType { get; set; } = GetActionType.All;
+        public ReadActionType ActionType { get; set; } = ReadActionType.All;
 
         public int? VillageId { get; set; }
         public int? TehsilId { get; set; }
-        //public int? DistrictId { get; set; }
-        //public int? StateId { get; set; }
         public bool? IsActive { get; set; }
         public int? Serial { get; set; }
         public string? VillageName { get; set; }

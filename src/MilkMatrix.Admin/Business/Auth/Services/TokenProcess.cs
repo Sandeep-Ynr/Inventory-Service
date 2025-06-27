@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using MilkMatrix.Admin.Business.Auth.Contracts;
-using MilkMatrix.Domain.Entities.Common;
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Infrastructure.Common.Utils;
 
 namespace MilkMatrix.Admin.Business.Auth.Services;

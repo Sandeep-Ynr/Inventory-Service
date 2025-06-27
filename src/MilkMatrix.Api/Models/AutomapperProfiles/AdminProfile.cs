@@ -37,5 +37,9 @@ public class AdminProfile : Profile
                   .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessIds))
                   .ForMember(x => x.Password, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Password) ? src.Password.EncodeSHA512() : null))
                   .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<ForgotPasswordModel, ForgotPasswordRequest>();
+
+        CreateMap<ResetPasswordModel, ResetPasswordRequest>();
     }
 }

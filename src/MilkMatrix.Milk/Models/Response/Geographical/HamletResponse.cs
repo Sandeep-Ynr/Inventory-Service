@@ -1,4 +1,4 @@
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Milk.Models.Response.Geographical
 {

@@ -6,12 +6,16 @@ using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Notification;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
-using MilkMatrix.Domain.Entities.Common;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Models.Config;
+using static Azure.Core.HttpHeader;
 using static MilkMatrix.Admin.Models.Constants;
+using static MilkMatrix.Core.Entities.Common.Constants;
 
 namespace MilkMatrix.Admin.Business.Auth.Services;
 
@@ -25,12 +29,14 @@ public class Auth : IAuth
 
     private ILogging logger;
 
-    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, ILogging logging)
+    private readonly INotificationService notificationService;
+    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, ILogging logging, INotificationService notificationService)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(AppConfig));
         this.logger = logging.ForContext("ServiceName", nameof(Auth));
+        this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService), "NotificationService cannot be null");
     }
 
     public async Task<LoginMasterResponse> AuthenticateUserLogin(LoginRequest login)
@@ -69,16 +75,7 @@ public class Auth : IAuth
             finalResult.Message = data?.FirstOrDefault()?.Result;
             if (loginId > 0)
             {
-                var repoLogin = repositoryFactory
-                       .ConnectDapper<LoginResponse>(DbConstants.Main);
-                lResponse = (await repoLogin.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", loginId } }, null))!.SingleOrDefault()!;
-                finalResult.Data = new TokenResponse
-                {
-                    AccessToken = lResponse.SecKey!,
-                    ExpiresIn = lResponse.SecKeyExpiryOn,
-                    IsMFA=lResponse.IsMFA,
-                    RefreshToken = lResponse.RefreshToken!
-                };
+                finalResult.Data = await GetTokenResponseFromLoggedInUser(loginId);
                 logger.LogInfo("login successful");
             }
 
@@ -101,6 +98,22 @@ public class Auth : IAuth
         }
         return finalResult;
     }
+
+    public async Task<TokenResponse> GetTokenResponseFromLoggedInUser(int loginId)
+    {
+        var repoLogin = repositoryFactory
+                               .ConnectDapper<LoginResponse>(DbConstants.Main);
+        var lResponse = (await repoLogin.QueryAsync<LoginResponse>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", loginId } }, null))!.SingleOrDefault()!;
+        var data = new TokenResponse
+        {
+            AccessToken = lResponse.SecKey!,
+            ExpiresIn = lResponse.SecKeyExpiryOn,
+            IsMFA = lResponse.IsMFA,
+            RefreshToken = lResponse.RefreshToken!
+        };
+        return data;
+    }
+
     public async Task<TokenStatusResponse> ValidateAppToken(string token)
     {
         TokenStatusResponse Meta = new();
@@ -215,13 +228,133 @@ public class Auth : IAuth
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            return data.Any() ? [MaskAndEncryptUserResponse(data.FirstOrDefault()!)] : Enumerable.Empty<UserDetails>();
+            return data.Any() ? data : Enumerable.Empty<UserDetails>();
         }
         catch (Exception ex)
         {
             logger.LogError(Constants.ErrorMessage.GetError.FormatString(nameof(GetUserDetailsAsync)), ex);
             return Enumerable.Empty<UserDetails>();
         }
+    }
+
+    public async Task<TokenStatusResponse> ForgotPassword(ForgotPasswordRequest request)
+    {
+        var result = new TokenStatusResponse();
+
+        try
+        {
+            int verificationCode = appConfig.AllowToSendMail
+                ? DefaultRandomNoLength.GenerateRandomNumber()
+                : 123456;
+
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+            var queryParams = new Dictionary<string, object>
+        {
+            { "ActionType", 1 },
+            { "EmailId", request.EmailId },
+            { "Otp", verificationCode }
+        };
+
+            var dbResult = (await repo.QueryAsync<string>(AuthSpName.PasswordChangeRequest, queryParams, null)).FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(dbResult))
+            {
+                logger.LogWarning("ForgotPassword: No response from PasswordChangeRequest SP");
+                result.Message = HttpStatusCode.InternalServerError.ToString();
+                result.Status = HttpStatusCode.InternalServerError.ToString();
+                return result;
+            }
+
+            if (!dbResult.Equals("success", StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarning("ForgotPassword: No record found");
+                result.Message = ErrorMessage.NoRecordFound;
+                result.Status = HttpStatusCode.NotFound.ToString();
+                return result;
+            }
+
+            // Send notification
+            var notificationRequest = new NotificationRequest
+            {
+                EmailId = request.EmailId,
+                TemplateType = NotificationTemplateType.ForgotPassword,
+                Content = verificationCode.ToString()
+            };
+
+            var notificationResponse = await notificationService.SendOtpAsync<NotificationRequest, NotificationResponse>(notificationRequest);
+
+            if (notificationResponse == null)
+            {
+                logger.LogError($"ForgotPassword: Notification service returned null for EmailId");
+                result.Message = HttpStatusCode.InternalServerError.ToString();
+                result.Status = HttpStatusCode.InternalServerError.ToString();
+                return result;
+            }
+
+            if (notificationResponse.Code == (int)HttpStatusCode.OK)
+            {
+                result.Message = SuccessMessage.ResetPasswordSuccessMessage;
+                result.Status = notificationResponse.Code.ToString();
+            }
+            else
+            {
+                result.Message = notificationResponse.Message ?? HttpStatusCode.InternalServerError.ToString();
+                result.Status = notificationResponse.Status ?? HttpStatusCode.InternalServerError.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(string.Format("ForgotPassword: Exception: {0}", ex));
+            result.Message = HttpStatusCode.InternalServerError.ToString();
+            result.Status = HttpStatusCode.InternalServerError.ToString();
+        }
+
+        return result;
+    }
+
+    public async Task<TokenStatusResponse> VerifyForgotPassword(ResetPasswordRequest model)
+    {
+        var result = new TokenStatusResponse();
+
+        try
+        {
+            // Hash the password
+            var encryptedPassword = model.Password.EncodeSHA512();
+
+            // Prepare parameters
+            var parameters = new Dictionary<string, object>
+        {
+            { "EmailId", model.EmailId },
+            { "EncryptPassword", encryptedPassword },
+            { "Otp", model.SecurityCode }
+        };
+
+            // Execute query
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+            var dbResult = (await repo.QueryAsync<string>(AuthSpName.VerifyPasswordChange, parameters, null)).FirstOrDefault();
+
+            // Check result
+            if (string.Equals(dbResult, "password has been successfully updated", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Message = dbResult;
+                result.Status = HttpStatusCode.OK.ToString();
+                logger.LogInfo($"VerifyForgotPassword: Password updated");
+                return result;
+            }
+
+            // Handle failure
+            result.Message = dbResult ?? StatusCodeMessage.InternalServerError;
+            result.Status = HttpStatusCode.InternalServerError.ToString();
+            logger.LogWarning($"VerifyForgotPassword: Failed, Message: {dbResult}");
+        }
+        catch (Exception ex)
+        {
+            result.Message = StatusCodeMessage.InternalServerError;
+            result.Status = HttpStatusCode.InternalServerError.ToString();
+            logger.LogError($"VerifyForgotPassword: Exception", ex);
+        }
+
+        return result;
     }
 
     private UserDetails MaskAndEncryptUserResponse(UserDetails response)
@@ -232,4 +365,5 @@ public class Auth : IAuth
         //response.EmailId = !string.IsNullOrEmpty(response.EmailId) ? appConfig.Base64EncryptKey?.EncryptString(response.EmailId) : string.Empty;
         return response;
     }
+
 }

@@ -10,7 +10,7 @@ using MilkMatrix.Admin.Models.Admin.Requests.Module;
 using MilkMatrix.Api.Models.Request.Admin.Module;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Request;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
 

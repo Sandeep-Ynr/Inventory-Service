@@ -10,7 +10,7 @@ using MilkMatrix.Admin.Models.Admin.Responses.SubModules;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
-using MilkMatrix.Infrastructure.Models.Config;
+using MilkMatrix.Core.Entities.Config;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation;

@@ -1,11 +1,12 @@
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Entities.Enums;
 
 namespace MilkMatrix.Api.Models.Request.Geographical.Hamlet
 {
     public class HamletRequestModel
     {
-        public GetActionType? ActionType { get; set; } = GetActionType.All;
+        public ReadActionType? ActionType { get; set; } = ReadActionType.All;
         public string HamletName { get; set; }
+
         public int? HamletId { get; set; }
         public int? VillageId { get; set; }
         public int? TehsilId { get; set; }

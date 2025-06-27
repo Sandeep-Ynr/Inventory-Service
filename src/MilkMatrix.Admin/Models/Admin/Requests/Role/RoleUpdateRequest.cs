@@ -1,4 +1,4 @@
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Entities.Enums;
 
 namespace MilkMatrix.Admin.Models.Admin.Requests.Role;
 

@@ -2,10 +2,10 @@ using Microsoft.Extensions.Configuration;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.DataAccess.Ado.Implementations;
 using MilkMatrix.DataAccess.Dapper.Implementations;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Infrastructure.Models.Config;
 
 namespace MilkMatrix.Infrastructure.Factories;
 

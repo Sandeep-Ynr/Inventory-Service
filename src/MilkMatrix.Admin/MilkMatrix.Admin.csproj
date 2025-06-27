@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MilkMatrix.Domain\MilkMatrix.Domain.csproj" />
     <ProjectReference Include="..\MilkMatrix.Infrastructure\MilkMatrix.Infrastructure.csproj" />
   </ItemGroup>
 

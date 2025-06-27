@@ -14,6 +14,9 @@ public static partial class Constants
         public const string PageMenuList = "usp_user_page_menu_list";//To retriving user menu list
         public const string ActionList = "usp_User_ActionList";//To retriving user acton list
         public const string GetUserId = "usp_get_user_id";
+        public const string ValidateOtp = "usp_Validate_Otp";//To validate otp;
+        public const string PasswordChangeRequest = "usp_User_Password_Change_Request"; //To insert password change request
+        public const string VerifyPasswordChange = "usp_User_Varify_Password_Change"; //To validate and update user password
     }
 
     public static class UserSpName

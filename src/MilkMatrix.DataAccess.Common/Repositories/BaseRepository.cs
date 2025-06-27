@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.Data.SqlClient;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository;
-using MilkMatrix.Domain.Entities.Dtos;
+using MilkMatrix.Core.Entities.Dtos;
 
 namespace MilkMatrix.DataAccess.Common.Repositories;
 
@@ -233,6 +233,36 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         catch (Exception ex)
         {
             logger.LogError("Error in QueryAsync", ex);
+            throw;
+        }
+    }
+
+    public virtual async Task<int> ExecuteScalarAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure)
+    {
+        try
+        {
+            using var conn = new SqlConnection(_connectionString);
+            using var cmd = new SqlCommand(query, conn);
+            cmd.CommandText = query;
+            cmd.CommandType = commandType;
+
+            foreach (var param in parameters)
+            {
+                var dbParam = cmd.CreateParameter();
+                dbParam.ParameterName = param.Key;
+                dbParam.Value = param.Value ?? DBNull.Value;
+                cmd.Parameters.Add(dbParam);
+            }
+
+            if (conn.State != ConnectionState.Open)
+                await conn.OpenAsync();
+
+            var result = await cmd.ExecuteScalarAsync();
+            return result == null || result == DBNull.Value ? default : (int)Convert.ChangeType(result, typeof(int));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error in ExecuteScalarAsync", ex);
             throw;
         }
     }

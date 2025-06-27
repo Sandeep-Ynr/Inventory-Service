@@ -7,6 +7,7 @@ using MilkMatrix.Api.Common.Filters;
 using MilkMatrix.Api.Common.Handlers;
 using MilkMatrix.Api.Common.Helpers;
 using MilkMatrix.Api.Models.AutomapperProfiles;
+using MilkMatrix.Infrastructure.Models.AutomapperProfiles;
 using MilkMatrix.Milk.Common.Extensions;
 
 internal static class AppServicesConfigurationExtenstion
@@ -22,6 +23,7 @@ internal static class AppServicesConfigurationExtenstion
                    o.AddProfile<RolePagesPermissionsProfile>();
                    o.AddProfile<ModuleSubModuleMapping>();
                    o.AddProfile<GeographicalMappingProfile>();
+                   o.AddProfile<NotificationProfileMapping>();
                })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)

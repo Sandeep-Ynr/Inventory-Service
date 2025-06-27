@@ -1,10 +1,10 @@
-using MilkMatrix.Domain.Entities.Common;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Options;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Api.Common.Handlers
 {

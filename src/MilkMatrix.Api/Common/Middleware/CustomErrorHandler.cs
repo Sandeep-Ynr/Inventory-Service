@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using MilkMatrix.Core.Abstractions.Logger;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Response;
 using Serilog;
 using static MilkMatrix.Api.Common.Constants.Constants;
 

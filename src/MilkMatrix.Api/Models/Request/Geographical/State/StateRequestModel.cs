@@ -1,4 +1,4 @@
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Entities.Enums;
 
 namespace MilkMatrix.Api.Models.Request.Geographical.State;
 
@@ -6,7 +6,7 @@ public class StateRequestModel
 {
     public int? StateId { get; set; }
 
-    public GetActionType ActionType { get; set; } = GetActionType.All;
+    public ReadActionType ActionType { get; set; } = ReadActionType.All;
     public int? CountryId { get; set; }
     public bool? IsActive { get; set; }
     public string? AreaCode { get; set; }

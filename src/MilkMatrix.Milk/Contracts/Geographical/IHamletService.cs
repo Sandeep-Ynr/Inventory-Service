@@ -1,5 +1,4 @@
-using MilkMatrix.Domain.Entities.Common;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Response.Geographical;
 

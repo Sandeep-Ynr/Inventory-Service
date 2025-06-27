@@ -67,14 +67,42 @@ public static class CommonUtils
         return tokenKey;
     }
 
-    public static int GenerateRendomNumber(int length)
+    public static int GenerateRandomNumber(this int length)
     {
-        int rendomNumber = 0;
-        const string chars = "0123456789";
-        var random = new Random();
-        var output = new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
-        rendomNumber = Convert.ToInt32(output);
-        return rendomNumber;
+        if (length <= 0 || length > 9)
+            throw new ArgumentOutOfRangeException(nameof(length), "Length must be between 1 and 9 for int.");
+
+        var digits = "0123456789";
+        var result = new char[length];
+
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            // First digit: 1-9 (no zero)
+            result[0] = digits[GetRandomInt(rng, 1, 10)];
+
+            // Remaining digits: 0-9
+            for (int i = 1; i < length; i++)
+            {
+                result[i] = digits[GetRandomInt(rng, 0, 10)];
+            }
+        }
+
+        return int.Parse(new string(result));
+    }
+
+    private static int GetRandomInt(RandomNumberGenerator rng, int minValue, int maxValue)
+    {
+        // Returns a random integer in the range [minValue, maxValue)
+        var diff = maxValue - minValue;
+        var uint32Buffer = new byte[4];
+        int value;
+        do
+        {
+            rng.GetBytes(uint32Buffer);
+            value = BitConverter.ToInt32(uint32Buffer, 0) & int.MaxValue;
+        } while (value >= int.MaxValue - ((int.MaxValue % diff) + 1) % diff);
+
+        return minValue + (value % diff);
     }
     #endregion
 

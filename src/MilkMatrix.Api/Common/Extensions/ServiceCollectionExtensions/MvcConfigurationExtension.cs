@@ -1,8 +1,8 @@
 namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
 
-using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Domain.Entities.Responses;
 using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Core.Entities.Response;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 public static class MvcConfigurationExtension

@@ -3,20 +3,17 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Admin.Business.Admin.Implementation;
-using MilkMatrix.Admin.Models.Admin.Requests.Role;
-using MilkMatrix.Api.Models.Request.Admin.Role;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
 using MilkMatrix.Api.Models.Request.Geographical.Tehsil;
 using MilkMatrix.Api.Models.Request.Geographical.Village;
 using MilkMatrix.Core.Abstractions.Logger;
-using MilkMatrix.Domain.Entities.Dtos;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Admin.Models;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
@@ -80,7 +77,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 IsActive = true
             };
 
-            var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
+            var response = request.ActionType == ReadActionType.All
                 ? await stateService.GetStates(stateRequest)
                 : await stateService.GetSpecificLists(stateRequest);
 
@@ -173,16 +170,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 DistrictId = request.DistrictId,
                 StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
-            //var districtParams = mapper.MapWithOptions<DistrictRequest, DistrictRequestModel>(request
-            //        , new Dictionary<string, object> {
-            //{Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-            //    });
-
-            var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
+            var response = request.ActionType == ReadActionType.All
                 ? await districtService.GetDistricts(districtRequest)
                 : await districtService.GetSpecificLists(districtRequest);
 
@@ -209,11 +201,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 DistrictId = request.DistrictId,
                 //StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
-            var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
+            var response = request.ActionType == ReadActionType.All
                 ? await tehsilService.GetTehsils(tehsilRequest)
                 : await tehsilService.GetSpecificLists(tehsilRequest);
 
@@ -242,11 +234,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 //DistrictId = request.DistrictId,
                 //StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
-            var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
+            var response = request.ActionType == ReadActionType.All
                 ? await villageService.GetVillages(villageRequest)
                 : await villageService.GetSpecificLists(villageRequest);
 
@@ -276,39 +268,17 @@ namespace MilkMatrix.Api.Controllers.v1
                 //DistrictId = request.DistrictId,
                 //StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (Domain.Entities.Enums.GetActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
-            var response = request.ActionType == Domain.Entities.Enums.GetActionType.All
+            var response = request.ActionType == ReadActionType.All
                 ? await hamletService.GetHamlets(hamletRequest)
                 : await hamletService.GetSpecificLists(hamletRequest);
 
             return response.Any() ? Ok(response) : BadRequest();
         }
 
-        //[HttpPost]
-        //[Route("add-state")]
-        //public async Task<IActionResult> AddState([FromBody] StateRequestModel request)
-        //{
-
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-        //    var state = mapper.Map<StateRequest>(request);
-        //    var created = await stateService.AddStateAsync(state);
-        //    if (created == "Failed.")
-        //        return StatusCode(500, "Failed to add state.");
-        //    return CreatedAtAction(
-        //        nameof(GetStates),
-        //        new
-        //        {
-        //            version = HttpContext.GetRequestedApiVersion()?.ToString(),
-        //            controller = "Geographical",
-        //            id = state.StateId
-        //        },
-        //        state
-        //    );
-        //}
 
         [HttpPost]
         [Route("add-village")]
@@ -334,8 +304,6 @@ namespace MilkMatrix.Api.Controllers.v1
             );
         }
 
-
-
         [HttpPost]
         [Route("add-Districts")]
         public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictRequestModel request)
@@ -359,7 +327,6 @@ namespace MilkMatrix.Api.Controllers.v1
                 district
             );
         }
-
 
 
         [HttpPost]

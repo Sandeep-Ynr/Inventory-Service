@@ -1,10 +1,10 @@
-using MilkMatrix.Domain.Entities.Enums;
+using MilkMatrix.Core.Entities.Enums;
 
 namespace MilkMatrix.Milk.Models.Request.Geographical
 {
     public class TehsilRequest
     {
-        public GetActionType ActionType { get; set; } = GetActionType.All;
+        public ReadActionType ActionType { get; set; } = ReadActionType.All;
         public int TehsilId { get; set; }
         public string? TehsilName { get; set; }
 

@@ -197,5 +197,33 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
                 throw;
             }
         }
+
+        public override async Task<int> ExecuteScalarAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure)
+        {
+            try
+            {
+                using var conn = new SqlConnection(_connectionString);
+                var dynamicParams = new DynamicParameters();
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        if (param.Value == null ||
+                            param.Value is string ||
+                            param.Value.GetType().IsValueType)
+                        {
+                            dynamicParams.Add(param.Key, param.Value);
+                        }
+                    }
+                }
+                var result = await conn.ExecuteScalarAsync<int>(query, dynamicParams, commandType: commandType);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in ExecuteScalarAsync", ex);
+                throw;
+            }
+        }
     }
 }

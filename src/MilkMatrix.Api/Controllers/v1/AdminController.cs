@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Core.Abstractions.Logger;
-using MilkMatrix.Domain.Entities.Responses;
+using MilkMatrix.Core.Entities.Response;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1;
