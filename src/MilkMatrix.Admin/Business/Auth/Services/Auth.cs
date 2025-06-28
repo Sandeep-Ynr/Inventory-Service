@@ -39,6 +39,7 @@ public class Auth : IAuth
         this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService), "NotificationService cannot be null");
     }
 
+    /// <inheritdoc />
     public async Task<LoginMasterResponse> AuthenticateUserLogin(LoginRequest login)
     {
         LoginMasterResponse finalResult = new();
@@ -99,6 +100,7 @@ public class Auth : IAuth
         return finalResult;
     }
 
+    /// <inheritdoc />
     public async Task<TokenResponse> GetTokenResponseFromLoggedInUser(int loginId)
     {
         var repoLogin = repositoryFactory
@@ -114,6 +116,7 @@ public class Auth : IAuth
         return data;
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> ValidateAppToken(string token)
     {
         TokenStatusResponse Meta = new();
@@ -153,6 +156,7 @@ public class Auth : IAuth
         return Meta;
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> ValidateRefreshToken(RefreshTokenRequest request)
     {
         TokenStatusResponse Meta = new();
@@ -174,6 +178,7 @@ public class Auth : IAuth
         return Meta;
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> UpdateAccessToken(RefreshTokenRequest request)
     {
         TokenStatusResponse Meta = new();
@@ -194,6 +199,7 @@ public class Auth : IAuth
         return Meta;
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> Userlogout(LogoutRequest logout)
     {
         TokenStatusResponse finalResult = new TokenStatusResponse();
@@ -220,6 +226,7 @@ public class Auth : IAuth
         return finalResult;
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<UserDetails>> GetUserDetailsAsync(string id)
     {
         try
@@ -237,6 +244,7 @@ public class Auth : IAuth
         }
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> ForgotPassword(ForgotPasswordRequest request)
     {
         var result = new TokenStatusResponse();
@@ -312,6 +320,7 @@ public class Auth : IAuth
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<TokenStatusResponse> VerifyForgotPassword(ResetPasswordRequest model)
     {
         var result = new TokenStatusResponse();
@@ -352,6 +361,66 @@ public class Auth : IAuth
             result.Message = StatusCodeMessage.InternalServerError;
             result.Status = HttpStatusCode.InternalServerError.ToString();
             logger.LogError($"VerifyForgotPassword: Exception", ex);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<TokenStatusResponse> ChangePassword(ChangePasswordRequest model)
+    {
+        var result = new TokenStatusResponse();
+
+        try
+        {
+            // Hash the password if provided
+            var hashedPassword = !string.IsNullOrEmpty(model.Password)
+                ? model.Password.EncodeSHA512()
+                : string.Empty;
+
+            if (string.IsNullOrWhiteSpace(hashedPassword))
+            {
+                result.Message = "Password cannot be empty.";
+                result.Status = HttpStatusCode.BadRequest.ToString();
+                logger.LogWarning($"UserChangePassword: Password is empty for UserId: {model.UserId}");
+                return result;
+            }
+
+            var queryParams = new Dictionary<string, object>
+                 {
+                    { "Id", model.UserId },
+                    { "Password", hashedPassword },
+                    { "EncryptPassword", hashedPassword }
+                 };
+
+            var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+            var dbResult = (await repo.QueryAsync<string>(AuthSpName.UserChangePassword, queryParams, null)).FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(dbResult) && dbResult.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+            {
+                result.Message = dbResult;
+                result.Status = HttpStatusCode.OK.ToString();
+                logger.LogInfo($"UserChangePassword: Password changed successfully for UserId: {model.UserId}");
+                return result;
+            }
+
+            if (string.IsNullOrWhiteSpace(dbResult))
+            {
+                logger.LogWarning($"UserChangePassword: No response from UserChangePassword SP for UserId: {model.UserId}");
+                result.Message = StatusCodeMessage.InternalServerError;
+                result.Status = HttpStatusCode.InternalServerError.ToString();
+                return result;
+            }
+
+            result.Message = dbResult;
+            result.Status = HttpStatusCode.InternalServerError.ToString();
+            logger.LogWarning($"UserChangePassword: Failed to change password for UserId: {model.UserId}, Message: {dbResult}");
+        }
+        catch (Exception ex)
+        {
+            result.Message = StatusCodeMessage.InternalServerError;
+            result.Status = HttpStatusCode.InternalServerError.ToString();
+            logger.LogError($"UserChangePassword: Exception for UserId: {model.UserId}", ex);
         }
 
         return result;

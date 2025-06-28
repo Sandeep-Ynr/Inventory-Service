@@ -1,6 +1,5 @@
 using System.Net;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +13,14 @@ using MilkMatrix.Api.Models.Request.Login;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using static Azure.Core.HttpHeader;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
+    /// <summary>
+    /// Controller for handling user login and authentication operations.
+    /// This controller provides endpoints for user login, logout, password management, and token refresh operations.
+    /// </summary>
     [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
@@ -30,6 +32,13 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMapper mapper;
         private ILogging logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoginController"/> class.
+        /// </summary>
+        /// <param name="iAuthentication"></param>
+        /// <param name="ihttpContextAccessor"></param>
+        /// <param name="mapper"></param>
+        /// <param name="logger"></param>
         public LoginController(IAuth iAuthentication, IHttpContextAccessor ihttpContextAccessor, IMapper mapper, ILogging logger)
         {
             this.iAuthentication = iAuthentication;
@@ -38,6 +47,12 @@ namespace MilkMatrix.Api.Controllers.v1
             this.logger = logger.ForContext("ServiceName", nameof(LoginController));
         }
 
+        /// <summary>
+        /// Authenticates a user login request.
+        /// </summary>
+        /// <param name="isLogingWithOtp"></param>
+        /// <param name="login"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("user-login/{isLogingWithOtp}")]
@@ -74,6 +89,10 @@ namespace MilkMatrix.Api.Controllers.v1
                 return Ok(loginResponse);
         }
 
+        /// <summary>
+        /// Logs out the currently authenticated user.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("logged-in-details")]
         public async Task<ActionResult> GetUserDetails()
         {
@@ -86,6 +105,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 : NotFound();
         }
 
+        /// <summary>
+        /// Refreshes the access token for the currently authenticated user using a valid refresh token.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("refresh-token")]
         public async Task<IActionResult> RefreshToken(RefreshTokenModel request)
@@ -123,6 +147,11 @@ namespace MilkMatrix.Api.Controllers.v1
             return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.Unauthorized, ErrorMessage = ErrorMessage.UnAuthorized });
         }
 
+        /// <summary>
+        /// Handles the forgot password request for a user.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         #region Forget Password
         [AllowAnonymous]
         [HttpPost]
@@ -151,6 +180,11 @@ namespace MilkMatrix.Api.Controllers.v1
                 return Ok(result);
         }
 
+        /// <summary>
+        /// Verifies the forgot password request for a user.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("verify-forgot-password")]
@@ -178,5 +212,25 @@ namespace MilkMatrix.Api.Controllers.v1
                 return Ok(result);
         }
         #endregion
+
+        /// <summary>
+        /// Changes the password for the currently authenticated user.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("change-password")]
+        public async Task<IActionResult> UserChangePassword(ChangePasswordModel model)
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            model.UserId = string.IsNullOrEmpty(model.UserId) ? userId : model.UserId;
+            var result = await iAuthentication.ChangePassword(mapper.Map<ChangePasswordRequest>(model));
+            if (result == null || result.Status != HttpStatusCode.OK.ToString())
+            {
+                return NotFound("No record found");
+            }
+            else
+                return Ok(result);
+        }
     }
 }

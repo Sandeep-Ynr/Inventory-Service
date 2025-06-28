@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Common;
+using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Responses.Modules;
 using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.Role;
@@ -11,10 +12,14 @@ using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Response.Business;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation;
 
+/// <summary>
+/// Defines the implementations for common module operations in the application.
+/// </summary>
 public class CommonModules : ICommonModules
 {
     private ILogging logger;
@@ -24,6 +29,15 @@ public class CommonModules : ICommonModules
     private readonly IQueryMultipleData queryMultipleData;
 
     private readonly AppConfig appConfig;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommonModules"/> class.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="repositoryFactory"></param>
+    /// <param name="appConfig"></param>
+    /// <param name="queryMultipleData"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.repositoryFactory = repositoryFactory;
@@ -31,6 +45,8 @@ public class CommonModules : ICommonModules
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
         this.queryMultipleData = queryMultipleData;
     }
+
+    /// <inheritdoc />
     public async Task<CommonUserDetails> GetCommonDetails(string userId, string mobileNumber)
     {
         try
@@ -44,6 +60,7 @@ public class CommonModules : ICommonModules
         }
     }
 
+    /// <inheritdoc />
     public async Task<ModuleResponse> GetModulesAsync(string userId, string mobileNumber)
     {
         var response = new ModuleResponse();
@@ -62,6 +79,45 @@ public class CommonModules : ICommonModules
         response.PageList = ExtractAllPages(mList);
 
         return response;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<FinancialYearDetails>> GetFinancialYearAsync(FinancialYearRequest request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                logger.LogError("FinancialYearRequest is null.");
+                return Enumerable.Empty<FinancialYearDetails>();
+            }
+
+            var requestParams = new Dictionary<string, object>
+            {
+                { "Id", request.Id },
+                { "ActionType", request.ActionType },
+                { "Status", request.IsActive }
+            };
+
+            var repo = repositoryFactory.ConnectDapper<FinancialYearDetails>(DbConstants.Main);
+            var result = await repo.QueryAsync<FinancialYearDetails>(
+                AuthSpName.GetFinancialYear,
+                requestParams,
+                null,
+                CommandType.StoredProcedure);
+
+            if (result == null || !result.Any())
+            {
+                logger.LogWarning("No financial year details found for the given request.");
+                return Enumerable.Empty<FinancialYearDetails>();
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
+            return Enumerable.Empty<FinancialYearDetails>();
+        }
     }
 
     private async Task<CommonUserDetails> GetCommonData(LoggedInUser? userData)

@@ -17,12 +17,21 @@ public static partial class Constants
         public const string ValidateOtp = "usp_Validate_Otp";//To validate otp;
         public const string PasswordChangeRequest = "usp_User_Password_Change_Request"; //To insert password change request
         public const string VerifyPasswordChange = "usp_User_Varify_Password_Change"; //To validate and update user password
+        public const string UserChangePassword = "usp_User_Change_Password";//To Change User Password
+        public const string GetFinancialYear = "usp_financial_year"; //To get financial year details
     }
 
     public static class UserSpName
     {
         public const string UserUpsert = "usp_user_registration_insupd"; //For User Insert/Update
         public const string GetUsers = "usp_get_user_details"; //For getting users
+    }
+
+    public static class BusinessSpName
+    {
+        public const string BusinessUpsert = "usp_business_details_insupd"; //For Business Insert/Update
+        public const string GetBusinessDetails = "usp_business_details"; //For getting business lists
+        public const string GetBusinessData = "usp_business_data"; //For getting business data
     }
 
     public static class RoleSpName

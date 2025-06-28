@@ -1,4 +1,5 @@
 using MilkMatrix.Admin.Models.Admin.Responses.Role;
+using MilkMatrix.Core.Entities.Response.Business;
 
 namespace MilkMatrix.Admin.Models.Admin.Common;
 

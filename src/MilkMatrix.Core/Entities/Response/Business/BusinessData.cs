@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin;
+namespace MilkMatrix.Core.Entities.Response.Business;
 
 public class BusinessData
 {
