@@ -1,8 +1,10 @@
 using System.Data;
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request;
@@ -28,7 +30,7 @@ namespace MilkMatrix.Milk.Implementations
 
         }
 
-      
+
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request)
         {
             var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
@@ -48,7 +50,7 @@ namespace MilkMatrix.Milk.Implementations
 
         }
 
-       
+
         public async Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request)
         {
             var repository = repositoryFactory.Connect<VillageResponse>(DbConstants.Main);
@@ -109,7 +111,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId },
                     { "IsStatus", request.IsStatus },
-                    { "CreatedBy", request.CreatedBy },  
+                    { "CreatedBy", request.CreatedBy },
                     { "ModifyBy", request.ModifyBy }
                 };
 
@@ -148,5 +150,26 @@ namespace MilkMatrix.Milk.Implementations
             }
         }
 
+
+
+        public async Task<IEnumerable<VillageRequest>> GetByVillageId(int villageId)
+        {
+            var repository = repositoryFactory.Connect<VillageRequest>(DbConstants.Main);
+
+            var requestParams = new Dictionary<string, object>
+            {
+                {"ActionType", 2}, // Use appropriate enum value
+                {"VillageId", villageId}
+            };
+
+            var response = await repository.QueryAsync<VillageRequest>(
+                VillageQueries.GetVillage,
+                requestParams,
+                null,
+                CommandType.StoredProcedure
+            );
+
+            return response;
+        }
     }
 }
