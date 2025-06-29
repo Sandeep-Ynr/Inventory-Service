@@ -303,6 +303,40 @@ namespace MilkMatrix.Api.Controllers.v1
                 village
             );
         }
+        [HttpPut]
+        [Route("update-village/{id}")]
+        public async Task<IActionResult> UpdateVillage(int id, [FromBody] VillageRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            request.VillageId = id;
+
+            var village = mapper.Map<VillageRequest>(request);
+
+            var result = await villageService.UpdateVillage(village);
+            if (result == "Failed.")
+                return StatusCode(500, "Failed to update village.");
+
+            return Ok(new { message = "Village updated successfully." });
+        }
+
+        [HttpDelete]
+        [Route("delete-village/{id}")]
+        public async Task<IActionResult> DeleteVillage(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid village ID.");
+
+            var result = await villageService.DeleteVillage(id);
+
+            if (result == "Failed." || result.Contains("failed", StringComparison.OrdinalIgnoreCase))
+                return StatusCode(500, "Failed to delete village.");
+
+            return Ok(new { message = "Village deleted successfully." });
+        }
+
 
         [HttpPost]
         [Route("add-Districts")]
