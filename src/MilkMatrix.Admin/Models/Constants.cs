@@ -64,6 +64,13 @@ public static partial class Constants
         public const string GetSubModules = "usp_sub_module_manager"; //For getting roles
     }
 
+    public static class ConfigurationSettingSpName
+    {
+        public const string ConfigurationUpsert = "usp_configurations_insupd"; //For Configuration Insert
+        public const string GetConfigurationSettings = "usp_configurations_list"; //For getting configuration settings
+    }
+
+
     public static class AutoMapper
     {
         public const string HostName = "HostName";

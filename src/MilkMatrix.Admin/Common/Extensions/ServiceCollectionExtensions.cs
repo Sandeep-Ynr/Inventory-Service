@@ -21,7 +21,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRolePageService, RolePageService>()
             .AddScoped<IModuleService, ModuleService>()
             .AddScoped<ISubModuleService, SubModuleService>()
-            .AddScoped<IBusinessService, BusinessService>();
+            .AddScoped<IBusinessService, BusinessService>()
+            .AddScoped<IConfigurationService, ConfigurationService>();
         services.AddScoped<ICommonModules, CommonModules>();
         services.AddScoped<ITokenProcess, TokenProcess>();
 

@@ -289,7 +289,7 @@ public class Auth : IAuth
                 Content = verificationCode.ToString()
             };
 
-            var notificationResponse = await notificationService.SendOtpAsync<NotificationRequest, NotificationResponse>(notificationRequest);
+            var notificationResponse = await notificationService.SendAsync<NotificationRequest, NotificationResponse>(notificationRequest);
 
             if (notificationResponse == null)
             {

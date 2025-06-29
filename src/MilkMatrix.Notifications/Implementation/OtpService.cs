@@ -23,7 +23,7 @@ public class OtpService : IOtpService
         this.emailService = emailService;
         this.logger = logger.ForContext("ServiceName", nameof(OtpService));
     }
-    public async Task<TResponse> SendOtpAsync<TRequest, TResponse>(TRequest request)
+    public async Task<TResponse> SendAsync<TRequest, TResponse>(TRequest request)
     {
         try
         {
