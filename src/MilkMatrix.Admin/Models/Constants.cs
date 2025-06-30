@@ -68,6 +68,8 @@ public static partial class Constants
     {
         public const string ConfigurationUpsert = "usp_configurations_insupd"; //For Configuration Insert
         public const string GetConfigurationSettings = "usp_configurations_list"; //For getting configuration settings
+        public const string SmtpSettingsUpsert = "usp_mail_smtp_insupd"; //For Smtp settings Insert update
+        public const string GetSmtpSettings = "usp_mail_smtp_list"; //For getting smtp settings
     }
 
 

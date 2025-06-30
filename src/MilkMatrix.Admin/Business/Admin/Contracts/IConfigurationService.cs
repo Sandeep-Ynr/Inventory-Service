@@ -10,6 +10,7 @@ namespace MilkMatrix.Admin.Business.Admin.Contracts;
 /// </summary>
 public interface IConfigurationService
 {
+    #region Configuration Settings
     /// <summary>
     /// Retrieves the details of a configuration setting or tag by its unique identifier.
     /// </summary>
@@ -45,4 +46,43 @@ public interface IConfigurationService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IListsResponse<ConfigurationDetails>> GetAllAsync(IListsRequest request, int userId);
+    #endregion
+
+    #region Email Settings
+    /// <summary>
+    /// Retrieves the details of a smtp setting or tag by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<SmtpDetails?> GetBySmtpIdAsync(int id);
+
+    /// <summary>
+    /// Adds a new smtp setting system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddSmtpDetailsAsync(SmtpSettingsInsert request);
+
+    /// <summary>
+    /// Updates an existing smtp setting in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task UpdateSmtpDetailsAsync(SmtpSettingsUpdate request);
+
+    /// <summary>
+    /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task DeleteSmtpDetailsAsync(int id, int userId);
+
+    /// <summary>
+    /// Retrieves a list of smtp settings from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IListsResponse<SmtpDetails>> GetAllSmtpDetaisAsync(IListsRequest request);
+    #endregion
 }
