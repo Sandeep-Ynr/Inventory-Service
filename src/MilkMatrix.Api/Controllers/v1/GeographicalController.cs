@@ -3,6 +3,8 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
@@ -15,6 +17,7 @@ using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -181,6 +184,100 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
 
+        [HttpGet("district{id}")]
+        public async Task<ActionResult<DistrictResponse?>> GetById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get district by id called for id: {id}");
+                var user = await districtService.GetByIdAsync(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"district with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"district with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving district with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the district.");
+            }
+        }
+
+
+        //[HttpGet]
+        //[Route("state/{id}")]
+        //public async Task<IActionResult> GetStateById(int id)
+        //{
+        //    var response = await villageService.GetByVillageId(id);
+        //    return response.Any() ? Ok(response) : NotFound(new { message = "District not found" });
+
+        //}
+
+
+        [HttpPost]
+        [Route("add-Districts")]
+        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictRequestModel request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var district = mapper.Map<DistrictRequest>(request);
+
+            var created = await districtService.AddDistrictsAsync(district);
+            if (created == "Failed.")
+                return StatusCode(500, "Failed to add District.");
+
+            return CreatedAtAction(
+                nameof(GetDistricts),
+                new
+                {
+                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
+                    controller = "Geographical",
+                    id = district.DistrictId
+                },
+                district
+            );
+        }
+
+        [HttpPut]
+        [Route("update-district/{id}")]
+        public async Task<IActionResult> UpdateDistrict(int id,[FromBody] DistrictUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            //request.VillageId = id;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<DistrictUpdateRequest, DistrictUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await districtService.UpdateDistrictAsync(requestParams);
+            logger.LogInfo($"State with id {request.StateId} updated successfully.");
+            return Ok(new { message = "State updated successfully." });
+        }
+
+        [HttpDelete("district-delete/{id}")]
+        public async Task<IActionResult> DeleteDistrict(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await districtService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"District with id {id} deleted successfully.");
+                return Ok(new { message = "District deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting role with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the District.");
+            }
+        }
+
+
         /// <summary>
         /// Get the List of Tehsil
         /// </summary>
@@ -223,9 +320,7 @@ namespace MilkMatrix.Api.Controllers.v1
             logger.LogInfo($"GetVillages request processed with ActionType: " +
                 $"{request.ActionType}, VillageId: " +
                 $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
+                $"{request.TehsilId}");
 
             var villageRequest = new VillageRequest
             {
@@ -413,30 +508,6 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
 
-
-        [HttpPost]
-        [Route("add-Districts")]
-        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictRequestModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var district = mapper.Map<DistrictRequest>(request);
-
-            var created = await districtService.AddDistrictsAsync(district);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add District.");
-
-            return CreatedAtAction(
-                nameof(GetDistricts),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = district.DistrictId
-                },
-                district
-            );
-        }
 
 
         [HttpPost]

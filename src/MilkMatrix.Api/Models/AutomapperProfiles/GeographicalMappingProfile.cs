@@ -13,6 +13,12 @@ public class GeographicalMappingProfile : Profile
 {
     public GeographicalMappingProfile()
     {
+        CreateMap<DistrictUpdateRequestModel, DistrictUpdateRequest>()
+                        .ForMember(x => x.DistrictId, opt => opt.MapFrom(src => src.DistrictId))
+                        .ForMember(x => x.DistrictName, opt => opt.MapFrom(src => src.DistrictName))
+                        .ForMember(x => x.StateId, opt => opt.MapFrom(src => src.StateId))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
         CreateMap<DistrictRequestModel, DistrictRequest>();
         CreateMap<HamletRequestModel, HamletRequest>();
         CreateMap<StateUpsertModel, StateUpdateRequest>()

@@ -81,8 +81,8 @@ namespace MilkMatrix.Milk.Implementations
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId },
                     { "IsStatus", request.IsStatus },
-                    { "CreatedBy", request.CreatedBy },
-                    { "ModifyBy", request.ModifyBy },
+                    //{ "CreatedBy", request.CreatedBy },
+                    //{ "ModifyBy", request.ModifyBy },
                 };
 
                 var response = await repository.QueryAsync<CommonLists>(
@@ -111,8 +111,8 @@ namespace MilkMatrix.Milk.Implementations
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId },
                     { "IsStatus", request.IsStatus },
-                    { "CreatedBy", request.CreatedBy },
-                    { "ModifyBy", request.ModifyBy }
+                    //{ "CreatedBy", request.CreatedBy },
+                    //{ "ModifyBy", request.ModifyBy }
                 };
 
                 var response = await repository.QueryAsync<CommonLists>(
@@ -159,7 +159,8 @@ namespace MilkMatrix.Milk.Implementations
             var requestParams = new Dictionary<string, object>
             {
                 {"ActionType", 2}, // Use appropriate enum value
-                {"VillageId", villageId}
+                {"VillageId", villageId},
+                {"IsStatus", 1}
             };
 
             var response = await repository.QueryAsync<VillageRequest>(
