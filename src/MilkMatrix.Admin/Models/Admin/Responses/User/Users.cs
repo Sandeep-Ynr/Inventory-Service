@@ -18,4 +18,7 @@ public class Users
 
     public string? Allbranch { get; set; }
 
+    public string ReportingToName { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
+
 }
