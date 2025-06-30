@@ -244,13 +244,84 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
+
+        [HttpGet]
+        [Route("village/{id}")]
+        public async Task<IActionResult> GetVillageById(int id)
+        {
+            var response = await villageService.GetByVillageId(id);
+            return response.Any() ? Ok(response) : NotFound(new { message = "Village not found" });
+
+        }
+
+        [HttpPost]
+        [Route("add-village")]
+        public async Task<IActionResult> AddVillage([FromBody] VillageRequestModel request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var village = mapper.Map<VillageRequest>(request);
+
+            var created = await villageService.AddVillage(village);
+            if (created == "Failed.")
+                return StatusCode(500, "Failed to add village.");
+
+            return CreatedAtAction(
+                nameof(GetVillages),
+                new
+                {
+                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
+                    controller = "Geographical",
+                    id = village.VillageId
+                },
+                village
+            );
+        }
+        [HttpPut]
+        [Route("update-village/{id}")]
+        public async Task<IActionResult> UpdateVillage(int id, [FromBody] VillageRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            request.VillageId = id;
+
+            var village = mapper.Map<VillageRequest>(request);
+
+            var result = await villageService.UpdateVillage(village);
+            if (result == "Failed.")
+                return StatusCode(500, "Failed to update village.");
+
+            return Ok(new { message = "Village updated successfully." });
+        }
+
+        [HttpDelete]
+        [Route("delete-village/{id}")]
+        public async Task<IActionResult> DeleteVillage(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid village ID.");
+
+            var result = await villageService.DeleteVillage(id);
+
+            if (result == "Failed." || result.Contains("failed", StringComparison.OrdinalIgnoreCase))
+                return StatusCode(500, "Failed to delete village.");
+
+            return Ok(new { message = "Village deleted successfully." });
+        }
+
+
+
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns>Hamlet List</returns>
         [HttpPost]
         [Route("hamlet-list")]
-        public async Task<IActionResult> GetHamlets([FromBody] HamletRequestModel request) 
+        public async Task<IActionResult> GetHamlets([FromBody] HamletRequestModel request)
         {
             logger.LogInfo($"GetHamlets request processed with ActionType: " +
                 $"{request.ActionType}, HamletId: " +
@@ -279,30 +350,69 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
 
+        [HttpGet]
+        [Route("hamlet/{id}")]
+        public async Task<IActionResult> GetHamletById(int id)
+        {
+            var response = await hamletService.GetByHamletId(id);
+            return response != null && response.Any()? Ok(response): NotFound(new { message = "Hamlet not found" });
+        }
+
 
         [HttpPost]
-        [Route("add-village")]
-        public async Task<IActionResult> AddVillage([FromBody] VillageRequestModel request)
+        [Route("add-Hamlet")]
+        public async Task<IActionResult> AddHamlet([FromBody] HamletRequestModel request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var village = mapper.Map<VillageRequest>(request);
-
-            var created = await villageService.AddVillage(village);
+            var Hamlet = mapper.Map<HamletRequest>(request);
+            var created = await hamletService.AddHamlet(Hamlet);
             if (created == "Failed.")
-                return StatusCode(500, "Failed to add village.");
+                return StatusCode(500, "Failed to add Hamlet.");
 
             return CreatedAtAction(
-                nameof(GetVillages),  
+                nameof(GetHamlets),
                 new
                 {
                     version = HttpContext.GetRequestedApiVersion()?.ToString(),
                     controller = "Geographical",
-                    id = village.VillageId
+                    id = Hamlet.HamletId
                 },
-                village
+                Hamlet
             );
         }
+
+        [HttpPut]
+        [Route("update-hamlet/{id}")]
+        public async Task<IActionResult> UpdateHamlet(int id, [FromBody] HamletRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest(new { message = "Invalid request." });
+            request.HamletId = id;
+            var hamlet = mapper.Map<HamletRequest>(request);
+            var result = await hamletService.UpdateHamlet(hamlet);
+
+            if (string.Equals(result, "Failed.", StringComparison.OrdinalIgnoreCase))
+                return StatusCode(500, new { message = "Failed to update hamlet." });
+            return Ok(new { message = "Hamlet updated successfully." });
+        }
+
+        [HttpDelete]
+        [Route("delete-hamlet/{id}")]
+        public async Task<IActionResult> DeleteHamlet(int id)
+        {
+            if (id <= 0)
+                return BadRequest(new { message = "Invalid hamlet ID." });
+            var result = await hamletService.DeleteHamlet(id);
+            if (string.Equals(result, "Failed.", StringComparison.OrdinalIgnoreCase) ||
+                result.Contains("failed", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(500, new { message = "Failed to delete hamlet." });
+            }
+            return Ok(new { message = "Hamlet deleted successfully." });
+        }
+
+
 
         [HttpPost]
         [Route("add-Districts")]
@@ -352,27 +462,6 @@ namespace MilkMatrix.Api.Controllers.v1
             );
         }
 
-        [HttpPost]
-        [Route("add-Hamlet")]
-        public async Task<IActionResult> AddHamlet([FromBody] HamletRequestModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var Hamlet = mapper.Map<HamletRequest>(request);
-            var created = await hamletService.AddHamlet(Hamlet);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add Hamlet.");
 
-            return CreatedAtAction(
-                nameof(GetHamlets),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = Hamlet.HamletId
-                },
-                Hamlet
-            );
-        }
     }
 }

@@ -6,6 +6,6 @@ namespace MilkMatrix.Milk.Models.Response.Geographical
     {
             public int TehsilId { get; set; }
             public string TehsilName { get; set; } = string.Empty;
-            //public string VillageId { get; set; } = String.Empty;
+            public string VillageId { get; set; } = String.Empty;
     }
 }

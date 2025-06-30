@@ -20,11 +20,11 @@ namespace MilkMatrix.Milk.Implementations
         public HamletService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory)
         {
             this.logging = logging.ForContext("ServiceName", nameof(HamletService));
-            this.appConfig = appConfig.Value?? throw new ArgumentNullException(nameof(appConfig));
+            this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
         }
 
-        public async Task <IEnumerable<CommonLists>> GetSpecificLists(HamletRequest request) 
+        public async Task<IEnumerable<CommonLists>> GetSpecificLists(HamletRequest request)
         {
             var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
             var requestParams = new Dictionary<string, object>
@@ -73,9 +73,6 @@ namespace MilkMatrix.Milk.Implementations
                  { "HamletId", request.HamletId ?? (object)DBNull.Value },
                  { "HamletName", request.HamletName ?? (object)DBNull.Value },
                  { "VillageId", request.VillageId ?? (object)DBNull.Value },
-                 //{ "TehsilId", request.TehsilId?? (object)DBNull.Value },
-                 //{ "DistrictId", request.DistrictId?? (object)DBNull.Value },
-                 //{ "StateId", request.StateId ?? (object)DBNull.Value},
                  { "IsStatus", request.IsStatus ?? (object)DBNull.Value },
                  { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value },
                  { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
@@ -85,8 +82,6 @@ namespace MilkMatrix.Milk.Implementations
                 var response = await repository.QueryAsync<CommonLists>(
                     HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
                 );
-
-                // Return the inserted StateId or Name, etc. depending on your SP response
                 return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
             }
             catch (Exception ex)
@@ -95,8 +90,71 @@ namespace MilkMatrix.Milk.Implementations
                 return "Error occurred";
             }
         }
+
+        public async Task<string> UpdateHamlet(HamletRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+            {
+                 { "ActionType", 2 },
+                 { "HamletId", request.HamletId ?? (object)DBNull.Value },
+                 { "HamletName", request.HamletName ?? (object)DBNull.Value },
+                 { "VillageId", request.VillageId ?? (object)DBNull.Value },
+                 { "IsStatus", request.IsStatus ?? (object)DBNull.Value },
+                 { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value },
+                 { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                 { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+            };
+
+                var response = await repository.QueryAsync<CommonLists>(
+                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
+                );
+                return response?.FirstOrDefault()?.Name ?? "Update failed or no response";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return "Error occurred";
+            }
+        }
+
+        public async Task<string> DeleteHamlet(int id)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", 3 },    
+                    { "HamletId", id }      
+                };
+                var response = await repository.QueryAsync<CommonLists>(
+                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
+                );
+
+                return response?.FirstOrDefault()?.Name ?? "Delete failed or no response";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in DeleteHamlet: " + ex.Message);
+                return "Error occurred";
+            }
+        }
+
+        public async Task<IEnumerable<HamletRequest>> GetByHamletId(int hamletId)
+        {
+            var repository = repositoryFactory.Connect<HamletRequest>(DbConstants.Main);
+            var requestParams = new Dictionary<string, object>
+            {
+                { "ActionType", 2 }, 
+                { "HamletId", hamletId }
+            };
+            var response = await repository.QueryAsync<HamletRequest>(
+                HamletQueries.GetHamlet,requestParams,null,CommandType.StoredProcedure
+            );
+            return response;
+        }
     }
-
-
-
 }
