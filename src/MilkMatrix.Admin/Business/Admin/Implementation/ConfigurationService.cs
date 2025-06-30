@@ -15,6 +15,7 @@ using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Entities.Response.Business;
 using MilkMatrix.Core.Extensions;
+using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation
@@ -37,6 +38,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
         }
 
+        #region Configuration Settings
         public async Task AddAsync(ConfigurationInsertRequest request)
         {
             if (request == null)
@@ -102,7 +104,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<ConfigurationDetails, int, FiltersMeta>(BusinessSpName.GetBusinessDetails,
+                .GetMultiDetailsAsync<ConfigurationDetails, int, FiltersMeta>(ConfigurationSettingSpName.GetConfigurationSettings,
                 DbConstants.Main,
                 new Dictionary<string, object> {
                     { "ActionType", (int)ReadActionType.All },
@@ -189,5 +191,153 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 throw;
             }
         }
+
+        #endregion
+
+        #region Email Settings
+
+        public async Task<SmtpDetails?> GetBySmtpIdAsync(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetByIdAsync called for Smtp id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<SmtpDetails>(DbConstants.Main);
+                var data = await repo.QueryAsync<SmtpDetails>(ConfigurationSettingSpName.GetSmtpSettings, new Dictionary<string, object> { { "Id", id },
+                                                                                { "ActionType", (int)ReadActionType.Individual } }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : default;
+                logger.LogInfo(result != null
+                    ? $"Smtp with id {id} retrieved successfully."
+                    : $"Smtp with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetByIdAsync for Smtp id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task AddSmtpDetailsAsync(SmtpSettingsInsert request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                logger.LogInfo($"AddAsync called for smtpServer: {request.SmtpServer}");
+
+                var repo = repositoryFactory.ConnectDapper<SmtpSettingsInsert>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["SMTPServer"] = request.SmtpServer,
+                    ["SMTPPort"] = request.SmtpPort,
+                    ["SMTPUserId"] = request.SmtpUserId,
+                    ["SMTPPassword"] = request.SmtpPassword.EncodeSHA512(),
+                    ["Status"] = true,
+                    ["CreatedBy"] = request.CreatedBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
+                logger.LogInfo($"Smtp {request.SmtpServer} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateSmtpDetailsAsync(SmtpSettingsUpdate request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                logger.LogInfo($"UpdateAsync called for smtpServer: {request.SmtpServer}");
+
+                var repo = repositoryFactory.ConnectDapper<SmtpSettingsUpdate>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["MailId"] = request.Id,
+                    ["SMTPServer"] = request.SmtpServer,
+                    ["SMTPPort"] = request.SmtpPort,
+                    ["SMTPUserId"] = request.SmtpUserId,
+                    ["SMTPPassword"] = request.SmtpPassword.EncodeSHA512(),
+                    ["Status"] = request.IsActive,
+                    ["ModifyBy"] = request.ModifyBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
+                logger.LogInfo($"Smtp {request.SmtpServer} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteSmtpDetailsAsync(int id, int userId)
+        {
+            try
+            {
+                logger.LogInfo($"DeleteAsync called for Smtp settings id: {id}");
+                var repo = repositoryFactory.ConnectDapper<ConfigurationDetails>(DbConstants.Main);
+                var parameters = new Dictionary<string, object>
+            {
+                {"Id", id },
+                {"Status", false },
+                {"ModifyBy", userId },
+                {"ActionType" , (int)CrudActionType.Delete }
+            };
+                await repo.DeleteAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
+                logger.LogInfo($"SmtpSettings with id {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in DeleteAsync for Smtp id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<IListsResponse<SmtpDetails>> GetAllSmtpDetaisAsync(IListsRequest request)
+        {
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<SmtpDetails, int, FiltersMeta>(ConfigurationSettingSpName.GetSmtpSettings,
+                DbConstants.Main,
+                new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.All }},
+                null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<SmtpDetails>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+        #endregion
     }
 }

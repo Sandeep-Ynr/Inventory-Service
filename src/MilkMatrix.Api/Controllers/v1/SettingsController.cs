@@ -181,4 +181,141 @@ public class SettingsController : ControllerBase
         }
     }
     #endregion
+
+    #region Email Settings
+
+    /// <summary>
+    /// Retrieves the details of a Smtp setting by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("smtp/{id}")]
+    public async Task<ActionResult> GetBySmtpId(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Get SmtpDetails by id called for id: {id}");
+            var configDetails = await configService.GetBySmtpIdAsync(id);
+            if (configDetails == null)
+            {
+                logging.LogInfo($"SmtpDetails with id {id} not found.");
+                return NoContent();
+            }
+            logging.LogInfo($"SmtpDetails with id {id} retrieved successfully.");
+            return Ok(configDetails);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving SmtpDetails with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the SmtpDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Inserts a new smtp setting into the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("smtp-insert")]
+    public async Task<IActionResult> InsertSmtpDetails([FromBody] SmtpSettingsInsertModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            logging.LogInfo($"Upsert: Add called for SMtpDetails: {request.SmtpServer}");
+            var requestParams = mapper.MapWithOptions<SmtpSettingsInsert, SmtpSettingsInsertModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.AddSmtpDetailsAsync(requestParams);
+            logging.LogInfo($"SmtpDetails {request.SmtpServer} added successfully.");
+            return Ok(new { message = "SmtpDetails added successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Upsert ConfigDetails", ex);
+            return StatusCode(500, "An error occurred while processing the SmtpDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing configuration setting or tag in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut("smtp-update")]
+    public async Task<IActionResult> UpdateSmtpDetails([FromBody] SmtpSettingsUpdateModel request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            logging.LogInfo($"Upsert: Update called for SmtpDetails: {request.SmtpServer}");
+            var requestParams = mapper.MapWithOptions<SmtpSettingsUpdate, SmtpSettingsUpdateModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.UpdateSmtpDetailsAsync(requestParams);
+            logging.LogInfo($"SmtpDetails with {request.SmtpServer} updated successfully.");
+            return Ok(new { message = "SmtpDetails updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Upsert SmtpDetails", ex);
+            return StatusCode(500, "An error occurred while processing the SmtpDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a list of configuration settings or tags from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("smtp-list")]
+    public async Task<IActionResult> SmtpList([FromBody] ListsRequest request)
+    {
+        var result = await configService.GetAllSmtpDetaisAsync(request);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Deletes a configuration setting or tag from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("smtp-delete/{id}")]
+    public async Task<IActionResult> DeleteSmtp(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Delete smtp called for id: {id}");
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configService.DeleteSmtpDetailsAsync(id, Convert.ToInt32(UserId));
+            logging.LogInfo($"SmtpDetails with id {id} deleted successfully.");
+            return Ok(new { message = "SmtpDetails deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error deleting Smtpdetails with id: {id}", ex);
+            return StatusCode(500, "An error occurred while deleting the Smtp.");
+        }
+    }
+    #endregion
 }
