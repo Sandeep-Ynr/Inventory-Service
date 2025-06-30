@@ -7,10 +7,10 @@ namespace MilkMatrix.Admin.Business.Admin.Contracts
 {
     public interface IRolePageService
     {
-        Task<IEnumerable<RolePages>> GetByIdAsync(int id, int businessId);
+        Task<IEnumerable<RolePages>> GetByIdAsync(int id);
         Task AddAsync(RolePageInsertRequest request);
         Task UpdateAsync(RolePageUpdateRequest request);
-        Task DeleteAsync(int id, int businessId, int userId);
+        Task DeleteAsync(int id, int userId);
         Task<IListsResponse<RolePages>> GetAllAsync(IListsRequest request);
     }
 }

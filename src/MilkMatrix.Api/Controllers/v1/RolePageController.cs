@@ -65,65 +65,15 @@ public class RolePageController : ControllerBase
             logger.LogError("Error in Upsert role", ex);
             return StatusCode(500, "An error occurred while processing the role.");
         }
-    }
+    }   
 
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateRolePage([FromBody] RolePageUpsertModel request)
-    {
-        try
-        {
-            if (request == null)
-            {
-                return BadRequest(new ErrorResponse
-                {
-                    StatusCode = (int)HttpStatusCode.BadRequest,
-                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
-                });
-            }
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            // If Id is present and > 0, treat as update, else add
-
-            logger.LogInfo($"Upsert: Update called for rolePage id: {request.RoleId}");
-            var requestParams = mapper.MapWithOptions<RolePageUpdateRequest, RolePageUpsertModel>(request
-                , new Dictionary<string, object> {
-            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-            });
-            await rolePageService.UpdateAsync(requestParams);
-            logger.LogInfo($"rolePage with id {request.RoleId} updated successfully.");
-            return Ok(new { message = "rolePage updated successfully." });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Error in Upsert role", ex);
-            return StatusCode(500, "An error occurred while processing the role.");
-        }
-    }
-
-    [HttpDelete("delete/{roleId}/{businessId}")]
-    public async Task<IActionResult> Delete(int roleId, int businessId)
-    {
-        try
-        {
-            logger.LogInfo($"Delete rolepage called for id: {roleId}, {businessId}");
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            await rolePageService.DeleteAsync(roleId, businessId, Convert.ToInt32(UserId));
-            logger.LogInfo($"Rolepage with id {roleId}, {businessId} deleted successfully.");
-            return Ok(new { message = "RolePage deleted successfully." });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Error deleting RolePage with id: {roleId}, {businessId}", ex);
-            return StatusCode(500, "An error occurred while deleting the RolePage.");
-        }
-    }
-
-    [HttpGet("{roleId}/{businessId}")]
-    public async Task<ActionResult> GetById(int roleId, int businessId)
+    [HttpGet("{roleId}")]
+    public async Task<ActionResult> GetById(int roleId)
     {
         try
         {
             logger.LogInfo($"Get RolePage by id called for id: {roleId}");
-            var page = await rolePageService.GetByIdAsync(roleId, businessId);
+            var page = await rolePageService.GetByIdAsync(roleId);
             if (!page.Any())
             {
                 logger.LogInfo($"RolePage with id {roleId} not found.");

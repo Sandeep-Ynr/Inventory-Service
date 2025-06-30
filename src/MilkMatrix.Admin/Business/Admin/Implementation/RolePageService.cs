@@ -44,7 +44,6 @@ public class RolePageService : IRolePageService
             {
                 ["RoleId"] = request.RoleId,
                 ["PageId"] = request.PageId,
-                ["BusinessId"] = request.BusinessId,
                 ["ActionID"] = request.ActionDetails,
                 ["ActionType"] = (int)CrudActionType.Create,
                 ["CreatedBy"] = request.CreatedBy,
@@ -59,7 +58,7 @@ public class RolePageService : IRolePageService
         }
     }
 
-    public async Task DeleteAsync(int id, int businessId, int userId)
+    public async Task DeleteAsync(int id, int userId)
     {
         try
         {
@@ -68,7 +67,6 @@ public class RolePageService : IRolePageService
             var parameters = new Dictionary<string, object>
             {
                 ["RoleId"] = id,
-                ["BusinessId"] = businessId,
                 ["ActionType"] = (int)CrudActionType.Delete,
                 ["ModifyBy"] = userId,
             };
@@ -82,28 +80,27 @@ public class RolePageService : IRolePageService
         }
     }
 
-    public async Task<IEnumerable<RolePages>> GetByIdAsync(int roleId, int businessId)
+    public async Task<IEnumerable<RolePages>> GetByIdAsync(int roleId)
     {
         try
         {
-            logger.LogInfo($"GetByIdAsync called for page id: {roleId}, {businessId}");
+            logger.LogInfo($"GetByIdAsync called for page id: {roleId}");
             var repo = repositoryFactory
                        .ConnectDapper<PageList>(DbConstants.Main);
             var data = await repo.QueryAsync<RolePages>(RolePageSpName.GetRolePages,
                 new Dictionary<string, object> {
                     { "RoleId", roleId },
-                { "BusinessId", businessId },
                 { "ActionType", (int)ReadActionType.Individual} }, null);
 
             var result = data.Any() ? data : Enumerable.Empty<RolePages>();
             logger.LogInfo(result != null
-                ? $"Page with id {roleId}, {businessId} retrieved successfully."
-                : $"Page with id {roleId} , {businessId} not found.");
+                ? $"Page with id {roleId} retrieved successfully."
+                : $"Page with id {roleId} not found.");
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in GetByIdAsync for page id: {roleId}, {businessId}", ex);
+            logger.LogError($"Error in GetByIdAsync for page id: {roleId}", ex);
             throw;
         }
     }
@@ -118,7 +115,6 @@ public class RolePageService : IRolePageService
             {
                 ["RoleId"] = request.RoleId,
                 ["PageId"] = request.PageId,
-                ["BusinessId"] = request.BusinessId,
                 ["ActionID"] = request.ActionDetails,
                 ["ActionType"] = (int)CrudActionType.Update,
                 ["ModifyBy"] = request.ModifyBy,
