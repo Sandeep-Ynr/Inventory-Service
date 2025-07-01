@@ -39,6 +39,11 @@ public static class PagingExtensions
                     var strVal = jsonElement.GetString()?.ToLower();
                     convertedValue = Convert.ChangeType(strVal, targetType);
                 }
+                else if (jsonElement.ValueKind == JsonValueKind.True || jsonElement.ValueKind == JsonValueKind.False)
+                {
+                    var strVal = jsonElement.GetBoolean();
+                    convertedValue = Convert.ChangeType(strVal, targetType);
+                }
                 else
                 {
                     throw new InvalidOperationException($"Unsupported ValueKind: {jsonElement.ValueKind}");
