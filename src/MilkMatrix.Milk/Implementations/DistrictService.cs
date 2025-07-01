@@ -43,15 +43,15 @@ namespace MilkMatrix.Milk.Implementations
             return response;
 
         }
-        public async Task<string> AddDistrictsAsync(DistrictRequest request)
+        public async Task<string> AddDistrictsAsync(DistrictInsertRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
             {
-                { "ActionType", 1 }, // 1 for insert
-                { "DistrictId", request.DistrictId ?? (object)DBNull.Value },
+                { "ActionType", (int)CrudActionType.Create}, // 1 for insert
+                //{ "DistrictId", request.DistrictId ?? (object)DBNull.Value },
                 { "DistrictName", request.DistrictName ?? (object)DBNull.Value }, 
                 { "StateId", request.StateId ?? (object)DBNull.Value },
                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },

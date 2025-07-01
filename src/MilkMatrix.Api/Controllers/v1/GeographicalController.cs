@@ -206,39 +206,36 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-
-        //[HttpGet]
-        //[Route("state/{id}")]
-        //public async Task<IActionResult> GetStateById(int id)
-        //{
-        //    var response = await villageService.GetByVillageId(id);
-        //    return response.Any() ? Ok(response) : NotFound(new { message = "District not found" });
-
-        //}
-
-
         [HttpPost]
         [Route("add-Districts")]
-        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictRequestModel request)
+        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictInsertRequestModel request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var district = mapper.Map<DistrictRequest>(request);
-
-            var created = await districtService.AddDistrictsAsync(district);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add District.");
-
-            return CreatedAtAction(
-                nameof(GetDistricts),
-                new
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
                 {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = district.DistrictId
-                },
-                district
-            );
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Tehsil: {request.DistrictName}");
+                var requestParams = mapper.MapWithOptions<DistrictInsertRequest, DistrictInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await districtService.AddDistrictsAsync(requestParams);
+                logger.LogInfo($"District {request.DistrictName} added successfully.");
+                return Ok(new { message = "District added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Tehsil", ex);
+                return StatusCode(500, "An error occurred while adding the Tehsil.");
+            }
         }
 
         [HttpPut]
@@ -289,8 +286,7 @@ namespace MilkMatrix.Api.Controllers.v1
             logger.LogInfo($"GetTehsils request processed with ActionType: " +
                 $"{request.ActionType}, TehsilId: " +
                 $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
+                $"{request.DistrictId}");
 
             var tehsilRequest = new TehsilRequest
             {
@@ -307,6 +303,102 @@ namespace MilkMatrix.Api.Controllers.v1
                 : await tehsilService.GetSpecificLists(tehsilRequest);
 
             return response.Any() ? Ok(response) : BadRequest();
+        }
+        
+        /// <summary>
+        /// Get Tehsil By Tehsil ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Tehsil Detail</returns>
+        [HttpGet("tehsil{id}")]
+        public async Task<ActionResult<TehsilResponse?>> GetTehsilById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get tehsil by id called for id: {id}");
+                var user = await tehsilService.GetByIdAsync(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"tehsil with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"tehsil with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving tehsil with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the tehsil.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add-Tehsil")]
+        public async Task<IActionResult> AddTehsil([FromBody] TehsilInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Tehsil: {request.TehsilName}");
+                var requestParams = mapper.MapWithOptions<TehsilInsertRequest, TehsilInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await tehsilService.AddTehsilAsync(requestParams);
+                logger.LogInfo($"Tehsil {request.TehsilName} added successfully.");
+                return Ok(new { message = "Tehsil added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Tehsil", ex);
+                return StatusCode(500, "An error occurred while adding the Tehsil.");
+            }
+        }
+        
+
+        [HttpPut]
+        [Route("update-tehsil/{id}")]
+        public async Task<IActionResult> UpdateTehsil(int id, [FromBody] TehsilUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            //request.VillageId = id;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<TehsilUpdateRequest, TehsilUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await tehsilService.UpdateTehsilAsync(requestParams);
+            logger.LogInfo($"Tehsil with id {request.TehsilId} updated successfully.");
+            return Ok(new { message = "Tehsil updated successfully." });
+        }
+
+        [HttpDelete("tehsil-delete/{id}")]
+        public async Task<IActionResult> DeleteTehsil(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await tehsilService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Tehsil with id {id} deleted successfully.");
+                return Ok(new { message = "Tehsil deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Tehsil with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Tehsil.");
+            }
         }
 
         /// <summary>
@@ -505,32 +597,6 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, new { message = "Failed to delete hamlet." });
             }
             return Ok(new { message = "Hamlet deleted successfully." });
-        }
-
-
-
-
-        [HttpPost]
-        [Route("add-Tehsil")]
-        public async Task<IActionResult> AddTehsil([FromBody] TehsilRequestModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var Tehsil = mapper.Map<TehsilRequest>(request);
-            var created = await tehsilService.AddTehsil(Tehsil);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add Tehsil.");
-
-            return CreatedAtAction(
-                nameof(GetTehsils),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = Tehsil.TehsilId
-                },
-                Tehsil
-            );
         }
 
 
