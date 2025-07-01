@@ -134,6 +134,6 @@ public static class PagingExtensions
 
     public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, PagingCriteria paging)
     {
-        return query.Skip(paging.Offset).Take(paging.Limit);
+        return paging.Limit > 0 ? query.Skip(paging.Offset).Take(paging.Limit) : query;
     }
 }
