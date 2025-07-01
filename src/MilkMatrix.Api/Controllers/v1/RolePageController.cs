@@ -88,11 +88,4 @@ public class RolePageController : ControllerBase
             return StatusCode(500, "An error occurred while retrieving the RolePage.");
         }
     }
-
-    [HttpPost("list")]
-    public async Task<IActionResult> List([FromBody] ListsRequest request)
-    {
-        var result = await rolePageService.GetAllAsync(request);
-        return Ok(result);
-    }
 }
