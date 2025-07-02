@@ -156,5 +156,20 @@ namespace MilkMatrix.Milk.Implementations
             );
             return response;
         }
+
+        public Task<string> DeleteAsync(int id, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> AddHamlet(HamletInsertRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> UpdateHamlet(HamletUpdateRequest request)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

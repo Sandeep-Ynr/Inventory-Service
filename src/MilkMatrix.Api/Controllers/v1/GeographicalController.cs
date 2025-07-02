@@ -382,7 +382,18 @@ namespace MilkMatrix.Api.Controllers.v1
             await tehsilService.UpdateTehsilAsync(requestParams);
             logger.LogInfo($"Tehsil with id {request.TehsilId} updated successfully.");
             return Ok(new { message = "Tehsil updated successfully." });
+        
         }
+
+
+
+        
+
+
+
+
+
+
 
         [HttpDelete("tehsil-delete/{id}")]
         public async Task<IActionResult> DeleteTehsil(int id)
@@ -431,75 +442,89 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
-
-        [HttpGet]
-        [Route("village/{id}")]
-        public async Task<IActionResult> GetVillageById(int id)
+        [HttpGet("village{id}")]
+        public async Task<ActionResult<TehsilResponse?>> GetByVillageId(int id)
         {
-            var response = await villageService.GetByVillageId(id);
-            return response.Any() ? Ok(response) : NotFound(new { message = "Village not found" });
-
+            try
+            {
+                logger.LogInfo($"Get village by id called for id: {id}");
+                var user = await villageService.GetByVillageId(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"village with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"village with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the village.");
+            }
         }
-
         [HttpPost]
         [Route("add-village")]
-        public async Task<IActionResult> AddVillage([FromBody] VillageRequestModel request)
+        public async Task<IActionResult> AddVillage([FromBody] VillageInsertRequestModel request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var village = mapper.Map<VillageRequest>(request);
-
-            var created = await villageService.AddVillage(village);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add village.");
-
-            return CreatedAtAction(
-                nameof(GetVillages),
-                new
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
                 {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = village.VillageId
-                },
-                village
-            );
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Village: {request.VillageName}");
+                var requestParams = mapper.MapWithOptions<VillageInsertRequest, VillageInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await villageService.AddVillage(requestParams);
+                logger.LogInfo($"Village {request.VillageName} added successfully.");
+                return Ok(new { message = "Village added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Village", ex);
+                return StatusCode(500, "An error occurred while adding the Village.");
+            }
         }
         [HttpPut]
-        [Route("update-village/{id}")]
-        public async Task<IActionResult> UpdateVillage(int id, [FromBody] VillageRequestModel request)
+        [Route("update-Village/{id}")]
+        public async Task<IActionResult> UpdateVillage(int id, [FromBody] VillageUpdateRequestModel request)
         {
             if (!ModelState.IsValid || id <= 0)
                 return BadRequest("Invalid request.");
-
-            // Ensure the route ID is used
-            request.VillageId = id;
-
-            var village = mapper.Map<VillageRequest>(request);
-
-            var result = await villageService.UpdateVillage(village);
-            if (result == "Failed.")
-                return StatusCode(500, "Failed to update village.");
-
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<VillageUpdateRequest, VillageUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await villageService.UpdateVillage(requestParams);
+            logger.LogInfo($"Village with id {request.VillageId} updated successfully.");
             return Ok(new { message = "Village updated successfully." });
         }
 
-        [HttpDelete]
-        [Route("delete-village/{id}")]
+        [HttpDelete("village-delete/{id}")]
         public async Task<IActionResult> DeleteVillage(int id)
         {
-            if (id <= 0)
-                return BadRequest("Invalid village ID.");
-
-            var result = await villageService.DeleteVillage(id);
-
-            if (result == "Failed." || result.Contains("failed", StringComparison.OrdinalIgnoreCase))
-                return StatusCode(500, "Failed to delete village.");
-
-            return Ok(new { message = "Village deleted successfully." });
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await villageService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Village with id {id} deleted successfully.");
+                return Ok(new { message = "Village deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Village.");
+            }
         }
-
-
-
 
 
         /// <summary>
@@ -536,69 +561,89 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
-
-        [HttpGet]
-        [Route("hamlet/{id}")]
-        public async Task<IActionResult> GetHamletById(int id)
+        [HttpGet("GetByHamletId{id}")]
+        public async Task<ActionResult<TehsilResponse?>> GetByHamletId(int id)
         {
-            var response = await hamletService.GetByHamletId(id);
-            return response != null && response.Any()? Ok(response): NotFound(new { message = "Hamlet not found" });
-        }
-
-
-        [HttpPost]
-        [Route("add-Hamlet")]
-        public async Task<IActionResult> AddHamlet([FromBody] HamletRequestModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var Hamlet = mapper.Map<HamletRequest>(request);
-            var created = await hamletService.AddHamlet(Hamlet);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add Hamlet.");
-
-            return CreatedAtAction(
-                nameof(GetHamlets),
-                new
+            try
+            {
+                logger.LogInfo($"Get Hamlet by id called for id: {id}");
+                var user = await hamletService.GetByHamletId(id);
+                if (user == null)
                 {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = Hamlet.HamletId
-                },
-                Hamlet
-            );
+                    logger.LogInfo($"Hamlet with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Hamlet with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the village.");
+            }
         }
+        [HttpPost]
+        [Route("add-hamlet")]
+        public async Task<IActionResult> AddHamlet([FromBody] HamletInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Hamlet: {request.HamletName}");
+                var requestParams = mapper.MapWithOptions<HamletInsertRequest, HamletInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await hamletService.AddHamlet(requestParams);
+                logger.LogInfo($"Hamlet {request.HamletName} added successfully.");
+                return Ok(new { message = "Hamlet added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Hamlet", ex);
+                return StatusCode(500, "An error occurred while adding the Hamlet.");
+            }
+        }
+
 
         [HttpPut]
         [Route("update-hamlet/{id}")]
-        public async Task<IActionResult> UpdateHamlet(int id, [FromBody] HamletRequestModel request)
+        public async Task<IActionResult> UpdateHamlet(int id, [FromBody] HamletUpdateRequestModel request)
         {
             if (!ModelState.IsValid || id <= 0)
-                return BadRequest(new { message = "Invalid request." });
-            request.HamletId = id;
-            var hamlet = mapper.Map<HamletRequest>(request);
-            var result = await hamletService.UpdateHamlet(hamlet);
-
-            if (string.Equals(result, "Failed.", StringComparison.OrdinalIgnoreCase))
-                return StatusCode(500, new { message = "Failed to update hamlet." });
+                return BadRequest("Invalid request.");
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<HamletUpdateRequest, HamletUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await hamletService.UpdateHamlet(requestParams);
+            logger.LogInfo($"Hamlet with id {request.VillageId} updated successfully.");
             return Ok(new { message = "Hamlet updated successfully." });
         }
-
-        [HttpDelete]
-        [Route("delete-hamlet/{id}")]
+        [HttpDelete("hamlet-delete/{id}")]
         public async Task<IActionResult> DeleteHamlet(int id)
         {
-            if (id <= 0)
-                return BadRequest(new { message = "Invalid hamlet ID." });
-            var result = await hamletService.DeleteHamlet(id);
-            if (string.Equals(result, "Failed.", StringComparison.OrdinalIgnoreCase) ||
-                result.Contains("failed", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                return StatusCode(500, new { message = "Failed to delete hamlet." });
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await hamletService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Hamlet with id {id} deleted successfully.");
+                return Ok(new { message = "Hamlet deleted successfully." });
             }
-            return Ok(new { message = "Hamlet deleted successfully." });
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Hamlet with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Hamlet.");
+            }
         }
-
-
     }
 }

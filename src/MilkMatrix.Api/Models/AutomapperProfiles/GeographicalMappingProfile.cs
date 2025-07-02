@@ -52,6 +52,23 @@ public class GeographicalMappingProfile : Profile
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         CreateMap<TehsilRequestModel, TehsilRequest>();
+
+
+        CreateMap<VillageInsertRequestModel, VillageInsertRequest>()
+                        .ForMember(x => x.VillageName, opt => opt.MapFrom(src => src.VillageName))
+                        .ForMember(x => x.TehsilId, opt => opt.MapFrom(src => src.TehsilId))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                        .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<VillageUpdateRequestModel, VillageUpdateRequest>()
+                        .ForMember(x => x.VillageName, opt => opt.MapFrom(src => src.VillageName))
+                        //.ForMember(x => x.TehsilId, opt => opt.MapFrom(src => src.TehsilId))
+                        .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
+                        //.ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+
+
         CreateMap<VillageRequestModel, VillageRequest>();
     }
 }
