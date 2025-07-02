@@ -25,6 +25,7 @@ public static partial class Constants
     {
         public const string UserUpsert = "usp_user_registration_insupd"; //For User Insert/Update
         public const string GetUsers = "usp_get_user_details"; //For getting users
+        public const string UserProfileUpdate = "usp_user_profile_upd"; //For User profile Update
     }
 
     public static class BusinessSpName
@@ -70,6 +71,8 @@ public static partial class Constants
         public const string GetConfigurationSettings = "usp_configurations_list"; //For getting configuration settings
         public const string SmtpSettingsUpsert = "usp_mail_smtp_insupd"; //For Smtp settings Insert update
         public const string GetSmtpSettings = "usp_mail_smtp_list"; //For getting smtp settings
+        public const string GetBlockedMobiles = "usp_blocked_mobiles"; // For getting blocked mobiles
+        public const string BlockedMobilesUpsert = "usp_blocked_mobile_insupd"; //For blocked mobiles insert/update
     }
 
 

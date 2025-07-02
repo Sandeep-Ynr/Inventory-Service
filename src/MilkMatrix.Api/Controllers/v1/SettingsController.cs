@@ -318,4 +318,138 @@ public class SettingsController : ControllerBase
         }
     }
     #endregion
+
+    #region Blocked Mobile
+
+    /// <summary>
+    /// Retrieves the details of a Blocked mobiles setting by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("block-mobile/{id}")]
+    public async Task<ActionResult> GetBlockedMobilesById(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Get details by id called for id: {id}");
+            var configDetails = await configService.GetBlockedMobilesAsync(id);
+            if (configDetails == null)
+            {
+                logging.LogInfo($"details with id {id} not found.");
+                return NoContent();
+            }
+            logging.LogInfo($"Details with id {id} retrieved successfully.");
+            return Ok(configDetails);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving Details with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the Details.");
+        }
+    }
+
+    /// <summary>
+    /// Inserts a new mobile to be blocked into the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("block-mobile-insert")]
+    public async Task<IActionResult> InsertBlockedMobileDetails([FromBody] BlockedMobileInsertModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<BlockedMobilesInsert, BlockedMobileInsertModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.AddMobileBlockAsync(requestParams);
+            logging.LogInfo($"details {request.MobileNumber} added successfully.");
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in InsertBlockedMobileDetails", ex);
+            return StatusCode(500, "An error occurred while adding details.");
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing blocked mobile in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut("block-mobile-update")]
+    public async Task<IActionResult> UpdateBlockedMobileDetails([FromBody] BlockedMobileUpdateModel request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<BlockedMobilesUpdate, BlockedMobileUpdateModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.UpdateMobileBlockAsync(requestParams);
+            logging.LogInfo($"Details with {request.MobileNumber} updated successfully.");
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Updating the blockedMobile details", ex);
+            return StatusCode(500, "An error occurred while updating the details.");
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a list of mobiles blocked from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("blocked-list")]
+    public async Task<IActionResult> GetBlockedMobiles([FromBody] ListsRequest request)
+    {
+        var result = await configService.GetAllBlockedMobilesAsync(request);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Deletes a blocked mobile from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("block-mobile-delete/{id}")]
+    public async Task<IActionResult> DeleteBlockedMobile(int id)
+    {
+        try
+        {
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configService.DeleteMobileBlockAsync(id, Convert.ToInt32(UserId));
+            logging.LogInfo($"details with id {id} deleted successfully.");
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error deleting with id: {id}", ex);
+            return StatusCode(500, "An error occurred while deleting.");
+        }
+    }
+    #endregion
 }

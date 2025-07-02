@@ -339,5 +339,139 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             };
         }
         #endregion
+
+        #region Blocked Mobile
+
+        public async Task<BlockedMobiles?> GetBlockedMobilesAsync(int id)
+        {
+            try
+            {
+                var repo = repositoryFactory
+                           .ConnectDapper<BlockedMobiles>(DbConstants.Main);
+                var data = await repo.QueryAsync<BlockedMobiles>(ConfigurationSettingSpName.GetBlockedMobiles, new Dictionary<string, object> { { "Id", id },
+                                                                                { "ActionType", (int)ReadActionType.Individual } }, null);
+
+                return data.Any() ? data.FirstOrDefault() : default;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetBlockedMobilesAsync for BlockedMobiles id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task AddMobileBlockAsync(BlockedMobilesInsert request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<BlockedMobilesInsert>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["Mobile"] = request.MobileNumber,
+                    ["ContactName"] = request.ContactName,
+                    ["BusinessId"] = request.BusinessId,
+                    ["Status"] = true,
+                    ["CreatedBy"] = request.CreatedBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
+                logger.LogInfo($"BlockedMobile {request.MobileNumber} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateMobileBlockAsync(BlockedMobilesUpdate request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<BlockedMobilesUpdate>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["Id"] = request.Id,
+                    ["Mobile"] = request.MobileNumber,
+                    ["ContactName"] = request.ContactName,
+                    ["BusinessId"] = request.BusinessId,
+                    ["Status"] = true,
+                    ["ModifyBy"] = request.ModifyBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
+                logger.LogInfo($"BlockedMobile {request.Id} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteMobileBlockAsync(int id, int userId)
+        {
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<BlockedMobiles>(DbConstants.Main);
+                var parameters = new Dictionary<string, object>
+            {
+                {"Id", id },
+                {"Status", false },
+                {"ModifyBy", userId },
+                {"ActionType" , (int)CrudActionType.Delete }
+            };
+                await repo.DeleteAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
+                logger.LogInfo($"Delete blockedmobile with id {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in DeleteAsync for mobileblocked delete id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<IListsResponse<BlockedMobiles>> GetAllBlockedMobilesAsync(IListsRequest request)
+        {
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<BlockedMobiles, int, FiltersMeta>(ConfigurationSettingSpName.GetBlockedMobiles,
+                DbConstants.Main,
+                new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.All }},
+                null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<BlockedMobiles>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+        #endregion
     }
 }

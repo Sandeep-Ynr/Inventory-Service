@@ -17,6 +17,9 @@ using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
 using static MilkMatrix.Admin.Models.Constants;
 
+/// <summary>
+/// Service for managing user-related operations such as adding, updating, deleting, and retrieving user details.
+/// </summary>
 public class UserService : IUserService
 {
     private ILogging logger;
@@ -26,6 +29,15 @@ public class UserService : IUserService
     private readonly IQueryMultipleData queryMultipleData;
 
     private readonly AppConfig appConfig;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UserService"/> class.
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="repositoryFactory"></param>
+    /// <param name="appConfig"></param>
+    /// <param name="queryMultipleData"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public UserService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.logger = logger.ForContext("ServiceName", nameof(UserService));
@@ -34,6 +46,7 @@ public class UserService : IUserService
         this.queryMultipleData = queryMultipleData;
     }
 
+    ///<inheritdoc />
     public async Task AddAsync(UserInsertRequest request)
     {
         try
@@ -66,6 +79,7 @@ public class UserService : IUserService
         }
     }
 
+    ///<inheritdoc />
     public async Task DeleteAsync(int id, int userId)
     {
         try
@@ -89,6 +103,7 @@ public class UserService : IUserService
         }
     }
 
+    ///<inheritdoc />
     public async Task<UserDetails?> GetByIdAsync(int id)
     {
         try
@@ -111,16 +126,17 @@ public class UserService : IUserService
         }
     }
 
+    ///<inheritdoc />
     public async Task UpdateAsync(UserUpdateRequest request)
     {
         try
         {
-            logger.LogInfo($"UpdateAsync called for user: {request.Username}");
-            var repo = repositoryFactory.ConnectDapper<UserDetails>(DbConstants.Main);
+            logger.LogInfo($"UpdateAsync called for user: {request.UserName}");
+            var repo = repositoryFactory.ConnectDapper<UserUpdateRequest>(DbConstants.Main);
             var parameters = new Dictionary<string, object>
             {
                 ["ID"] = request.Id,
-                ["Username"] = request.Username,
+                ["Username"] = request.UserName,
                 ["Password"] = request.Password,
                 ["EmailId"] = request.EmailId,
                 ["HrmsCode"] = request.HrmsCode,
@@ -135,15 +151,16 @@ public class UserService : IUserService
                 ["ActionType"] = (int)CrudActionType.Update
             };
             await repo.UpdateAsync(UserSpName.UserUpsert, parameters);
-            logger.LogInfo($"User {request.Username} updated successfully.");
+            logger.LogInfo($"User {request.UserName} updated successfully.");
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error in UpdateAsync for user: {request.Username}", ex);
+            logger.LogError($"Error in UpdateAsync for user: {request.UserName}", ex);
             throw;
         }
     }
 
+    ///<inheritdoc />
     public async Task<IListsResponse<Users>> GetAllAsync(IListsRequest request, int userId)
     {
         var user = await GetByIdAsync(userId);
@@ -178,5 +195,31 @@ public class UserService : IUserService
             Results = paged.ToList(),
             Filters = filterMetas
         };
+    }
+
+    ///<inheritdoc />
+    public async Task UpdateProfileAsync(UserProfileUpdate request)
+    {
+        try
+        {
+            logger.LogInfo($"UpdateProfileAsync called for user: {request.UserName}");
+            var repo = repositoryFactory.ConnectDapper<UserProfileUpdate>(DbConstants.Main);
+            var parameters = new Dictionary<string, object>
+            {
+                ["UserId"] = request.UserId,
+                ["Username"] = request.UserName,
+                ["ImageId"] = request.ImageId,
+                ["Mobile"] = request.Mobile,
+                ["ModifyBy"] = request.ModifyBy,
+                ["ActionType"] = (int)CrudActionType.Update
+            };
+            await repo.UpdateAsync(UserSpName.UserProfileUpdate, parameters);
+            logger.LogInfo($"User {request.UserName} updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Error in UpdateProfileAsync for user: {request.UserName}", ex);
+            throw;
+        }
     }
 }
