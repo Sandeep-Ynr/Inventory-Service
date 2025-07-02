@@ -43,7 +43,7 @@ namespace MilkMatrix.Milk.Implementations
             return response;
 
         }
-        public async Task<string> AddDistrictsAsync(DistrictInsertRequest request)
+        public async Task AddDistrictsAsync(DistrictInsertRequest request)
         {
             try
             {
@@ -51,59 +51,49 @@ namespace MilkMatrix.Milk.Implementations
                 var requestParams = new Dictionary<string, object>
             {
                 { "ActionType", (int)CrudActionType.Create}, // 1 for insert
-                //{ "DistrictId", request.DistrictId ?? (object)DBNull.Value },
                 { "DistrictName", request.DistrictName ?? (object)DBNull.Value }, 
                 { "StateId", request.StateId ?? (object)DBNull.Value },
                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                 { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
             };
 
-                var response = await repository.QueryAsync<CommonLists>(
-                    DistrictQueries.AddDistrict, requestParams, null, CommandType.StoredProcedure
-                );
+                var response = await repository.AddAsync(DistrictQueries.AddDistrict, requestParams, CommandType.StoredProcedure);
 
                 // Return the inserted StateId or Name, etc. depending on your SP response
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+
+                logging.LogInfo($"District {request.DistrictName} added successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in AddAsync for District: {request.DistrictName}", ex);
+                throw;
             }
         }
-        public async Task<string> UpdateDistrictAsync(DistrictUpdateRequest request)
+        public async Task UpdateDistrictAsync(DistrictUpdateRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
                 var requestParams = new Dictionary<string, object>
-            {
-                { "ActionType", (int)CrudActionType.Update },
-                { "DistrictId", request.DistrictId},
-                { "DistrictName", request.DistrictName ?? (object)DBNull.Value },
-                { "StateId", request.StateId ?? (object)DBNull.Value },
-                { "IsStatus", request.IsActive ?? (object)DBNull.Value },
-                { "ModifyBy", request.ModifyBy }
-            
-                //{ "StateId", request.StateId ?? (object)DBNull.Value },
-                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                //UpdateAsync
-            };
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "DistrictId", request.DistrictId},
+                    { "DistrictName", request.DistrictName ?? (object)DBNull.Value },
+                    { "StateId", request.StateId ?? (object)DBNull.Value },
+                    { "IsStatus", request.IsActive ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy }
+                };
 
-               /* var response = await repository.QueryAsync<CommonLists>(
-                    DistrictQueries.AddDistrict, requestParams, null, CommandType.StoredProcedure
-                );*/
-                var response = await repository.QueryAsync<CommonLists>(
-                    DistrictQueries.AddDistrict, requestParams, null, CommandType.StoredProcedure
-                );
+                await repository.UpdateAsync(DistrictQueries.AddDistrict, requestParams, CommandType.StoredProcedure);
 
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"District {request.DistrictName} updated successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in UpdateAsync for District: {request.DistrictName}", ex);
+                throw;
             }
         }
         public async Task<DistrictResponse?> GetByIdAsync(int id)
@@ -127,7 +117,6 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
         public async Task<IEnumerable<DistrictResponse>> GetDistricts(DistrictRequest request) 
         { 
             var repository = repositoryFactory.Connect<DistrictResponse>(DbConstants.Main);
@@ -143,7 +132,7 @@ namespace MilkMatrix.Milk.Implementations
 
             return response;
         }
-        public async Task<string> DeleteAsync(int id, int userId)
+        public async Task DeleteAsync(int id, int userId)
         {
             try
             {
@@ -156,17 +145,17 @@ namespace MilkMatrix.Milk.Implementations
                     {"ActionType" , (int)CrudActionType.Delete }
                 };
 
-                var response = await repository.QueryAsync<CommonLists>(
-                   DistrictQueries.AddDistrict, requestParams, null, CommandType.StoredProcedure
+                var response = await repository.DeleteAsync(
+                   DistrictQueries.AddDistrict, requestParams, CommandType.StoredProcedure
                 );
 
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"District with id {id} deleted successfully.");
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in DeleteAsync for District id: {id}", ex);
+                throw;
             }
 
         }

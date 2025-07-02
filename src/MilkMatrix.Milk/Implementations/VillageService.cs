@@ -59,8 +59,6 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"VillageId", request.VillageId},
                 {"TehsilId", request.TehsilId },
-                //{"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -81,8 +79,6 @@ namespace MilkMatrix.Milk.Implementations
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId },
                     { "IsStatus", request.IsStatus },
-                    //{ "CreatedBy", request.CreatedBy },
-                    //{ "ModifyBy", request.ModifyBy },
                 };
 
                 var response = await repository.QueryAsync<CommonLists>(
@@ -111,8 +107,6 @@ namespace MilkMatrix.Milk.Implementations
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId },
                     { "IsStatus", request.IsStatus },
-                    //{ "CreatedBy", request.CreatedBy },
-                    //{ "ModifyBy", request.ModifyBy }
                 };
 
                 var response = await repository.QueryAsync<CommonLists>(

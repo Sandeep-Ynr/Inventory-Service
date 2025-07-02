@@ -32,9 +32,6 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
-                //{"TehsilId", request.TehsilId },
-                //{"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -51,9 +48,6 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
-                //{"TehsilId", request.TehsilId },
-                //{"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 

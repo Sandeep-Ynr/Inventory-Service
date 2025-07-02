@@ -253,8 +253,8 @@ namespace MilkMatrix.Api.Controllers.v1
                             {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
                     });
             await districtService.UpdateDistrictAsync(requestParams);
-            logger.LogInfo($"State with id {request.StateId} updated successfully.");
-            return Ok(new { message = "State updated successfully." });
+            logger.LogInfo($"District with id {request.DistrictId} updated successfully.");
+            return Ok(new { message = "District updated successfully." });
         }
 
         [HttpDelete("district-delete/{id}")]
@@ -522,10 +522,6 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 HamletId = request.HamletId,
                 VillageId = request.VillageId,
-                //TehsilId = request.TehsilId,
-                //DistrictId = request.DistrictId,
-                //StateId = request.StateId,
-                //ActionType = request.ActionType,
                 ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };

@@ -35,7 +35,6 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"TehsilId", request.TehsilId},
                 {"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -53,7 +52,6 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"TehsilId", request.TehsilId},
                 {"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
 
@@ -88,109 +86,64 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
-
-        //public async Task<string> AddTehsil(TehsilRequest request)
-        //{
-        //    try
-        //    {
-        //        var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-        //        var requestParams = new Dictionary<string, object>
-        //    {
-        //        { "ActionType", 1 }, // 1 for insert
-        //        { "TehsilId", request.TehsilId },
-        //        { "TehsilName", request.TehsilName },
-        //        { "DistrictId", request.DistrictId },
-        //        //{ "StateId", request.StateId  },
-        //        //{ "IsStatus", request.IsStatus  },
-        //        //{ "IsDeleted", request.IsStatus  },
-        //        { "CreatedBy", request.CreatedBy },
-        //        //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-        //    };
-
-        //        var response = await repository.QueryAsync<CommonLists>(
-        //            TehsilQueries.AddTehsil, requestParams, null, CommandType.StoredProcedure
-        //        );
-
-        //        // Return the inserted StateId or Name, etc. depending on your SP response
-        //        return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Error: " + ex.Message);
-        //        return "Error occurred";
-        //    }
-        //}
-
-        public async Task<string> AddTehsilAsync(TehsilInsertRequest request)
+        public async Task AddTehsilAsync(TehsilInsertRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
                 var requestParams = new Dictionary<string, object>
-            {
-                { "ActionType", (int)CrudActionType.Create},
-                { "TehsilName", request.TehsilName ?? (object)DBNull.Value },
-                { "DistrictId", request.DistrictId ?? (object)DBNull.Value },
-                //{ "AreaCode", request.AreaCode ?? (object)DBNull.Value },
-                { "IsStatus", request.IsActive ?? (object)DBNull.Value },
-                { "CreatedBy", request.CreatedBy }
-                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                //{ "ActionType", request.ActionType (int)CrudActionType.Create},
-            
-            };
+                {
+                    { "ActionType", (int)CrudActionType.Create},
+                    { "TehsilName", request.TehsilName ?? (object)DBNull.Value },
+                    { "DistrictId", request.DistrictId ?? (object)DBNull.Value },
+                    { "IsStatus", request.IsActive ?? (object)DBNull.Value },
+                    { "CreatedBy", request.CreatedBy }
+                    
+                };
 
-                var response = await repository.QueryAsync<CommonLists>(
-                   TehsilQueries.AddTehsil, requestParams, null, CommandType.StoredProcedure
+                var response = await repository.AddAsync(TehsilQueries.AddTehsil, requestParams, CommandType.StoredProcedure
                 );
 
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"Tehsil {request.TehsilName} added successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in AddAsync for Tehsil: {request.TehsilName}", ex);
+                throw;
             }
         }
 
-        public async Task<string> UpdateTehsilAsync(TehsilUpdateRequest request)
+        public async Task UpdateTehsilAsync(TehsilUpdateRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
                 var requestParams = new Dictionary<string, object>
-            {
-                { "ActionType", (int)CrudActionType.Update },
-                { "TehsilId", request.TehsilId},
-                { "TehsilName", request.TehsilName ?? (object)DBNull.Value },
-                { "DistrictId", request.DistrictId},
-                { "IsStatus", request.IsActive ?? (object)DBNull.Value },
-                { "ModifyBy", request.ModifyBy }
-            
-                //{ "StateId", request.StateId ?? (object)DBNull.Value },
-                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                //UpdateAsync
-            };
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "TehsilId", request.TehsilId},
+                    { "TehsilName", request.TehsilName ?? (object)DBNull.Value },
+                    { "DistrictId", request.DistrictId},
+                    { "IsStatus", request.IsActive ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy }
+                };
 
-                /* var response = await repository.QueryAsync<CommonLists>(
-                     DistrictQueries.AddDistrict, requestParams, null, CommandType.StoredProcedure
-                 );*/
-                var response = await repository.QueryAsync<CommonLists>(
-                   TehsilQueries.AddTehsil, requestParams, null, CommandType.StoredProcedure
+                var response = await repository.UpdateAsync(
+                   TehsilQueries.AddTehsil, requestParams, CommandType.StoredProcedure
                 );
 
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"Tehsil {request.TehsilName} updated successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in UpdateAsync for Tehsil: {request.TehsilName}", ex);
+                throw;
             }
         }
 
-        public async Task<string> DeleteAsync(int id, int userId)
+        public async Task DeleteAsync(int id, int userId)
         {
             try
             {
@@ -203,17 +156,15 @@ namespace MilkMatrix.Milk.Implementations
                     {"ActionType" , (int)CrudActionType.Delete }
                 };
 
-                var response = await repository.QueryAsync<CommonLists>(
-                   TehsilQueries.AddTehsil, requestParams, null, CommandType.StoredProcedure
-                );
+                var response = await repository.DeleteAsync(TehsilQueries.AddTehsil, requestParams, CommandType.StoredProcedure);
 
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"Tehsil with id {id} deleted successfully.");
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in DeleteAsync for Tehsil id: {id}", ex);
+                throw;
             }
 
         }

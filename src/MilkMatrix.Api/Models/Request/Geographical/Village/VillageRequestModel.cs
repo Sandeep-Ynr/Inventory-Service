@@ -10,10 +10,6 @@ namespace MilkMatrix.Api.Models.Request.Geographical.Village
 
         public string? VillageName { get; set; }
         public int? TehsilId { get; set; }
-        //public int? DistrictId { get; set; }
-
-        //public int? StateId { get; set; }
-
         public bool? IsActive { get; set; }
     }
 }
