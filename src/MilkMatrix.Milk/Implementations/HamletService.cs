@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request.Geographical;
@@ -62,7 +63,7 @@ namespace MilkMatrix.Milk.Implementations
             return response;
         }
 
-        public async Task<string> AddHamlet(HamletRequest request)
+        public async Task<string> AddHamlet(HamletInsertRequest request)
         {
             try
             {
@@ -70,15 +71,12 @@ namespace MilkMatrix.Milk.Implementations
                 var requestParams = new Dictionary<string, object>
             {
                  { "ActionType", 1 },
-                 { "HamletId", request.HamletId ?? (object)DBNull.Value },
                  { "HamletName", request.HamletName ?? (object)DBNull.Value },
                  { "VillageId", request.VillageId ?? (object)DBNull.Value },
-                 { "IsStatus", request.IsStatus ?? (object)DBNull.Value },
-                 { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value },
+                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                  { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
-                 { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-            };
 
+            };
                 var response = await repository.QueryAsync<CommonLists>(
                     HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
                 );
@@ -91,7 +89,7 @@ namespace MilkMatrix.Milk.Implementations
             }
         }
 
-        public async Task<string> UpdateHamlet(HamletRequest request)
+        public async Task<string> UpdateHamlet(HamletUpdateRequest request)
         {
             try
             {
@@ -102,9 +100,7 @@ namespace MilkMatrix.Milk.Implementations
                  { "HamletId", request.HamletId ?? (object)DBNull.Value },
                  { "HamletName", request.HamletName ?? (object)DBNull.Value },
                  { "VillageId", request.VillageId ?? (object)DBNull.Value },
-                 { "IsStatus", request.IsStatus ?? (object)DBNull.Value },
-                 { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value },
-                 { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                  { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
             };
 
@@ -120,56 +116,45 @@ namespace MilkMatrix.Milk.Implementations
             }
         }
 
-        public async Task<string> DeleteHamlet(int id)
-        {
-            try
-            {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-                var requestParams = new Dictionary<string, object>
-                {
-                    { "ActionType", 3 },    
-                    { "HamletId", id }      
-                };
-                var response = await repository.QueryAsync<CommonLists>(
-                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
-                );
-
-                return response?.FirstOrDefault()?.Name ?? "Delete failed or no response";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in DeleteHamlet: " + ex.Message);
-                return "Error occurred";
-            }
-        }
+      
 
         public async Task<IEnumerable<HamletRequest>> GetByHamletId(int hamletId)
         {
             var repository = repositoryFactory.Connect<HamletRequest>(DbConstants.Main);
             var requestParams = new Dictionary<string, object>
             {
-                { "ActionType", 2 }, 
+                { "ActionType", 2 },
                 { "HamletId", hamletId }
             };
             var response = await repository.QueryAsync<HamletRequest>(
-                HamletQueries.GetHamlet,requestParams,null,CommandType.StoredProcedure
+                HamletQueries.GetHamlet, requestParams, null, CommandType.StoredProcedure
             );
             return response;
         }
 
-        public Task<string> DeleteAsync(int id, int userId)
+        public async Task<string> DeleteAsync(int id, int userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    {"HamletID", id },
+                    {"IsStatus", false },
+                    {"ModifyBy", userId },
+                    {"ActionType" , (int)CrudActionType.Delete }
+                };
+                var response = await repository.QueryAsync<CommonLists>(
+                   HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
+                );
+                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return "Error occurred";
+            }
         }
 
-        public Task<string> AddHamlet(HamletInsertRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> UpdateHamlet(HamletUpdateRequest request)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

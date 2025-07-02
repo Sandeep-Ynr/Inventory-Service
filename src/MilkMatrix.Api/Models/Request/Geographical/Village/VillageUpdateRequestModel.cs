@@ -9,5 +9,6 @@ namespace MilkMatrix.Api.Models.Request.Geographical.Village
         public string? VillageName { get; set; }
         public int? TehsilId { get; set; }
         public bool? IsActive { get; set; }
+        public int? ModifyBy { get; set; }
     }
 }

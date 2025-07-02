@@ -25,7 +25,7 @@ public class GeographicalMappingProfile : Profile
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         CreateMap<DistrictRequestModel, DistrictRequest>();
-        CreateMap<HamletRequestModel, HamletRequest>();
+        ;
         CreateMap<StateUpsertModel, StateUpdateRequest>()
                         .ForMember(x => x.StateId, opt => opt.MapFrom(src => src.StateId))
                         .ForMember(x => x.StateName, opt => opt.MapFrom(src => src.StateName))
@@ -66,9 +66,24 @@ public class GeographicalMappingProfile : Profile
                         .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
                         //.ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
                         .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
-
-
-
         CreateMap<VillageRequestModel, VillageRequest>();
+
+
+
+        CreateMap<HamletInsertRequestModel, HamletInsertRequest>()
+            .ForMember(x => x.HamletId, opt => opt.MapFrom(src => src.HamletId))
+            .ForMember(x => x.HamletName, opt => opt.MapFrom(src => src.HamletName))
+            .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
+            .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<HamletUpdateRequestModel, HamletUpdateRequest>()
+            .ForMember(x => x.HamletId, opt => opt.MapFrom(src => src.HamletId))
+            .ForMember(x => x.HamletName, opt => opt.MapFrom(src => src.HamletName))
+            .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
+            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+
+
+
     }
 }

@@ -427,12 +427,12 @@ namespace MilkMatrix.Api.Controllers.v1
 
             var villageRequest = new VillageRequest
             {
-                VillageId = request.VillageId,
-                TehsilId = request.TehsilId,
+                //VillageId = request.VillageId,
+                //TehsilId = request.TehsilId,
                 //DistrictId = request.DistrictId,
                 //StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
+                //ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
@@ -443,7 +443,7 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
         [HttpGet("village{id}")]
-        public async Task<ActionResult<TehsilResponse?>> GetByVillageId(int id)
+        public async Task<ActionResult<VillageResponse?>> GetByVillageId(int id)
         {
             try
             {
@@ -494,10 +494,10 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
         [HttpPut]
-        [Route("update-Village/{id}")]
-        public async Task<IActionResult> UpdateVillage(int id, [FromBody] VillageUpdateRequestModel request)
+        [Route("update-Village")]
+        public async Task<IActionResult> UpdateVillage([FromBody] VillageUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
+            if (!ModelState.IsValid )
                 return BadRequest("Invalid request.");
             var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
             var requestParams = mapper.MapWithOptions<VillageUpdateRequest, VillageUpdateRequestModel>(request
@@ -561,7 +561,8 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
-        [HttpGet("GetByHamletId{id}")]
+        
+        [HttpGet("HamletId{id}")]
         public async Task<ActionResult<TehsilResponse?>> GetByHamletId(int id)
         {
             try
@@ -582,6 +583,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while retrieving the village.");
             }
         }
+        
         [HttpPost]
         [Route("add-hamlet")]
         public async Task<IActionResult> AddHamlet([FromBody] HamletInsertRequestModel request)
@@ -613,12 +615,11 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-
         [HttpPut]
-        [Route("update-hamlet/{id}")]
-        public async Task<IActionResult> UpdateHamlet(int id, [FromBody] HamletUpdateRequestModel request)
+        [Route("update-hamlet")]
+        public async Task<IActionResult> UpdateHamlet([FromBody] HamletUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
+            if (!ModelState.IsValid || request.HamletId <= 0)
                 return BadRequest("Invalid request.");
             var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
             var requestParams = mapper.MapWithOptions<HamletUpdateRequest, HamletUpdateRequestModel>(request
@@ -630,6 +631,7 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(new { message = "Hamlet updated successfully." });
         }
         [HttpDelete("hamlet-delete/{id}")]
+        
         public async Task<IActionResult> DeleteHamlet(int id)
         {
             try

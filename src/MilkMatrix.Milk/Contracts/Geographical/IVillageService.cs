@@ -12,7 +12,7 @@ namespace MilkMatrix.Milk.Contracts.Geographical
         Task<string> UpdateVillage(VillageUpdateRequest request);
         Task<string> DeleteAsync(int id, int userId);
 
-        Task<IEnumerable<VillageRequest>> GetByVillageId(int villageId);
+        Task<VillageResponse> GetByVillageId(int villageId);
         Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request);
         Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request);
 
