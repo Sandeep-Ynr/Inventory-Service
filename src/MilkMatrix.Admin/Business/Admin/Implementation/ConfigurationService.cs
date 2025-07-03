@@ -572,7 +572,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 {"ModifyBy", userId },
                 {"ActionType" , (int)CrudActionType.Delete }
             };
-                await repo.DeleteAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
+                await repo.DeleteAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
                 logger.LogInfo($"SmsSettings with id {id} deleted successfully.");
             }
             catch (Exception ex)
@@ -586,7 +586,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         {
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<SmsControlDetails, int, FiltersMeta>(ConfigurationSettingSpName.GetSmtpSettings,
+                .GetMultiDetailsAsync<SmsControlDetails, int, FiltersMeta>(ConfigurationSettingSpName.GetSmsSettings,
                 DbConstants.Main,
                 new Dictionary<string, object> {
                     { "ActionType", (int)ReadActionType.All }},

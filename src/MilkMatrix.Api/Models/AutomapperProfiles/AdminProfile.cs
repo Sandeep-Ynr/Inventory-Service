@@ -82,5 +82,11 @@ public class AdminProfile : Profile
 
         CreateMap<BlockedMobileUpdateModel, BlockedMobilesUpdate>()
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<SmsControlInsertModel, SmsControlInsert>()
+            .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<SmsControlUpdateModel, SmsControlUpdate>()
+            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
     }
 }

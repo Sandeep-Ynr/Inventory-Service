@@ -8,7 +8,7 @@ namespace MilkMatrix.Admin.Business.Admin.Contracts
     public interface IRolePageService
     {
         Task<IEnumerable<RolePages>> GetByIdAsync(int id);
-        Task AddAsync(RolePageInsertRequest request);
+        Task AddAsync(IEnumerable<RolePageInsertRequest> requests);
         Task UpdateAsync(RolePageUpdateRequest request);
         Task DeleteAsync(int id, int userId);
         Task<IListsResponse<RolePages>> GetAllAsync(IListsRequest request);

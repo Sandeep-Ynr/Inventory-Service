@@ -6,20 +6,24 @@ namespace MilkMatrix.Core.Extensions;
 public static class FilterExtensions
 {
     public static List<FilterCriteria> BuildFilterCriteriaFromRequest(
-this IEnumerable<FiltersMeta> filterMetas,
-Dictionary<string, object>? search)
+     this IEnumerable<FiltersMeta> filterMetas,
+     Dictionary<string, object>? search)
     {
         var criteria = new List<FilterCriteria>();
         if (search == null) return criteria;
 
+        // Create a case-insensitive dictionary for search keys
+        var searchCI = new Dictionary<string, object>(search, StringComparer.OrdinalIgnoreCase);
+
         foreach (var meta in filterMetas)
         {
-            if (search.TryGetValue(meta.Key.ToLower(), out var value) && value != null)
+            // Try to get the value using the original key (case-insensitive)
+            if (searchCI.TryGetValue(meta.Key, out var value) && value != null)
             {
                 // Restrict to allowed values if specified
                 if (meta.ValuesAllowed != null && meta.ValuesAllowed.Any())
                 {
-                    if (!meta.ValuesAllowed.Contains(value.ToString()))
+                    if (!meta.ValuesAllowed.Contains(value.ToString(), StringComparer.OrdinalIgnoreCase))
                         continue;
                 }
 

@@ -3,10 +3,8 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
@@ -559,7 +557,7 @@ public class SettingsController : ControllerBase
     [HttpPost("sms-control-list")]
     public async Task<IActionResult> SmsControlList([FromBody] ListsRequest request)
     {
-        var result = await configService.GetAllSmtpDetaisAsync(request);
+        var result = await configService.GetAllSmsDetaisAsync(request);
         return Ok(result);
     }
 

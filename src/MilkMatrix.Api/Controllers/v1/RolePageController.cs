@@ -9,7 +9,6 @@ using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.RolePage;
 using MilkMatrix.Api.Models.Request.Admin.RolePage;
 using MilkMatrix.Core.Abstractions.Logger;
-using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -37,7 +36,7 @@ public class RolePageController : ControllerBase
     }
 
     [HttpPost("insert")]
-    public async Task<IActionResult> InsertRolePage([FromBody] RolePageUpsertModel request)
+    public async Task<IActionResult> InsertRolePage([FromBody] IEnumerable<RolePageUpsertModel> request)
     {
         try
         {
@@ -50,14 +49,11 @@ public class RolePageController : ControllerBase
                 });
             }
             var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
-            logger.LogInfo($"Upsert: Add called for rolePage: {request.RoleId}");
-            var requestParams = mapper.MapWithOptions<RolePageInsertRequest, RolePageUpsertModel>(request
-                , new Dictionary<string, object> {
+            var requestParams = mapper.MapWithOptions<IEnumerable<RolePageInsertRequest>, IEnumerable<RolePageUpsertModel>>(request
+                            , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
-            });
+                        });
             await rolePageService.AddAsync(requestParams);
-            logger.LogInfo($"RolePage {request.RoleId} added successfully.");
             return Ok(new { message = "rolePage added successfully." });
         }
         catch (Exception ex)
@@ -65,7 +61,7 @@ public class RolePageController : ControllerBase
             logger.LogError("Error in Upsert role", ex);
             return StatusCode(500, "An error occurred while processing the role.");
         }
-    }   
+    }
 
     [HttpGet("{roleId}")]
     public async Task<ActionResult> GetById(int roleId)

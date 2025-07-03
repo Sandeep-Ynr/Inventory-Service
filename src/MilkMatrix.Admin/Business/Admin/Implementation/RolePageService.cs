@@ -1,3 +1,4 @@
+using System.Transactions;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Requests.RolePage;
@@ -34,27 +35,37 @@ public class RolePageService : IRolePageService
         this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
     }
 
-    public async Task AddAsync(RolePageInsertRequest request)
+    public async Task AddAsync(IEnumerable<RolePageInsertRequest> requests)
     {
-        try
+        if (requests == null) throw new ArgumentNullException(nameof(requests));
+
+        var repo = repositoryFactory.ConnectDapper<RolePageInsertRequest>(DbConstants.Main);
+
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            logger.LogInfo($"AddAsync called for page: {request.RoleId}, {request.PageId}");
-            var repo = repositoryFactory.ConnectDapper<RolePageInsertRequest>(DbConstants.Main);
-            var parameters = new Dictionary<string, object>
+            foreach (var request in requests)
             {
-                ["RoleId"] = request.RoleId,
-                ["PageId"] = request.PageId,
-                ["ActionID"] = request.ActionDetails,
-                ["ActionType"] = (int)CrudActionType.Create,
-                ["CreatedBy"] = request.CreatedBy,
-            };
-            await repo.AddAsync(RolePageSpName.RolePageUpsert, parameters);
-            logger.LogInfo($"Page {request.RoleId}, {request.PageId} added successfully.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError($"Error in AddAsync for page: {request.RoleId}, {request.PageId}", ex);
-            throw;
+                try
+                {
+                    logger.LogInfo($"AddAsync called for page: {request.RoleId}, {request.PageId}");
+                    var parameters = new Dictionary<string, object>
+                    {
+                        ["RoleId"] = request.RoleId,
+                        ["PageId"] = request.PageId,
+                        ["ActionID"] = request.ActionDetails,
+                        ["ActionType"] = (int)CrudActionType.Create,
+                        ["CreatedBy"] = request.CreatedBy,
+                    };
+                    await repo.AddAsync(RolePageSpName.RolePageUpsert, parameters);
+                    logger.LogInfo($"Page {request.RoleId}, {request.PageId} added successfully.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error in AddAsync for page: {request.RoleId}, {request.PageId}", ex);
+                    throw;
+                }
+            }
+            scope.Complete();
         }
     }
 
