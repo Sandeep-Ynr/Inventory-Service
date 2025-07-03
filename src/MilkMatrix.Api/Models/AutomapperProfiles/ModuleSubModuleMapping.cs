@@ -13,7 +13,7 @@ public class ModuleSubModuleMapping : Profile
     {
 
         CreateMap<SubModuleUpsertModel, SubModuleUpdateRequest>()
-                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsAcive))
+                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
                          .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
         CreateMap<SubModuleUpsertModel, SubModuleInsertRequest>()

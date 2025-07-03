@@ -13,6 +13,6 @@ namespace MilkMatrix.Admin.Models.Admin.Requests.SubModule
 
         public int ModifyBy { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
     }
 }
