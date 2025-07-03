@@ -203,7 +203,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 logger.LogInfo($"GetByIdAsync called for Smtp id: {id}");
                 var repo = repositoryFactory
                            .ConnectDapper<SmtpDetails>(DbConstants.Main);
-                var data = await repo.QueryAsync<SmtpDetails>(ConfigurationSettingSpName.GetSmtpSettings, new Dictionary<string, object> { { "Id", id },
+                var data = await repo.QueryAsync<SmtpDetails>(ConfigurationSettingSpName.GetSmtpSettings, new Dictionary<string, object> { { "MailId", id },
                                                                                 { "ActionType", (int)ReadActionType.Individual } }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : default;
