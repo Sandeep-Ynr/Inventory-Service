@@ -533,7 +533,7 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>Hamlet List</returns>
         [HttpPost]
         [Route("hamlet-list")]
-        public async Task<IActionResult> GetHamlets([FromBody] HamletRequestModel request)
+        public async Task<ActionResult> GetHamlets([FromBody] HamletRequestModel request)
         {
             logger.LogInfo($"GetHamlets request processed with ActionType: " +
                 $"{request.ActionType}, HamletId: " +
@@ -550,7 +550,6 @@ namespace MilkMatrix.Api.Controllers.v1
                 ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
-
             var response = request.ActionType == ReadActionType.All
                 ? await hamletService.GetHamlets(hamletRequest)
                 : await hamletService.GetSpecificLists(hamletRequest);

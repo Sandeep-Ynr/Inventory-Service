@@ -41,6 +41,7 @@ namespace MilkMatrix.Milk.Implementations
             return response;
         }
 
+
         public async Task<IEnumerable<HamletResponse>> GetHamlets(HamletRequest request)
         {
             var repository = repositoryFactory.Connect<HamletResponse>(DbConstants.Main);
@@ -51,39 +52,58 @@ namespace MilkMatrix.Milk.Implementations
                 {"VillageId", request.VillageId},
                 {"IsStatus", request.IsActive}
             };
-
             var response = await repository.QueryAsync<HamletResponse>(HamletQueries.GetHamlet, requestParams, null, CommandType.StoredProcedure);
-
             return response;
         }
 
-        public async Task<string> AddHamlet(HamletInsertRequest request)
+
+        public async Task<HamletRequest?> GetByHamletId(int hamletId)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for user id: {hamletId}");
+                var repo = repositoryFactory
+                           .ConnectDapper<HamletRequest>(DbConstants.Main);
+                var data = await repo.QueryAsync<HamletRequest>(HamletQueries.GetHamlet, new Dictionary<string, object> { { "HamletID", hamletId } }, null);
+                var result = data.Any() ? data.FirstOrDefault() : new HamletRequest();
+                logging.LogInfo(result != null
+                    ? $"User with id {hamletId} retrieved successfully."
+                    : $"User with id {hamletId} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for user id: {hamletId}", ex);
+                throw;
+            }
+        }
+
+
+        public async Task AddHamlet(HamletInsertRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
             {
-                 { "ActionType", 1 },
+                 { "ActionType",  (int)CrudActionType.Create },
                  { "HamletName", request.HamletName ?? (object)DBNull.Value },
                  { "VillageId", request.VillageId ?? (object)DBNull.Value },
                  { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                  { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
 
             };
-                var response = await repository.QueryAsync<CommonLists>(
-                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
-                );
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                var response = await repository.AddAsync(HamletQueries.AddHamlet, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Hamlet {request.HamletName} added successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in AddAsync for Hamlet: {request.HamletName}", ex);
+                throw;
             }
         }
 
-        public async Task<string> UpdateHamlet(HamletUpdateRequest request)
+        public async Task UpdateHamlet(HamletUpdateRequest request)
         {
             try
             {
@@ -97,36 +117,17 @@ namespace MilkMatrix.Milk.Implementations
                  { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                  { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
             };
-
-                var response = await repository.QueryAsync<CommonLists>(
-                    HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
-                );
-                return response?.FirstOrDefault()?.Name ?? "Update failed or no response";
+                await repository.UpdateAsync(HamletQueries.AddHamlet, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"District {request.HamletName} updated successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in UpdateAsync for Hamlet: {request.HamletName}", ex);
+                throw;
             }
         }
 
-      
-
-        public async Task<IEnumerable<HamletRequest>> GetByHamletId(int hamletId)
-        {
-            var repository = repositoryFactory.Connect<HamletRequest>(DbConstants.Main);
-            var requestParams = new Dictionary<string, object>
-            {
-                { "ActionType", 2 },
-                { "HamletId", hamletId }
-            };
-            var response = await repository.QueryAsync<HamletRequest>(
-                HamletQueries.GetHamlet, requestParams, null, CommandType.StoredProcedure
-            );
-            return response;
-        }
-
-        public async Task<string> DeleteAsync(int id, int userId)
+        public async Task DeleteAsync(int id, int userId)
         {
             try
             {
@@ -138,17 +139,19 @@ namespace MilkMatrix.Milk.Implementations
                     {"ModifyBy", userId },
                     {"ActionType" , (int)CrudActionType.Delete }
                 };
-                var response = await repository.QueryAsync<CommonLists>(
-                   HamletQueries.AddHamlet, requestParams, null, CommandType.StoredProcedure
-                );
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                var response = await repository.DeleteAsync(
+                     HamletQueries.AddHamlet, requestParams, CommandType.StoredProcedure
+                  );
+                logging.LogInfo($"Hamlet with id {id} deleted successfully.");
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in DeleteAsync for Hamlet id: {id}", ex);
+                throw;
             }
         }
 
+     
     }
 }
