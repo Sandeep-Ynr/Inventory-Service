@@ -27,9 +27,7 @@ namespace MilkMatrix.Milk.Implementations
             this.logging = logging.ForContext("ServiceName", nameof(VillageService));
             this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(VillageService));
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-
         }
-
 
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request)
         {
@@ -39,15 +37,10 @@ namespace MilkMatrix.Milk.Implementations
                 {"ActionType",(int)request.ActionType },
                 {"VillageId", request.VillageId},
                 {"TehsilId", request.TehsilId },
-                //{"DistrictId", request.DistrictId},
-                //{"StateId", request.StateId },
                 {"IsStatus", request.IsActive}
             };
-
             var response = await repository.QueryAsync<CommonLists>(VillageQueries.GetVillage, requestParams, null, CommandType.StoredProcedure);
-
             return response;
-
         }
         public async Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request)
         {
@@ -63,61 +56,52 @@ namespace MilkMatrix.Milk.Implementations
             return response;
         }
 
-        public async Task<VillageResponse> GetByVillageId(int villageId)
+        public async Task<VillageResponse?> GetByVillageId(int villageId)
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Tehsil id: {villageId}");
+                logging.LogInfo($"GetByIdAsync called for user id: {villageId}");
                 var repo = repositoryFactory
                            .ConnectDapper<VillageResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<VillageResponse>(VillageQueries.GetVillage, new Dictionary<string, object>
-                {
-                    { "ActionType", 2 },
-                    { "VillageID", villageId },
-                    { "IsStatus", true }
-                }, null);
+                var data = await repo.QueryAsync<VillageResponse>(VillageQueries.GetVillage, new Dictionary<string, object> { { "VillageId", villageId } }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new VillageResponse();
                 logging.LogInfo(result != null
-                    ? $"Village with id {villageId} retrieved successfully."
-                    : $"Village with id {villageId} not found.");
-
+                    ? $"User with id {villageId} retrieved successfully."
+                    : $"User with id {villageId} not found.");
                 return result;
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for Tehsil id: {villageId}", ex);
+                logging.LogError($"Error in GetByIdAsync for user id: {villageId}", ex);
                 throw;
             }
         }
-        public async Task<string> AddVillage(VillageInsertRequest request)
+        public async Task AddVillage(VillageInsertRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", 1 },
-                    { "VillageId", request.VillageId ?? (object)DBNull.Value},
+                    { "ActionType", (int)CrudActionType.Create },
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId ?? (object)DBNull.Value},
                     { "IsStatus", request.IsActive?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value},
                 };
-                var response = await repository.QueryAsync<CommonLists>(
-                    VillageQueries.AddVillage, requestParams, null, CommandType.StoredProcedure
-                );
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                var response = await repository.AddAsync(VillageQueries.AddVillage, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Village {request.VillageName} added successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in AddAsync for Village: {request.VillageName}", ex);
+                throw;
             }
         }
 
 
-        public async Task<string> UpdateVillage(VillageUpdateRequest request)
+        public async Task UpdateVillage(VillageUpdateRequest request)
         {
             try
             {
@@ -131,19 +115,17 @@ namespace MilkMatrix.Milk.Implementations
                     { "IsStatus", request.IsActive?? (object)DBNull.Value },
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value}
                 };
-                var response = await repository.QueryAsync<CommonLists>(
-                    VillageQueries.AddVillage, requestParams, null, CommandType.StoredProcedure
-                );
-                return response?.FirstOrDefault()?.Name ?? "Update failed or no response";
+                await repository.UpdateAsync(VillageQueries.AddVillage, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Village {request.VillageName} updated successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in UpdateVillage: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in UpdateAsync for Village: {request.VillageName}", ex);
+                throw;
             }
         }
 
-        public async Task<string> DeleteAsync(int id, int userId)
+        public async Task DeleteAsync(int id, int userId)
         {
             try
             {
@@ -155,17 +137,19 @@ namespace MilkMatrix.Milk.Implementations
                     {"ModifyBy", userId },
                     {"ActionType" , (int)CrudActionType.Delete }
                 };
-                var response = await repository.QueryAsync<CommonLists>(
-                   VillageQueries.AddVillage, requestParams, null, CommandType.StoredProcedure
+
+                var response = await repository.DeleteAsync(
+                   VillageQueries.AddVillage , requestParams, CommandType.StoredProcedure
                 );
-                return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+
+                logging.LogInfo($"District with id {id} deleted successfully.");
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
-                return "Error occurred";
+                logging.LogError($"Error in DeleteAsync for District id: {id}", ex);
+                throw;
             }
         }
-
     }
 }
