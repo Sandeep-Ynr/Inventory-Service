@@ -85,4 +85,42 @@ public interface IConfigurationService
     /// <returns></returns>
     Task<IListsResponse<SmtpDetails>> GetAllSmtpDetaisAsync(IListsRequest request);
     #endregion
+
+    #region Mobile blocked Settings
+    /// <summary>
+    /// Retrieves the details of a smtp setting or tag by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<BlockedMobiles?> GetBlockedMobilesAsync(int id);
+
+    /// <summary>
+    /// Adds a new smtp setting system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddMobileBlockAsync(BlockedMobilesInsert request);
+
+    /// <summary>
+    /// Updates an existing smtp setting in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task UpdateMobileBlockAsync(BlockedMobilesUpdate request);
+
+    /// <summary>
+    /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task DeleteMobileBlockAsync(int id, int userId);
+
+    /// <summary>
+    /// Retrieves a list of smtp settings from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IListsResponse<BlockedMobiles>> GetAllBlockedMobilesAsync(IListsRequest request);
+    #endregion
 }

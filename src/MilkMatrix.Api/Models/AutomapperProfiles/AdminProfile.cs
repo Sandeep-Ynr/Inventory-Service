@@ -26,7 +26,7 @@ public class AdminProfile : Profile
 
         CreateMap<UserUpsertModel, UserUpdateRequest>()
                   .ForMember(x => x.RoleId, opt => opt.MapFrom(src => src.Roles))
-                  .ForMember(x => x.Username, opt => opt.MapFrom(src => src.Name))
+                  .ForMember(x => x.UserName, opt => opt.MapFrom(src => src.Name))
                   .ForMember(x => x.EmailId, opt => opt.MapFrom(src => src.Email))
                   .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessIds))
                   .ForMember(x => x.MobileNumber, opt => opt.MapFrom(src => src.Mobile))
@@ -67,5 +67,20 @@ public class AdminProfile : Profile
         CreateMap<ConfigurationUpdateModel, ConfigurationUpdateRequest>()
            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
+        CreateMap<UserProfileUpdateModel, UserProfileUpdate>()
+                  .ForMember(x => x.UserId, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.LoginId]))
+                  .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<SmtpSettingsInsertModel, SmtpSettingsInsert>()
+                  .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<SmtpSettingsUpdateModel, SmtpSettingsUpdate>()
+                  .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<BlockedMobileInsertModel, BlockedMobilesInsert>()
+            .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<BlockedMobileUpdateModel, BlockedMobilesUpdate>()
+            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
     }
 }

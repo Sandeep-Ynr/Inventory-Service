@@ -37,6 +37,8 @@ public class UserController : ControllerBase
         this.mapper = mapper;
     }
 
+    #region User management
+
     [HttpPost("upsert")]
     public async Task<IActionResult> UpsertUser([FromBody] UserUpsertModel request)
     {
@@ -126,7 +128,46 @@ public class UserController : ControllerBase
     public async Task<IActionResult> List([FromBody] ListsRequest request)
     {
         var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-        var result = await userService.GetAllAsync(request,Convert.ToInt32(UserId));
+        var result = await userService.GetAllAsync(request, Convert.ToInt32(UserId));
         return Ok(result);
     }
+
+    #endregion
+
+    #region User profile management
+
+    [HttpPost("update-user-profile")]
+    public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileUpdateModel request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            logger.LogInfo($"Upsert: Update called for user: {request.UserName}");
+            var requestParams = mapper.MapWithOptions<UserProfileUpdate, UserProfileUpdateModel>(request
+                , new Dictionary<string, object> {
+                { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)},
+                { Constants.AutoMapper.LoginId ,Convert.ToInt32(UserId)}
+        });
+            await userService.UpdateProfileAsync(requestParams);
+            logger.LogInfo($"User with {request.UserName} updated successfully.");
+            return Ok(new { message = "User updated successfully." });
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Error in Upsert user", ex);
+            return StatusCode(500, "An error occurred while processing the user.");
+        }
+    }
+
+    #endregion
 }
