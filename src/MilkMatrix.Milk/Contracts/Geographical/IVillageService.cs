@@ -7,10 +7,12 @@ namespace MilkMatrix.Milk.Contracts.Geographical
 {
     public interface IVillageService
     {
+        Task AddVillage(VillageInsertRequest request);
+        Task UpdateVillage(VillageUpdateRequest request);
+        Task DeleteAsync(int id, int userId);
 
-        Task<string> AddVillage(VillageRequest request);
+        Task<VillageResponse?> GetByVillageId(int villageId);
         Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request);
-
         Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request);
 
     }

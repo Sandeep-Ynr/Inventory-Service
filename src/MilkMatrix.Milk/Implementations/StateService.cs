@@ -39,9 +39,6 @@ public class StateService : IStateService
                 { "AreaCode", request.AreaCode ?? (object)DBNull.Value },
                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                 { "CreatedBy", request.CreatedBy }
-                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                //{ "ActionType", request.ActionType (int)CrudActionType.Create},
-            
             };
 
             var response = await repository.QueryAsync<CommonLists>(
@@ -72,9 +69,6 @@ public class StateService : IStateService
                 { "AreaCode", request.AreaCode ?? (object)DBNull.Value },
                 { "IsStatus", request.IsActive ?? (object)DBNull.Value },
                 { "ModifyBy", request.ModifyBy }
-            
-                //{ "StateId", request.StateId ?? (object)DBNull.Value },
-                //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
             };
 
             var response = await repository.QueryAsync<CommonLists>(

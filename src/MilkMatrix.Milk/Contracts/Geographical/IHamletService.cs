@@ -7,9 +7,12 @@ namespace MilkMatrix.Milk.Contracts.Geographical
 {
     public interface IHamletService
     {
+
+        Task<HamletRequest?> GetByHamletId(int hamletId);
         Task<IEnumerable<HamletResponse>> GetHamlets(HamletRequest request);
         Task<IEnumerable<CommonLists>> GetSpecificLists(HamletRequest request);
-
-        Task<string> AddHamlet(HamletRequest request);
+        Task AddHamlet(HamletInsertRequest request);
+        Task UpdateHamlet(HamletUpdateRequest request);
+        Task DeleteAsync(int id, int userId);
     }
 }

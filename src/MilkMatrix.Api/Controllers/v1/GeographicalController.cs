@@ -3,6 +3,8 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
@@ -15,6 +17,7 @@ using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -181,6 +184,97 @@ namespace MilkMatrix.Api.Controllers.v1
             return response.Any() ? Ok(response) : BadRequest();
         }
 
+        [HttpGet("district{id}")]
+        public async Task<ActionResult<DistrictResponse?>> GetById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get district by id called for id: {id}");
+                var user = await districtService.GetByIdAsync(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"district with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"district with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving district with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the district.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add-Districts")]
+        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Tehsil: {request.DistrictName}");
+                var requestParams = mapper.MapWithOptions<DistrictInsertRequest, DistrictInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await districtService.AddDistrictsAsync(requestParams);
+                logger.LogInfo($"District {request.DistrictName} added successfully.");
+                return Ok(new { message = "District added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Tehsil", ex);
+                return StatusCode(500, "An error occurred while adding the Tehsil.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update-district/{id}")]
+        public async Task<IActionResult> UpdateDistrict(int id,[FromBody] DistrictUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            //request.VillageId = id;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<DistrictUpdateRequest, DistrictUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await districtService.UpdateDistrictAsync(requestParams);
+            logger.LogInfo($"District with id {request.DistrictId} updated successfully.");
+            return Ok(new { message = "District updated successfully." });
+        }
+
+        [HttpDelete("district-delete/{id}")]
+        public async Task<IActionResult> DeleteDistrict(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await districtService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"District with id {id} deleted successfully.");
+                return Ok(new { message = "District deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting role with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the District.");
+            }
+        }
+
+
         /// <summary>
         /// Get the List of Tehsil
         /// </summary>
@@ -192,8 +286,7 @@ namespace MilkMatrix.Api.Controllers.v1
             logger.LogInfo($"GetTehsils request processed with ActionType: " +
                 $"{request.ActionType}, TehsilId: " +
                 $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
+                $"{request.DistrictId}");
 
             var tehsilRequest = new TehsilRequest
             {
@@ -211,6 +304,113 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
+        
+        /// <summary>
+        /// Get Tehsil By Tehsil ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Tehsil Detail</returns>
+        [HttpGet("tehsil{id}")]
+        public async Task<ActionResult<TehsilResponse?>> GetTehsilById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get tehsil by id called for id: {id}");
+                var user = await tehsilService.GetByIdAsync(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"tehsil with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"tehsil with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving tehsil with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the tehsil.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add-Tehsil")]
+        public async Task<IActionResult> AddTehsil([FromBody] TehsilInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Tehsil: {request.TehsilName}");
+                var requestParams = mapper.MapWithOptions<TehsilInsertRequest, TehsilInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await tehsilService.AddTehsilAsync(requestParams);
+                logger.LogInfo($"Tehsil {request.TehsilName} added successfully.");
+                return Ok(new { message = "Tehsil added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Tehsil", ex);
+                return StatusCode(500, "An error occurred while adding the Tehsil.");
+            }
+        }
+        
+
+        [HttpPut]
+        [Route("update-tehsil/{id}")]
+        public async Task<IActionResult> UpdateTehsil(int id, [FromBody] TehsilUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            //request.VillageId = id;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<TehsilUpdateRequest, TehsilUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await tehsilService.UpdateTehsilAsync(requestParams);
+            logger.LogInfo($"Tehsil with id {request.TehsilId} updated successfully.");
+            return Ok(new { message = "Tehsil updated successfully." });
+        
+        }
+
+
+
+        
+
+
+
+
+
+
+
+        [HttpDelete("tehsil-delete/{id}")]
+        public async Task<IActionResult> DeleteTehsil(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await tehsilService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Tehsil with id {id} deleted successfully.");
+                return Ok(new { message = "Tehsil deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Tehsil with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Tehsil.");
+            }
+        }
 
         /// <summary>
         /// Get the List of Village
@@ -223,18 +423,16 @@ namespace MilkMatrix.Api.Controllers.v1
             logger.LogInfo($"GetVillages request processed with ActionType: " +
                 $"{request.ActionType}, VillageId: " +
                 $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
+                $"{request.TehsilId}");
 
             var villageRequest = new VillageRequest
             {
-                VillageId = request.VillageId,
-                TehsilId = request.TehsilId,
+                //VillageId = request.VillageId,
+                //TehsilId = request.TehsilId,
                 //DistrictId = request.DistrictId,
                 //StateId = request.StateId,
                 //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
+                //ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
@@ -244,13 +442,98 @@ namespace MilkMatrix.Api.Controllers.v1
 
             return response.Any() ? Ok(response) : BadRequest();
         }
+        [HttpGet("village{id}")]
+        public async Task<ActionResult<VillageResponse?>> GetByVillageId(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get village by id called for id: {id}");
+                var user = await villageService.GetByVillageId(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"village with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"village with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the village.");
+            }
+        }
+        [HttpPost]
+        [Route("add-village")]
+        public async Task<IActionResult> AddVillage([FromBody] VillageInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Village: {request.VillageName}");
+                var requestParams = mapper.MapWithOptions<VillageInsertRequest, VillageInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await villageService.AddVillage(requestParams);
+                logger.LogInfo($"Village {request.VillageName} added successfully.");
+                return Ok(new { message = "Village added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Village", ex);
+                return StatusCode(500, "An error occurred while adding the Village.");
+            }
+        }
+        [HttpPut]
+        [Route("update-Village")]
+        public async Task<IActionResult> UpdateVillage([FromBody] VillageUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid )
+                return BadRequest("Invalid request.");
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<VillageUpdateRequest, VillageUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await villageService.UpdateVillage(requestParams);
+            logger.LogInfo($"Village with id {request.VillageId} updated successfully.");
+            return Ok(new { message = "Village updated successfully." });
+        }
+
+        [HttpDelete("village-delete/{id}")]
+        public async Task<IActionResult> DeleteVillage(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await villageService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Village with id {id} deleted successfully.");
+                return Ok(new { message = "Village deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Village.");
+            }
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns>Hamlet List</returns>
         [HttpPost]
         [Route("hamlet-list")]
-        public async Task<IActionResult> GetHamlets([FromBody] HamletRequestModel request) 
+        public async Task<ActionResult> GetHamlets([FromBody] HamletRequestModel request)
         {
             logger.LogInfo($"GetHamlets request processed with ActionType: " +
                 $"{request.ActionType}, HamletId: " +
@@ -264,115 +547,100 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 HamletId = request.HamletId,
                 VillageId = request.VillageId,
-                //TehsilId = request.TehsilId,
-                //DistrictId = request.DistrictId,
-                //StateId = request.StateId,
-                //ActionType = request.ActionType,
                 ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
-
             var response = request.ActionType == ReadActionType.All
                 ? await hamletService.GetHamlets(hamletRequest)
                 : await hamletService.GetSpecificLists(hamletRequest);
 
             return response.Any() ? Ok(response) : BadRequest();
         }
-
-
-        [HttpPost]
-        [Route("add-village")]
-        public async Task<IActionResult> AddVillage([FromBody] VillageRequestModel request)
+        
+        [HttpGet("HamletId{id}")]
+        public async Task<ActionResult<TehsilResponse?>> GetByHamletId(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var village = mapper.Map<VillageRequest>(request);
-
-            var created = await villageService.AddVillage(village);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add village.");
-
-            return CreatedAtAction(
-                nameof(GetVillages),  
-                new
+            try
+            {
+                logger.LogInfo($"Get Hamlet by id called for id: {id}");
+                var user = await hamletService.GetByHamletId(id);
+                if (user == null)
                 {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = village.VillageId
-                },
-                village
-            );
+                    logger.LogInfo($"Hamlet with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Hamlet with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving village with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the village.");
+            }
+        }
+        
+        [HttpPost]
+        [Route("add-hamlet")]
+        public async Task<IActionResult> AddHamlet([FromBody] HamletInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Hamlet: {request.HamletName}");
+                var requestParams = mapper.MapWithOptions<HamletInsertRequest, HamletInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await hamletService.AddHamlet(requestParams);
+                logger.LogInfo($"Hamlet {request.HamletName} added successfully.");
+                return Ok(new { message = "Hamlet added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert Hamlet", ex);
+                return StatusCode(500, "An error occurred while adding the Hamlet.");
+            }
         }
 
-        [HttpPost]
-        [Route("add-Districts")]
-        public async Task<IActionResult> AddDistrictsAsync([FromBody] DistrictRequestModel request)
+        [HttpPut]
+        [Route("update-hamlet")]
+        public async Task<IActionResult> UpdateHamlet([FromBody] HamletUpdateRequestModel request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var district = mapper.Map<DistrictRequest>(request);
-
-            var created = await districtService.AddDistrictsAsync(district);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add District.");
-
-            return CreatedAtAction(
-                nameof(GetDistricts),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = district.DistrictId
-                },
-                district
-            );
+            if (!ModelState.IsValid || request.HamletId <= 0)
+                return BadRequest("Invalid request.");
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<HamletUpdateRequest, HamletUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await hamletService.UpdateHamlet(requestParams);
+            logger.LogInfo($"Hamlet with id {request.VillageId} updated successfully.");
+            return Ok(new { message = "Hamlet updated successfully." });
         }
-
-
-        [HttpPost]
-        [Route("add-Tehsil")]
-        public async Task<IActionResult> AddTehsil([FromBody] TehsilRequestModel request)
+        [HttpDelete("hamlet-delete/{id}")]
+        
+        public async Task<IActionResult> DeleteHamlet(int id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var Tehsil = mapper.Map<TehsilRequest>(request);
-            var created = await tehsilService.AddTehsil(Tehsil);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add Tehsil.");
-
-            return CreatedAtAction(
-                nameof(GetTehsils),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = Tehsil.TehsilId
-                },
-                Tehsil
-            );
-        }
-
-        [HttpPost]
-        [Route("add-Hamlet")]
-        public async Task<IActionResult> AddHamlet([FromBody] HamletRequestModel request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var Hamlet = mapper.Map<HamletRequest>(request);
-            var created = await hamletService.AddHamlet(Hamlet);
-            if (created == "Failed.")
-                return StatusCode(500, "Failed to add Hamlet.");
-
-            return CreatedAtAction(
-                nameof(GetHamlets),
-                new
-                {
-                    version = HttpContext.GetRequestedApiVersion()?.ToString(),
-                    controller = "Geographical",
-                    id = Hamlet.HamletId
-                },
-                Hamlet
-            );
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await hamletService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Hamlet with id {id} deleted successfully.");
+                return Ok(new { message = "Hamlet deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Hamlet with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Hamlet.");
+            }
         }
     }
 }

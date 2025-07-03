@@ -6,10 +6,12 @@ namespace MilkMatrix.Milk.Contracts.Geographical
 {
     public interface IDistrictService
     {
+        Task<DistrictResponse?> GetByIdAsync(int id);
         Task<IEnumerable<DistrictResponse>> GetDistricts(DistrictRequest request);
-
         Task<IEnumerable<CommonLists>> GetSpecificLists(DistrictRequest request);
-        
-        Task<string> AddDistrictsAsync(DistrictRequest request);
+        Task AddDistrictsAsync(DistrictInsertRequest request);
+        Task UpdateDistrictAsync(DistrictUpdateRequest request);
+        Task DeleteAsync(int id, int userId);
+       
     }
 }
