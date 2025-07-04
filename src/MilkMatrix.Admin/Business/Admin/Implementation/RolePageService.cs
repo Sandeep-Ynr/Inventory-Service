@@ -48,6 +48,8 @@ public class RolePageService : IRolePageService
                 try
                 {
                     logger.LogInfo($"AddAsync called for page: {request.RoleId}, {request.PageId}");
+                    await DeleteAsync(request.RoleId, request.CreatedBy);
+
                     var parameters = new Dictionary<string, object>
                     {
                         ["RoleId"] = request.RoleId,

@@ -7,9 +7,9 @@ public class BlockedMobileUpdateModel
     [Required]
     public int Id { get; set; }
 
-    public string MobileNumber { get; set; } = string.Empty;
+    public string? MobileNumber { get; set; }
 
-    public string ContactName { get; set; } = string.Empty;
+    public string? ContactName { get; set; }
 
     public int? BusinessId { get; set; }
 

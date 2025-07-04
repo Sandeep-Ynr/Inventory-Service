@@ -81,14 +81,14 @@ public class RoleService : IRoleService
         }
     }
 
-    public async Task<Roles?> GetByIdAsync(int id)
+    public async Task<RoleDetails?> GetByIdAsync(int id)
     {
         try
         {
             logger.LogInfo($"GetByIdAsync called for role id: {id}");
             var repo = repositoryFactory
-                       .ConnectDapper<Roles>(DbConstants.Main);
-            var data = await repo.QueryAsync<Roles>(RoleSpName.GetRoles, new Dictionary<string, object> { { "RoleId", id },
+                       .ConnectDapper<RoleDetails>(DbConstants.Main);
+            var data = await repo.QueryAsync<RoleDetails>(RoleSpName.GetRoles, new Dictionary<string, object> { { "RoleId", id },
                                                                                 { "ActionType", (int)ReadActionType.Individual } }, null);
 
             var result = data.Any() ? data.FirstOrDefault() : default;

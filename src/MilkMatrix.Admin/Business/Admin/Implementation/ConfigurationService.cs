@@ -54,12 +54,10 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 {
                     ["TagName"] = request.TagName,
                     ["TagValue"] = request.TagValue,
-                    ["TagValueBool"] = request.TagValueBool,
-                    ["TagFlag"] = request.TagFlag,
                     ["SkipForUser"] = request.SkipForUser,
                     ["BusinessId"] = request.BusinessId,
-                    ["DeviceType"] = request.DeviceType,
                     ["CreatedBy"] = request.CreatedBy,
+                    ["IsStatus"] = true,
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
@@ -164,26 +162,23 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             try
             {
-                logger.LogInfo($"UpdateAsync called for configuration: {request.TagName}");
+                logger.LogInfo($"UpdateAsync called for configuration: {request.Id}");
 
                 var repo = repositoryFactory.ConnectDapper<ConfigurationInsertRequest>(DbConstants.Main);
 
                 var parameters = new Dictionary<string, object>
                 {
                     ["Id"] = request.Id,
-                    ["TagName"] = request.TagName,
                     ["TagValue"] = request.TagValue,
-                    ["TagValueBool"] = request.TagValueBool,
-                    ["TagFlag"] = request.TagFlag,
                     ["SkipForUser"] = request.SkipForUser,
                     ["BusinessId"] = request.BusinessId,
-                    ["DeviceType"] = request.DeviceType,
+                    ["IsStatus"] = request.IsActive,
                     ["ModifyBy"] = request.ModifyBy,
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
                 await repo.AddAsync(ConfigurationSettingSpName.ConfigurationUpsert, parameters);
-                logger.LogInfo($"Configuration {request.TagName} updated successfully.");
+                logger.LogInfo($"Configuration {request.Id} updated successfully.");
             }
             catch (Exception ex)
             {
@@ -550,7 +545,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
+                await repo.UpdateAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
                 logger.LogInfo($"Sms merchant {request.SmsMerchant} updated successfully.");
             }
             catch (Exception ex)

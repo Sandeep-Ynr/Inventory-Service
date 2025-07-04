@@ -11,24 +11,9 @@ public class ConfigurationUpdateRequest
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the unique identifier for the tag. If not provided, a new tag will be created.
-    /// </summary>
-    public string TagName { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the value of the tag. This can be a string, boolean, or flag.
     /// </summary>
     public string? TagValue { get; set; }
-
-    /// <summary>
-    /// Gets or sets a boolean value indicating whether the tag value is a boolean type.
-    /// </summary>
-    public bool? TagValueBool { get; set; }
-
-    /// <summary>
-    /// Gets or sets a boolean flag indicating whether the tag is active or should be skipped for the user.
-    /// </summary>
-    public bool? TagFlag { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this tag should be skipped for the user.
@@ -40,13 +25,11 @@ public class ConfigurationUpdateRequest
     /// </summary>
     public int? BusinessId { get; set; }
 
-    /// <summary>
-    /// Gets or sets the device type of the associated business. This is optional and can be used for display purposes.
-    /// </summary>
-    public string? DeviceType { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the user who created this tag. This is useful for tracking who added the tag.
     /// </summary>
     public int ModifyBy { get; set; }
+
+    public bool? IsActive { get; set; }
 }

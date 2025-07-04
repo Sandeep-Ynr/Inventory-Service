@@ -39,4 +39,9 @@ public class SmsControlDetails
     /// Gets or sets the order ID associated with the SMS control configuration.
     /// </summary>
     public int OrderId { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the SMS control is active.
+    /// </summary>
+    public bool? IsActive { get; set; }
 }
