@@ -16,5 +16,5 @@ public class ModuleUpdateRequest
 
     public int ModifyBy { get; set; }
 
-    public bool IsAcive { get; set; }
+    public bool? IsActive { get; set; }
 }

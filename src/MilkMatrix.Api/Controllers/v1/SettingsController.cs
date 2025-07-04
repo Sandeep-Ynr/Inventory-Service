@@ -3,10 +3,8 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
@@ -449,6 +447,140 @@ public class SettingsController : ControllerBase
         {
             logging.LogError($"Error deleting with id: {id}", ex);
             return StatusCode(500, "An error occurred while deleting.");
+        }
+    }
+    #endregion
+
+    #region Sms Settings
+
+    /// <summary>
+    /// Retrieves the details of a Sms setting by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("sms-control/{id}")]
+    public async Task<ActionResult> GetBySmsControlId(int id)
+    {
+        try
+        {
+            var configDetails = await configService.GetBySmsControlByIdAsync(id);
+            if (configDetails == null)
+            {
+                logging.LogInfo($"Details with id {id} not found.");
+                return NoContent();
+            }
+            logging.LogInfo($"Details with id {id} retrieved successfully.");
+            return Ok(configDetails);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving Details with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the Details.");
+        }
+    }
+
+    /// <summary>
+    /// Inserts a new sms setting into the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("sms-control-insert")]
+    public async Task<IActionResult> InsertSmsControlDetails([FromBody] SmsControlInsertModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<SmsControlInsert, SmsControlInsertModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.AddSmsControlDetailsAsync(requestParams);
+            logging.LogInfo($"SmsMerchant {request.SmsMerchant} added successfully.");
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in insert MerchantDetails", ex);
+            return StatusCode(500, "An error occurred while processing the MerchantDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing sms setting in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut("sms-control-update")]
+    public async Task<IActionResult> UpdateSmsControlDetails([FromBody] SmsControlUpdateModel request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<SmsControlUpdate, SmsControlUpdateModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.UpdateSmsDetailsAsync(requestParams);
+            logging.LogInfo($"Sms control with {request.SmsMerchant} updated successfully.");
+            return Ok(new { message = "Sms control updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Update Sms control", ex);
+            return StatusCode(500, "An error occurred while updating the Sms control.");
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a list of sms control from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("sms-control-list")]
+    public async Task<IActionResult> SmsControlList([FromBody] ListsRequest request)
+    {
+        var result = await configService.GetAllSmsDetaisAsync(request);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Deletes a sms control from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("sms-control-delete/{id}")]
+    public async Task<IActionResult> DeleteSmsControl(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Delete Sms control called for id: {id}");
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configService.DeleteSmsDetailsAsync(id, Convert.ToInt32(UserId));
+            logging.LogInfo($"Sms control with id {id} deleted successfully.");
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error deleting sms control with id: {id}", ex);
+            return StatusCode(500, "An error occurred while deleting the Sms control.");
         }
     }
     #endregion

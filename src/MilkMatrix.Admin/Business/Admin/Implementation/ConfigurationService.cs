@@ -203,7 +203,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 logger.LogInfo($"GetByIdAsync called for Smtp id: {id}");
                 var repo = repositoryFactory
                            .ConnectDapper<SmtpDetails>(DbConstants.Main);
-                var data = await repo.QueryAsync<SmtpDetails>(ConfigurationSettingSpName.GetSmtpSettings, new Dictionary<string, object> { { "Id", id },
+                var data = await repo.QueryAsync<SmtpDetails>(ConfigurationSettingSpName.GetSmtpSettings, new Dictionary<string, object> { { "MailId", id },
                                                                                 { "ActionType", (int)ReadActionType.Individual } }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : default;
@@ -271,7 +271,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["SMTPPassword"] = request.SmtpPassword.EncodeSHA512(),
                     ["Status"] = request.IsActive,
                     ["ModifyBy"] = request.ModifyBy,
-                    ["ActionType"] = (int)CrudActionType.Create
+                    ["ActionType"] = (int)CrudActionType.Update
                 };
 
                 await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
@@ -292,7 +292,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var repo = repositoryFactory.ConnectDapper<ConfigurationDetails>(DbConstants.Main);
                 var parameters = new Dictionary<string, object>
             {
-                {"Id", id },
+                {"MailId", id },
                 {"Status", false },
                 {"ModifyBy", userId },
                 {"ActionType" , (int)CrudActionType.Delete }
@@ -406,7 +406,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["BusinessId"] = request.BusinessId,
                     ["Status"] = true,
                     ["ModifyBy"] = request.ModifyBy,
-                    ["ActionType"] = (int)CrudActionType.Create
+                    ["ActionType"] = (int)CrudActionType.Update
                 };
 
                 await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
@@ -466,6 +466,147 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             // 5. Return result
             return new ListsResponse<BlockedMobiles>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+        #endregion
+
+        #region Sms Settings
+
+        public async Task<SmsControlDetails?> GetBySmsControlByIdAsync(int id)
+        {
+            try
+            {
+                var repo = repositoryFactory
+                           .ConnectDapper<SmsControlDetails>(DbConstants.Main);
+                var data = await repo.QueryAsync<SmsControlDetails>(ConfigurationSettingSpName.GetSmsSettings, new Dictionary<string, object> { { "SmsId", id },
+                                                                                { "ActionType", (int)ReadActionType.Individual } }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : default;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetByIdAsync for Smtp id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task AddSmsControlDetailsAsync(SmsControlInsert request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<SmsControlInsert>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["Merchant"] = request.SmsMerchant,
+                    ["SenderId"] = request.SenderId,
+                    ["AuthKey"] = request.AuthKey,
+                    ["UrlLink"] = request.UrlLink,
+                    ["TemplateId"] = request.TemplateId,
+                    ["OrderId"] = request.OrderId,
+                    ["Status"] = true,
+                    ["CreatedBy"] = request.CreatedBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
+                logger.LogInfo($"Sms merchant {request.SmsMerchant} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateSmsDetailsAsync(SmsControlUpdate request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<SmsControlUpdate>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["SmsId"] = request.Id,
+                    ["Merchant"] = request.SmsMerchant,
+                    ["SenderId"] = request.SenderId,
+                    ["AuthKey"] = request.AuthKey,
+                    ["UrlLink"] = request.UrlLink,
+                    ["TemplateId"] = request.TemplateId,
+                    ["OrderId"] = request.OrderId,
+                    ["Status"] = request.IsActive,
+                    ["ModifyBy"] = request.ModifyBy,
+                    ["ActionType"] = (int)CrudActionType.Update
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
+                logger.LogInfo($"Sms merchant {request.SmsMerchant} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteSmsDetailsAsync(int id, int userId)
+        {
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<SmsControlDetails>(DbConstants.Main);
+                var parameters = new Dictionary<string, object>
+            {
+                {"SmsId", id },
+                {"Status", false },
+                {"ModifyBy", userId },
+                {"ActionType" , (int)CrudActionType.Delete }
+            };
+                await repo.DeleteAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
+                logger.LogInfo($"SmsSettings with id {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in DeleteAsync for Sms id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<IListsResponse<SmsControlDetails>> GetAllSmsDetaisAsync(IListsRequest request)
+        {
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<SmsControlDetails, int, FiltersMeta>(ConfigurationSettingSpName.GetSmsSettings,
+                DbConstants.Main,
+                new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.All }},
+                null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<SmsControlDetails>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),

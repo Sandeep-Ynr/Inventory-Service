@@ -73,6 +73,8 @@ public static partial class Constants
         public const string GetSmtpSettings = "usp_mail_smtp_list"; //For getting smtp settings
         public const string GetBlockedMobiles = "usp_blocked_mobiles"; // For getting blocked mobiles
         public const string BlockedMobilesUpsert = "usp_blocked_mobile_insupd"; //For blocked mobiles insert/update
+        public const string SmsSettingsUpsert = "usp_sms_control_insupd"; //For Sms settings Insert update
+        public const string GetSmsSettings = "usp_sms_control_list"; //For getting sms settings
     }
 
 

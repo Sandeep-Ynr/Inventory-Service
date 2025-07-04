@@ -118,7 +118,7 @@ public class ModuleService : IModuleService
                 ["OrderNumber"] = request.Order,
                 ["ModuleIcon"] = request.Icon,
                 ["ModifyBy"] = request.ModifyBy,
-                ["Status"] = request.IsAcive,
+                ["Status"] = request.IsActive,
                 ["ActionType"] = request.ActionType
             };
             await repo.UpdateAsync(ModuleSpName.ModuleUpsert, parameters);

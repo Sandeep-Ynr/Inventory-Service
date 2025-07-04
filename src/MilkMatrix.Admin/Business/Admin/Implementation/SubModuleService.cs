@@ -116,7 +116,7 @@ public class SubModuleService : ISubModuleService
                 ["SubModuleId"] = request.Id,
                 ["OrderNumber"] = request.Order,
                 ["ModifyBy"] = request.ModifyBy,
-                ["Status"] = request.IsAcive,
+                ["Status"] = request.IsActive,
                 ["ActionType"] = request.ActionType
             };
             await repo.UpdateAsync(SubModuleSpName.SubModuleUpsert, parameters);

@@ -13,5 +13,5 @@ public class BlockedMobileUpdateModel
 
     public int? BusinessId { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 }

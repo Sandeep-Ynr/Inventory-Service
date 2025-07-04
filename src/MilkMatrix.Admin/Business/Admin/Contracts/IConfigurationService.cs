@@ -123,4 +123,42 @@ public interface IConfigurationService
     /// <returns></returns>
     Task<IListsResponse<BlockedMobiles>> GetAllBlockedMobilesAsync(IListsRequest request);
     #endregion
+
+    #region Sms Settings
+    /// <summary>
+    /// Retrieves the details of a sms setting by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<SmsControlDetails?> GetBySmsControlByIdAsync(int id);
+
+    /// <summary>
+    /// Adds a new sms setting system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddSmsControlDetailsAsync(SmsControlInsert request);
+
+    /// <summary>
+    /// Updates an existing sms setting in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task UpdateSmsDetailsAsync(SmsControlUpdate request);
+
+    /// <summary>
+    /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task DeleteSmsDetailsAsync(int id, int userId);
+
+    /// <summary>
+    /// Retrieves a list of sms settings from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IListsResponse<SmsControlDetails>> GetAllSmsDetaisAsync(IListsRequest request);
+    #endregion
 }

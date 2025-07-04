@@ -14,22 +14,22 @@ public class SmtpSettingsUpdate
     /// <summary>
     /// Gets or sets the SMTP server address.
     /// </summary>
-    public string SmtpServer { get; set; } = string.Empty;
+    public string? SmtpServer { get; set; }
 
     /// <summary>
     /// Gets or sets the SMTP port number.
     /// </summary>
-    public int SmtpPort { get; set; }
+    public int? SmtpPort { get; set; }
 
     /// <summary>
     /// Gets or sets the username for SMTP authentication.
     /// </summary>
-    public string SmtpUserId { get; set; } = string.Empty;
+    public string? SmtpUserId { get; set; }
 
     /// <summary>
     /// Gets or sets the password for SMTP authentication.
     /// </summary>
-    public string SmtpPassword { get; set; } = string.Empty;
+    public string? SmtpPassword { get; set; }
 
     /// <summary>
     /// Gets or sets who modified the SMTP settings.
@@ -39,5 +39,5 @@ public class SmtpSettingsUpdate
     /// <summary>
     /// Gets or sets who modified the SMTP settings.
     /// </summary>
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 }
