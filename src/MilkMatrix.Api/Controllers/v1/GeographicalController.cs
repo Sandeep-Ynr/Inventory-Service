@@ -420,19 +420,17 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("village-list")]
         public async Task<IActionResult> GetVillages([FromBody] VillageRequestModel request)
         {
-            logger.LogInfo($"GetVillages request processed with ActionType: " +
-                $"{request.ActionType}, VillageId: " +
-                $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}");
+            logger.LogInfo($"GetDistricts request processed with ActionType: " +
+               $"{request.ActionType}, ActionType: " +
+               $"{request.VillageId}, VillageId:" +
+               $" {request.TehsilId}");
 
             var villageRequest = new VillageRequest
             {
-                //VillageId = request.VillageId,
-                //TehsilId = request.TehsilId,
-                //DistrictId = request.DistrictId,
-                //StateId = request.StateId,
+                VillageId = request.VillageId,
+                TehsilId = request.VillageId,
                 //ActionType = request.ActionType,
-                //ActionType = (ReadActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
@@ -449,7 +447,7 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 logger.LogInfo($"Get village by id called for id: {id}");
                 var user = await villageService.GetByVillageId(id);
-                if (user == null)
+                if (user == null )
                 {
                     logger.LogInfo($"village with id {id} not found.");
                     return NotFound();
