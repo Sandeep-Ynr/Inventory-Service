@@ -385,16 +385,6 @@ namespace MilkMatrix.Api.Controllers.v1
         
         }
 
-
-
-        
-
-
-
-
-
-
-
         [HttpDelete("tehsil-delete/{id}")]
         public async Task<IActionResult> DeleteTehsil(int id)
         {
@@ -534,25 +524,22 @@ namespace MilkMatrix.Api.Controllers.v1
         public async Task<ActionResult> GetHamlets([FromBody] HamletRequestModel request)
         {
             logger.LogInfo($"GetHamlets request processed with ActionType: " +
-                $"{request.ActionType}, HamletId: " +
-                $"{request.HamletId}, VillageId: " +
-                $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
-
+               $"{request.ActionType}, ActionType: " +
+               $"{request.VillageId}, VillageId:" +
+               $" {request.TehsilId}");
             var hamletRequest = new HamletRequest
             {
-                HamletId = request.HamletId,
                 VillageId = request.VillageId,
+                HamletId = request.HamletId,
+                //ActionType = request.ActionType,
                 ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
             var response = request.ActionType == ReadActionType.All
                 ? await hamletService.GetHamlets(hamletRequest)
                 : await hamletService.GetSpecificLists(hamletRequest);
-
             return response.Any() ? Ok(response) : BadRequest();
+
         }
         
         [HttpGet("HamletId{id}")]
