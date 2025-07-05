@@ -35,4 +35,6 @@ public class ConfigurationDetails
     /// Gets or sets the name of the associated business.
     /// </summary>
     public string BusinessName { get; set; } = string.Empty; 
+
+    public bool? IsActive { get; set; }
 }

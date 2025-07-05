@@ -127,13 +127,13 @@ public class SettingsController : ControllerBase
             }
             var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            logging.LogInfo($"Upsert: Update called for ConfigDetails: {request.TagName}");
+            logging.LogInfo($"Upsert: Update called for ConfigDetails: {request.Id}");
             var requestParams = mapper.MapWithOptions<ConfigurationUpdateRequest, ConfigurationUpdateModel>(request
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
             });
             await configService.UpdateAsync(requestParams);
-            logging.LogInfo($"ConfigDetails with {request.TagName} updated successfully.");
+            logging.LogInfo($"ConfigDetails with {request.Id} updated successfully.");
             return Ok(new { message = "ConfigDetails updated successfully." });
         }
         catch (Exception ex)

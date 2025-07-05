@@ -14,6 +14,7 @@ using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
+using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation;
@@ -41,6 +42,11 @@ public class RolePageService : IRolePageService
 
         var repo = repositoryFactory.ConnectDapper<RolePageInsertRequest>(DbConstants.Main);
 
+        requests.ForEach(async x =>
+        {
+            await DeleteAsync(x.RoleId, x.CreatedBy);
+        });
+
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
             foreach (var request in requests)
@@ -48,6 +54,7 @@ public class RolePageService : IRolePageService
                 try
                 {
                     logger.LogInfo($"AddAsync called for page: {request.RoleId}, {request.PageId}");
+
                     var parameters = new Dictionary<string, object>
                     {
                         ["RoleId"] = request.RoleId,

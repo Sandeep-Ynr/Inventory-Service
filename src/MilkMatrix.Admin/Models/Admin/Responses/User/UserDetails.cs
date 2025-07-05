@@ -16,6 +16,7 @@ public class UserDetails
     public string? ImageUrl { get; set; }
 
     public string? BusinessId { get; set; }
+    public string? RoleId { get; set; }
 
     public int Loginid { get; set; }
     public int FinancialYearId { get; set; }
