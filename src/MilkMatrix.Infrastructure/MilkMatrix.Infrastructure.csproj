@@ -18,6 +18,7 @@
     <ProjectReference Include="..\MilkMatrix.DataAccess.Dapper\MilkMatrix.DataAccess.Dapper.csproj" />
     <ProjectReference Include="..\MilkMatrix.Logging\MilkMatrix.Logging.csproj" />
     <ProjectReference Include="..\MilkMatrix.Notifications\MilkMatrix.Notifications.csproj" />
+    <ProjectReference Include="..\MilkMatrix.Uploader\MilkMatrix.Uploader.csproj" />
   </ItemGroup>
 
   <ItemGroup>

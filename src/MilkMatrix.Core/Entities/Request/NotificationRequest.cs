@@ -1,6 +1,6 @@
 using MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Core.Entities.Common;
+namespace MilkMatrix.Core.Entities.Request;
 
 public class NotificationRequest
 {

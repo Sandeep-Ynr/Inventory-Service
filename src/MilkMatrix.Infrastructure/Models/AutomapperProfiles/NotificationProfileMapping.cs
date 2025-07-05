@@ -1,5 +1,5 @@
 using AutoMapper;
-using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Notifications.Models.Enums;
 using MilkMatrix.Notifications.Models.OTP.Request;

@@ -6,15 +6,18 @@ using MilkMatrix.Core.Abstractions.HttpClient;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Notification;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Abstractions.Uploader;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Infrastructure.Common.Logger.Implementation;
 using MilkMatrix.Infrastructure.Common.Notifications;
+using MilkMatrix.Infrastructure.Common.Uploader;
 using MilkMatrix.Infrastructure.Factories;
 using MilkMatrix.Logging.Config;
 using MilkMatrix.Logging.Extensions;
 using MilkMatrix.Notifications.Common.Extensions;
 using MilkMatrix.Notifications.Models.Config;
+using MilkMatrix.Uploader.Common.Extensions;
 
 namespace MilkMatrix.Infrastructure.Extensions
 {
@@ -30,7 +33,8 @@ namespace MilkMatrix.Infrastructure.Extensions
                 // Register the infrastructure services
                 services
                     .AddConfigs(context.Configuration)
-                    .ConfigureInfraservices(context.Configuration);
+                    .ConfigureInfraservices(context.Configuration)
+                    .AddUploaderServices(context.Configuration);
             });
             return hostBuilder;
         }
@@ -42,6 +46,7 @@ namespace MilkMatrix.Infrastructure.Extensions
               .AddHttpClient()
               .AddScoped<IClientFactory, ClientFactory>()
               .AddScoped<INotificationService, NotificationAdapter>()
+              .AddScoped<IFileUploader, UploadProvider>()
               .AddNotificationServices(configuration)
               // Ensure Serilog's logger is available
               .AddDataAccess()
