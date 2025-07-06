@@ -4,6 +4,7 @@ using MilkMatrix.Uploader.Contracts.Response;
 namespace MilkMatrix.Uploader.Models.Response;
 public class FileResponse : Audit, IFileResponse
 {
+    public int FileId { get; set; }
     public string FileName { get; set; }
     public string FilePath { get; set; }
     public byte[] FileBytes { get; set; }
