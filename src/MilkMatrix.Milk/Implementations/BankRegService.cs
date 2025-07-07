@@ -1,0 +1,164 @@
+using System.Data;
+using Azure.Core;
+using Microsoft.Extensions.Options;
+using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Models.Request.Geographical;
+using MilkMatrix.Milk.Models.Response.Geographical;
+using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
+
+namespace MilkMatrix.Milk.Implementations
+{
+    public class BankRegService : IBankRegService
+    {
+        private readonly ILogging logging;
+        private readonly AppConfig appConfig;
+        private readonly IRepositoryFactory repositoryFactory;
+
+        public BankRegService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory)
+        {
+            this.logging = logging.ForContext("ServiceName", nameof(HamletService));
+            this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
+            this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
+        }
+
+        public async Task AddBankReg(BankRegInsertRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Create },
+                    { "RegionalCode", request.RegionalCode ?? (object)DBNull.Value },
+                    { "BankID", request.BankID ?? (object)DBNull.Value },
+                    { "RegionalBankName",  request.RegionalBankName ?? (object)DBNull.Value },
+                    { "RegionalBankShortName",  request.RegionalBankShortName?? (object)DBNull.Value  },
+                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                    { "IsStatus", request.IsActive ?? (object)DBNull.Value },
+
+                };
+                var response = await repository.AddAsync(BankRelgionQueries.AddBankRelgion, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Hamlet {request.RegionalBankName} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in AddAsync for Hamlet: {request.RegionalBankName}", ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateBankReg(BankRegUpdateRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "RegionalID", request.RegionalID },
+                    { "RegionalCode", request.RegionalCode },
+                    { "RegionalBankName", request.RegionalBankName ?? (object)DBNull.Value },
+                    { "RegionalBankShortName", request.RegionalBankShortName ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+                    //{ "IsStatus", request.IsActive ?? (object)DBNull.Value }
+                };
+                await repository.UpdateAsync(BankRelgionQueries.AddBankRelgion, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Bank Regional {request.RegionalBankName} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in UpdateAsync for Bank Regional: {request.RegionalBankName}", ex);
+                throw;
+            }
+        }
+        public async Task DeleteAsync(int id, int userId)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Delete },
+                    { "ModifyBy",userId },
+                    { "RegionalID", id}
+                };
+
+                await repository.DeleteAsync(BankRelgionQueries.AddBankRelgion, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Bank Regional with ID {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in DeleteAsync for Bank Regional ID: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<BankRegResponse?> GetById(int id)
+        {
+
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for Tehsil id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<BankRegResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgion, new Dictionary<string, object>
+                {
+                    { "ActionType", 2 },
+                    { "RegionalID", id },
+                    { "IsStatus", true }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new BankRegResponse();
+                logging.LogInfo(result != null
+                    ? $"Bank Regional with id {id} retrieved successfully."
+                    : $"Bank Regional with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            
+            
+        }
+
+
+        public async Task<IEnumerable<BankRegResponse>> GetBankReg(BankRegionalRequest request)
+        {
+            var repository = repositoryFactory.Connect<BankRegResponse>(DbConstants.Main);
+            var requestParams = new Dictionary<string, object>
+            {
+                {"ActionType",(int)request.ActionType },
+                {"RegionalID", request.BankRegionalId},
+                {"IsStatus", request.IsActive}
+            };
+
+            var response = await repository.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgion, requestParams, null, CommandType.StoredProcedure);
+
+            return response;
+        }
+
+        public async Task<IEnumerable<CommonLists>> GetSpecificLists(BankRegionalRequest request)
+        {
+            var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+            var requestParams = new Dictionary<string, object>
+            {
+                { "ActionType", (int)request.ActionType },
+                { "RegionalID", request.BankRegionalId  },
+            };
+            var response = await repository.QueryAsync<CommonLists>(
+                BankRelgionQueries.GetBankRelgion, requestParams, null, CommandType.StoredProcedure
+            );
+            return response;
+        }
+
+      
+    }
+}

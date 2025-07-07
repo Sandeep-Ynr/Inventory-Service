@@ -1,5 +1,6 @@
 using AutoMapper;
 using Azure.Core;
+using MilkMatrix.Api.Models.Request.Geographical.BankRegional;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
@@ -83,8 +84,20 @@ public class GeographicalMappingProfile : Profile
             .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
+        CreateMap<BankRegInsertReqModel, BankRegInsertRequest>()
+          .ForMember(x => x.RegionalCode, opt => opt.MapFrom(src => src.RegionalCode))
+          .ForMember(x => x.BankID, opt => opt.MapFrom(src => src.BankID))
+          .ForMember(x => x.RegionalBankName, opt => opt.MapFrom(src => src.RegionalBankName))
+          .ForMember(x => x.RegionalBankShortName, opt => opt.MapFrom(src => src.RegionalBankShortName))
+          .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+          .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
 
-
-
+        CreateMap<BankRegUpdateReqModel, BankRegUpdateRequest>()
+            .ForMember(x => x.RegionalID, opt => opt.MapFrom(src => src.RegionalID))
+            .ForMember(x => x.RegionalCode, opt => opt.MapFrom(src => src.RegionalCode))
+            .ForMember(x => x.RegionalBankName, opt => opt.MapFrom(src => src.RegionalBankName))
+            .ForMember(x => x.RegionalBankShortName, opt => opt.MapFrom(src => src.RegionalBankShortName))
+            .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
     }
 }
