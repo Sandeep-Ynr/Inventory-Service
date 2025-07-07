@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
@@ -13,6 +14,7 @@ using MilkMatrix.Api.Models.Request.Geographical.Tehsil;
 using MilkMatrix.Api.Models.Request.Geographical.Village;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Geographical;
@@ -65,28 +67,35 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>List of states.</returns>
         [HttpPost]
         [Route("state-list")]
-        public async Task<IActionResult> GetStates([FromBody] StateRequestModel request)
+        public async Task<IActionResult> StateList([FromBody] ListsRequest request)
         {
-
-            logger.LogInfo($"GetStates request processed with ActionType: " +
-                $"{request.ActionType}, StateId: " +
-                $"{request.StateId}, CountryId:" +
-                $" {request.CountryId}");
-
-            var stateRequest = new StateRequest
-            {
-                StateId = request.StateId,
-                CountryId = request.CountryId,
-                ActionType = request.ActionType,
-                IsActive = true
-            };
-
-            var response = request.ActionType == ReadActionType.All
-                ? await stateService.GetStates(stateRequest)
-                : await stateService.GetSpecificLists(stateRequest);
-
-            return response.Any() ? Ok(response) : BadRequest();
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var result = await stateService.GetAllAsync(request, Convert.ToInt32(UserId));
+            return Ok(result);
         }
+
+        //public async Task<IActionResult> GetStates([FromBody] StateRequestModel request)
+        //{
+
+        //    logger.LogInfo($"GetStates request processed with ActionType: " +
+        //        $"{request.ActionType}, StateId: " +
+        //        $"{request.StateId}, CountryId:" +
+        //        $" {request.CountryId}");
+
+        //    var stateRequest = new StateRequest
+        //    {
+        //        StateId = request.StateId,
+        //        CountryId = request.CountryId,
+        //        ActionType = request.ActionType,
+        //        IsActive = true
+        //    };
+
+        //    var response = request.ActionType == ReadActionType.All
+        //        ? await stateService.GetStates(stateRequest)
+        //        : await stateService.GetSpecificLists(stateRequest);
+
+        //    return response.Any() ? Ok(response) : BadRequest();
+        //}
 
         [HttpPost("state-upsert")]
         public async Task<IActionResult> UpsertState([FromBody] StateUpsertModel request)
@@ -162,28 +171,35 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>List of Districts</returns>
         [HttpPost]
         [Route("district-list")]
-        public async Task<IActionResult> GetDistricts([FromBody] DistrictRequestModel request)
+        public async Task<IActionResult> DistrictList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetDistricts request processed with ActionType: " +
-                $"{request.ActionType}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
-
-            var districtRequest = new DistrictRequest
-            {
-                DistrictId = request.DistrictId,
-                StateId = request.StateId,
-                //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-
-            var response = request.ActionType == ReadActionType.All
-                ? await districtService.GetDistricts(districtRequest)
-                : await districtService.GetSpecificLists(districtRequest);
-
-            return response.Any() ? Ok(response) : BadRequest();
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var result = await districtService.GetAllAsync(request, Convert.ToInt32(UserId));
+            return Ok(result);
         }
+
+        //public async Task<IActionResult> GetDistricts([FromBody] DistrictRequestModel request)
+        //{
+        //    logger.LogInfo($"GetDistricts request processed with ActionType: " +
+        //        $"{request.ActionType}, DistrictId: " +
+        //        $"{request.DistrictId}, StateId:" +
+        //        $" {request.StateId}");
+
+        //    var districtRequest = new DistrictRequest
+        //    {
+        //        DistrictId = request.DistrictId,
+        //        StateId = request.StateId,
+        //        //ActionType = request.ActionType,
+        //        ActionType = (ReadActionType)request.ActionType,
+        //        IsActive = true
+        //    };
+
+        //    var response = request.ActionType == ReadActionType.All
+        //        ? await districtService.GetDistricts(districtRequest)
+        //        : await districtService.GetSpecificLists(districtRequest);
+
+        //    return response.Any() ? Ok(response) : BadRequest();
+        //}
 
         [HttpGet("district{id}")]
         public async Task<ActionResult<DistrictResponse?>> GetById(int id)
@@ -282,30 +298,36 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>List of Tehsil</returns>
         [HttpPost]
         [Route("tehsil-list")]
-        public async Task<IActionResult> GetTehsils([FromBody] TehsilRequestModel request)
+        public async Task<IActionResult> TehsilList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetTehsils request processed with ActionType: " +
-                $"{request.ActionType}, TehsilId: " +
-                $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}");
-
-            var tehsilRequest = new TehsilRequest
-            {
-                TehsilId = request.TehsilId,
-                DistrictId = request.DistrictId,
-                //StateId = request.StateId,
-                //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-
-            var response = request.ActionType == ReadActionType.All
-                ? await tehsilService.GetTehsils(tehsilRequest)
-                : await tehsilService.GetSpecificLists(tehsilRequest);
-
-            return response.Any() ? Ok(response) : BadRequest();
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var result = await tehsilService.GetAllAsync(request, Convert.ToInt32(UserId));
+            return Ok(result);
         }
-        
+        //public async Task<IActionResult> GetTehsils([FromBody] TehsilRequestModel request)
+        //{
+        //    logger.LogInfo($"GetTehsils request processed with ActionType: " +
+        //        $"{request.ActionType}, TehsilId: " +
+        //        $"{request.TehsilId}, DistrictId: " +
+        //        $"{request.DistrictId}");
+
+        //    var tehsilRequest = new TehsilRequest
+        //    {
+        //        TehsilId = request.TehsilId,
+        //        DistrictId = request.DistrictId,
+        //        //StateId = request.StateId,
+        //        //ActionType = request.ActionType,
+        //        ActionType = (ReadActionType)request.ActionType,
+        //        IsActive = true
+        //    };
+
+        //    var response = request.ActionType == ReadActionType.All
+        //        ? await tehsilService.GetTehsils(tehsilRequest)
+        //        : await tehsilService.GetSpecificLists(tehsilRequest);
+
+        //    return response.Any() ? Ok(response) : BadRequest();
+        //}
+
         /// <summary>
         /// Get Tehsil By Tehsil ID
         /// </summary>

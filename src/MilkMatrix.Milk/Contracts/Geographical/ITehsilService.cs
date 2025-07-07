@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Response.Geographical;
@@ -12,4 +14,5 @@ public interface ITehsilService
     Task AddTehsilAsync(TehsilInsertRequest request);
     Task UpdateTehsilAsync(TehsilUpdateRequest request);
     Task DeleteAsync(int id, int userId);
+    Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request, int userId);
 }
