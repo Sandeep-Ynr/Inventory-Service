@@ -119,6 +119,30 @@ public class StateService : IStateService
         }
 
     }
+    public async Task<StateResponse?> GetByIdAsync(int id)
+    {
+        try
+        {
+            var repo = repositoryFactory
+                       .ConnectDapper<StateResponse>(DbConstants.Main);
+            var data = await repo.QueryAsync<StateResponse>(StateQueries.GetStatesList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "StateId", id }
+                }, null);
+
+            var result = data.Any() ? data.FirstOrDefault() : new StateResponse();
+            logging.LogInfo(result != null
+                ? $"State with id {id} retrieved successfully."
+                : $"State with id {id} not found.");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error in GetByIdAsync for State id: {id}", ex);
+            throw;
+        }
+    }
+
     public async Task<IEnumerable<CommonLists>> GetSpecificLists(StateRequest request)
     {
         var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
@@ -147,12 +171,13 @@ public class StateService : IStateService
        
         return response;
     }
-    public async Task<IListsResponse<StateResponse>> GetAllAsync(IListsRequest request, int userId)
+    public async Task<IListsResponse<StateResponse>> GetAllAsync(IListsRequest request)
     {
-        //var user = await GetByIdAsync(userId);
-        var parameters = new Dictionary<string, object>()
-        {
-                    };
+        var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
+            };
 
         // 1. Fetch all results, count, and filter meta from stored procedure
         var (allResults, countResult, filterMetas) = await queryMultipleData

@@ -6,11 +6,12 @@ using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
-using MilkMatrix.Core.Extensions;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Dtos;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request.Geographical;
@@ -111,17 +112,20 @@ namespace MilkMatrix.Milk.Implementations
                 logging.LogInfo($"GetByIdAsync called for user id: {id}");
                 var repo = repositoryFactory
                            .ConnectDapper<DistrictResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<DistrictResponse>(DistrictQueries.GetDistrict, new Dictionary<string, object> { { "DistrictId", id } }, null);
+                var data = await repo.QueryAsync<DistrictResponse>(DistrictQueries.GetDistrict, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "DistrictId", id } 
+                }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new DistrictResponse();
                 logging.LogInfo(result != null
-                    ? $"User with id {id} retrieved successfully."
-                    : $"User with id {id} not found.");
+                    ? $"District with id {id} retrieved successfully."
+                    : $"District with id {id} not found.");
                 return result;
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for user id: {id}", ex);
+                logging.LogError($"Error in GetByIdAsync for District id: {id}", ex);
                 throw;
             }
         }
@@ -167,23 +171,18 @@ namespace MilkMatrix.Milk.Implementations
             }
 
         }
-        public async Task<IListsResponse<DistrictResponse>> GetAllAsync(IListsRequest request, int userId)
+        public async Task<IListsResponse<DistrictResponse>> GetAllAsync(IListsRequest request)
         {
-            var user = await GetByIdAsync(userId);
-            var parameters = new Dictionary<string, object>() 
-            {
-                //{"ActionType",2 },
-                //{ "ActionType",(int)request.Search. },
-                //{ "DistrictId", request.DistrictId},
-                //{ "StateId", request.StateId },
-                //{ "IsStatus", request.IsActive}
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
             };
 
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
                 .GetMultiDetailsAsync<DistrictResponse, int, FiltersMeta>(DistrictQueries.GetDistrictList,
-                    DbConstants.Main,
-                    parameters,
+                    DbConstants.Main, parameters,
                     null);
 
             // 2. Build criteria from client request and filter meta

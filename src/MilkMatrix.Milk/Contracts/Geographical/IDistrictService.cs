@@ -14,7 +14,7 @@ namespace MilkMatrix.Milk.Contracts.Geographical
         Task AddDistrictsAsync(DistrictInsertRequest request);
         Task UpdateDistrictAsync(DistrictUpdateRequest request);
         Task DeleteAsync(int id, int userId);
-        Task<IListsResponse<DistrictResponse>> GetAllAsync(IListsRequest request, int userId);
+        Task<IListsResponse<DistrictResponse>> GetAllAsync(IListsRequest request);
 
     }
 }

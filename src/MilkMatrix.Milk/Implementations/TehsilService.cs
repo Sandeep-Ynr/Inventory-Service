@@ -73,10 +73,9 @@ namespace MilkMatrix.Milk.Implementations
                 var repo = repositoryFactory
                            .ConnectDapper<TehsilResponse>(DbConstants.Main);
                 var data = await repo.QueryAsync<TehsilResponse>(TehsilQueries.GetTehsil, new Dictionary<string, object> 
-                { 
-                    { "ActionType", 2 },
-                    { "TehsilId", id },
-                    { "IsStatus", true }
+                {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "TehsilId", id }
                 }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new TehsilResponse();
@@ -173,11 +172,12 @@ namespace MilkMatrix.Milk.Implementations
             }
 
         }
-        public async Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request, int userId)
+        public async Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request)
         {
-            var user = await GetByIdAsync(userId);
-            var parameters = new Dictionary<string, object>()
-            {
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
             };
 
             // 1. Fetch all results, count, and filter meta from stored procedure

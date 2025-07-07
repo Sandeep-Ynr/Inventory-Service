@@ -13,5 +13,6 @@ public interface IStateService
     Task<string> AddStateAsync(StateInsertRequest request);
     Task<string> UpdateStateAsync(StateUpdateRequest request);
     Task<string> DeleteAsync(int id, int userId);
-    Task<IListsResponse<StateResponse>> GetAllAsync(IListsRequest request, int userId);
+    Task<IListsResponse<StateResponse>> GetAllAsync(IListsRequest request);
+    Task<StateResponse?> GetByIdAsync(int id);
 }

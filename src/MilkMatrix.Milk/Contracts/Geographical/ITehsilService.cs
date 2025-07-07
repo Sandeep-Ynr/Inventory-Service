@@ -14,5 +14,5 @@ public interface ITehsilService
     Task AddTehsilAsync(TehsilInsertRequest request);
     Task UpdateTehsilAsync(TehsilUpdateRequest request);
     Task DeleteAsync(int id, int userId);
-    Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request, int userId);
+    Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request);
 }
