@@ -30,7 +30,7 @@ public sealed record FileConfig
 
   public string VisitorPath { get; set; }
 
-  public string MobileAppPath { get; set; }
+  public string ProductionPath { get; set; }
 
   public string PayRollPath { get; set; }
 

@@ -125,8 +125,8 @@ namespace MilkMatrix.Uploader.Helpers
         case FileFolderType.FileMediaPath:
           filePath = fileConfig.FileMediaPath;
           return filePath;
-        case FileFolderType.MobileAppPath:
-          filePath = fileConfig.MobileAppPath;
+        case FileFolderType.ProductionPath:
+          filePath = fileConfig.ProductionPath;
           return filePath;
         case FileFolderType.PayRollPath:
           filePath = fileConfig.PayRollPath;

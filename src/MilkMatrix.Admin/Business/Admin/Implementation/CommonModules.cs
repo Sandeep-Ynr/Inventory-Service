@@ -137,7 +137,7 @@ public class CommonModules : ICommonModules
                                         };
 
 
-            var (businessDetails, roles, reportingDetails, userTypes, siteDetails) = await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails>(AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
+            var (businessDetails, roles, reportingDetails, userTypes, siteDetails, financialYearDetails) = await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails, FinancialYearDetails>(AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
 
             commonList = new CommonUserDetails
             {
@@ -145,7 +145,8 @@ public class CommonModules : ICommonModules
                 Roles = roles,
                 ReportingDetails = reportingDetails,
                 UserTypes = userTypes,
-                SiteDetails = siteDetails
+                SiteDetails = siteDetails,
+                FinancialYearDetails = financialYearDetails
             };
 
         }

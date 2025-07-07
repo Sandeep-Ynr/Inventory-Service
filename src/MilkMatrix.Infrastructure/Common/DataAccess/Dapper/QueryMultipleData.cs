@@ -101,7 +101,7 @@ public class QueryMultipleData : IQueryMultipleData
 
             var result1 = (await gridReader.ReadAsync<T1>());
             var result2 = (await gridReader.ReadAsync<T2>());
-            var result3 = (await gridReader.ReadAsync<T3>()); 
+            var result3 = (await gridReader.ReadAsync<T3>());
             var result4 = (await gridReader.ReadAsync<T4>());
 
             return (result1, result2, result3, result4);
@@ -132,6 +132,34 @@ public class QueryMultipleData : IQueryMultipleData
             var result5 = (await gridReader.ReadAsync<T5>());
 
             return (result1, result2, result3, result4, result5);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Error in GetMultiDetailsAsync for query: {query}", ex);
+            throw;
+        }
+    }
+
+    public async Task<(IEnumerable<T1> t1, IEnumerable<T2> t2, IEnumerable<T3> t3, IEnumerable<T4> t4, IEnumerable<T5> t5, IEnumerable<T6> t6)> GetMultiDetailsAsync<T1, T2, T3, T4, T5, T6>(string query, string connKey, Dictionary<string, object>? parameters, int? commandTimeOut, CommandType commandType = CommandType.StoredProcedure)
+    {
+        var repo = (IDapperRepository<object>)repositoryFactory.ConnectDapper<object>(connKey);
+        if (repo == null)
+        {
+            throw new InvalidOperationException("Repository cannot be null");
+        }
+
+        try
+        {
+            using var gridReader = await repo.QueryMultipleAsync<object>(query, parameters, commandTimeOut, commandType);
+
+            var result1 = (await gridReader.ReadAsync<T1>());
+            var result2 = (await gridReader.ReadAsync<T2>());
+            var result3 = (await gridReader.ReadAsync<T3>());
+            var result4 = (await gridReader.ReadAsync<T4>());
+            var result5 = (await gridReader.ReadAsync<T5>());
+            var result6 = (await gridReader.ReadAsync<T6>());
+
+            return (result1, result2, result3, result4, result5, result6);
         }
         catch (Exception ex)
         {
