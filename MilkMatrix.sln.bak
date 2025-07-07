@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMatrix.Admin", "src\Mil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMatrix.Milk", "src\MilkMatrix.Milk\MilkMatrix.Milk.csproj", "{F60A4E09-427E-4D5D-93DB-7308D291D2F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMatrix.Uploader", "src\MilkMatrix.Uploader\MilkMatrix.Uploader.csproj", "{D0422738-7EFE-4C95-B56A-C461F22BE23D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMatrix.Uploader", "src\MilkMatrix.UploadService\MilkMatrix.Uploader.csproj", "{D0422738-7EFE-4C95-B56A-C461F22BE23D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
