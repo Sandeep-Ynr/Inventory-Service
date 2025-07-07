@@ -10,6 +10,6 @@ public class FinancialYearDetails
 
     public DateTime EndDate { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; }
 
 }

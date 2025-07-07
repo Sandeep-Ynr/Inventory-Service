@@ -14,4 +14,6 @@ public class CommonUserDetails
     public IEnumerable<BusinessData>? BusinessDetails { get; set; }
 
     public IEnumerable<SiteDetails>? SiteDetails { get; set; }
+
+    public IEnumerable<FinancialYearDetails>? FinancialYearDetails { get; set; }
 }

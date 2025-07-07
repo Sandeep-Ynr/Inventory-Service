@@ -1,22 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Core.Entities.Enums
+public enum FolderType
 {
-    public enum FolderType
-    {
-        ProfilePath = 1,
-        ReportingForms = 2,
-        Transactions = 3,
-        BusinessActions = 4,
-        Documents = 5,
-        Images = 6,
-        Videos = 7,
-        Audios = 8,
-        Backups = 9,
-        Logs = 10
-    }
+    ProfilePath = 1,
+    InventoryPath = 2,
+    VisitorPath = 3,
+    FileMediaPath = 4,
+    ProductionPath = 5,
+    PayRollPath = 6,
+    AccountsPath = 7,
+    PurchasePath = 8,
+    SalesPath = 9,
+    DownloadPdfPath = 10,
 }

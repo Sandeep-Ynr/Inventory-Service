@@ -19,7 +19,7 @@ public class BusinessDetails
     /// Gets or sets the prefix for the business name, which can be used for branding or identification purposes.
     /// </summary>
     public string Prefix { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Gets or sets the address of the business.
     /// </summary>
@@ -129,4 +129,8 @@ public class BusinessDetails
     /// Gets or sets the branch sequence character for the business. This is used to identify and differentiate branches within the business, especially in multi-branch setups.
     /// </summary>
     public string BranchSequence { get; set; }
+
+    public string? LogoImageId { get; set; }
+
+    public string? LogoImagePath { get; set; }
 }

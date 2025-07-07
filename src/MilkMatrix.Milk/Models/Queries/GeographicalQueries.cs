@@ -23,18 +23,21 @@ public static partial class GeographicalQueries
         public const string GetTehsil = "usp_tehsil_details";
         public const string AddTehsil = "usp_tehsil_insupd";
     }
-
     public static class VillageQueries 
     { 
         public const string GetVillage = "usp_village_details";
         public const string AddVillage = "usp_village_insupd";
 
     }
-
     public static class HamletQueries
     {
         public const string GetHamlet = "usp_hamlet_details";
         public const string AddHamlet = "usp_Hamlet_insupd";
+    }
+    public static class BankRelgionQueries
+    {
+        public const string GetBankRelgion = "usp_regionalbank_details";
+        public const string AddBankRelgion = "usp_regionalbank_insupd";
     }
 
 }
