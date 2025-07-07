@@ -30,7 +30,7 @@ namespace MilkMatrix.Milk.Implementations
             var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
             var requestParams = new Dictionary<string, object>
             {
-                {"ActionType",(int)request.ActionType },
+                {"ActionType",1 },
                 {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
                 {"IsStatus", request.IsActive}
@@ -48,8 +48,8 @@ namespace MilkMatrix.Milk.Implementations
             var requestParams = new Dictionary<string, object>
             {
                 {"ActionType",(int)request.ActionType },
-                {"HamletId", request.HamletId},
                 {"VillageId", request.VillageId},
+                {"HamletId", request.HamletId },
                 {"IsStatus", request.IsActive}
             };
             var response = await repository.QueryAsync<HamletResponse>(HamletQueries.GetHamlet, requestParams, null, CommandType.StoredProcedure);
@@ -57,24 +57,27 @@ namespace MilkMatrix.Milk.Implementations
         }
 
 
-        public async Task<HamletRequest?> GetByHamletId(int hamletId)
+        public async Task<HamletResponse?> GetByHamletId(int hamletId)
         {
-            try
+            logging.LogInfo($"GetByIdAsync called for user id: {hamletId}");
+            var repo = repositoryFactory
+                       .ConnectDapper<HamletResponse>(DbConstants.Main);
+            var data = await repo.QueryAsync<HamletResponse>(HamletQueries.GetHamlet, new Dictionary<string, object> {
+                    { "ActionType",2 },
+                    { "HamletId", hamletId }
+                }, null);
+
+            var result = data.Any() ? data.FirstOrDefault() : new HamletResponse();
+
+            if (result != null && result.HamletId > 0)
             {
-                logging.LogInfo($"GetByIdAsync called for user id: {hamletId}");
-                var repo = repositoryFactory
-                           .ConnectDapper<HamletRequest>(DbConstants.Main);
-                var data = await repo.QueryAsync<HamletRequest>(HamletQueries.GetHamlet, new Dictionary<string, object> { { "HamletID", hamletId } }, null);
-                var result = data.Any() ? data.FirstOrDefault() : new HamletRequest();
-                logging.LogInfo(result != null
-                    ? $"User with id {hamletId} retrieved successfully."
-                    : $"User with id {hamletId} not found.");
+                logging.LogInfo($"User with id {hamletId} retrieved successfully.");
                 return result;
             }
-            catch (Exception ex)
+            else
             {
-                logging.LogError($"Error in GetByIdAsync for user id: {hamletId}", ex);
-                throw;
+                logging.LogInfo($"User with id {hamletId} not found.");
+                return null;
             }
         }
 
@@ -152,6 +155,5 @@ namespace MilkMatrix.Milk.Implementations
             }
         }
 
-     
     }
 }

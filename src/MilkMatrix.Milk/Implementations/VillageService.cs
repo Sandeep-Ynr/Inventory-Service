@@ -63,13 +63,25 @@ namespace MilkMatrix.Milk.Implementations
                 logging.LogInfo($"GetByIdAsync called for user id: {villageId}");
                 var repo = repositoryFactory
                            .ConnectDapper<VillageResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<VillageResponse>(VillageQueries.GetVillage, new Dictionary<string, object> { { "VillageId", villageId } }, null);
+                var data = await repo.QueryAsync<VillageResponse>(VillageQueries.GetVillage, new Dictionary<string, object> {
+                    { "ActionType",2 },
+                    { "VillageId", villageId } 
+                }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new VillageResponse();
-                logging.LogInfo(result != null
-                    ? $"User with id {villageId} retrieved successfully."
-                    : $"User with id {villageId} not found.");
-                return result;
+
+                if (result != null && result.VillageId > 0)
+                {
+                    logging.LogInfo($"User with id {villageId} retrieved successfully.");
+                    return result;
+                }
+                else
+                {
+                    logging.LogInfo($"User with id {villageId} not found.");
+                    return null;
+                }
+                
+
             }
             catch (Exception ex)
             {

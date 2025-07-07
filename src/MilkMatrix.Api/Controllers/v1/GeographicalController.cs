@@ -386,16 +386,6 @@ namespace MilkMatrix.Api.Controllers.v1
         
         }
 
-
-
-        
-
-
-
-
-
-
-
         [HttpDelete("tehsil-delete/{id}")]
         public async Task<IActionResult> DeleteTehsil(int id)
         {
@@ -421,19 +411,17 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("village-list")]
         public async Task<IActionResult> GetVillages([FromBody] VillageRequestModel request)
         {
-            logger.LogInfo($"GetVillages request processed with ActionType: " +
-                $"{request.ActionType}, VillageId: " +
-                $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}");
+            logger.LogInfo($"GetDistricts request processed with ActionType: " +
+               $"{request.ActionType}, ActionType: " +
+               $"{request.VillageId}, VillageId:" +
+               $" {request.TehsilId}");
 
             var villageRequest = new VillageRequest
             {
-                //VillageId = request.VillageId,
-                //TehsilId = request.TehsilId,
-                //DistrictId = request.DistrictId,
-                //StateId = request.StateId,
+                VillageId = request.VillageId,
+                TehsilId = request.VillageId,
                 //ActionType = request.ActionType,
-                //ActionType = (ReadActionType)request.ActionType,
+                ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
 
@@ -450,7 +438,7 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 logger.LogInfo($"Get village by id called for id: {id}");
                 var user = await villageService.GetByVillageId(id);
-                if (user == null)
+                if (user == null )
                 {
                     logger.LogInfo($"village with id {id} not found.");
                     return NotFound();
@@ -537,25 +525,22 @@ namespace MilkMatrix.Api.Controllers.v1
         public async Task<ActionResult> GetHamlets([FromBody] HamletRequestModel request)
         {
             logger.LogInfo($"GetHamlets request processed with ActionType: " +
-                $"{request.ActionType}, HamletId: " +
-                $"{request.HamletId}, VillageId: " +
-                $"{request.VillageId}, TehsilId: " +
-                $"{request.TehsilId}, DistrictId: " +
-                $"{request.DistrictId}, StateId:" +
-                $" {request.StateId}");
-
+               $"{request.ActionType}, ActionType: " +
+               $"{request.VillageId}, VillageId:" +
+               $" {request.TehsilId}");
             var hamletRequest = new HamletRequest
             {
-                HamletId = request.HamletId,
                 VillageId = request.VillageId,
+                HamletId = request.HamletId,
+                //ActionType = request.ActionType,
                 ActionType = (ReadActionType)request.ActionType,
                 IsActive = true
             };
             var response = request.ActionType == ReadActionType.All
                 ? await hamletService.GetHamlets(hamletRequest)
                 : await hamletService.GetSpecificLists(hamletRequest);
-
             return response.Any() ? Ok(response) : BadRequest();
+
         }
         
         [HttpGet("HamletId{id}")]
