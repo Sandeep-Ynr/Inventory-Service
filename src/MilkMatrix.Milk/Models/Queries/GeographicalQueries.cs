@@ -30,10 +30,6 @@ public static partial class GeographicalQueries
         public const string GetHamlet = "usp_hamlet_details";
         public const string AddHamlet = "usp_Hamlet_insupd";
     }
-    public static class BankRelgionQueries
-    {
-        public const string GetBankRelgion = "usp_regionalbank_details";
-        public const string AddBankRelgion = "usp_regionalbank_insupd";
-    }
+
 
 }

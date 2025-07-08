@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Implementations;
 
@@ -13,6 +14,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                    .AddScoped<IDistrictService, DistrictService>()
                    .AddScoped<ITehsilService, TehsilService>()
                    .AddScoped<IVillageService, VillageService>()
-                   .AddScoped<IHamletService, HamletService>();
+                   .AddScoped<IHamletService, HamletService>()
+                    .AddScoped<IBankRegService, BankRegService>()
+                    .AddScoped<IBankTypeService, BankTypeService>();
     }
 }
