@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
-using MilkMatrix.Api.Models.Request.Geographical.BankRegional;
 using MilkMatrix.Api.Models.Request.Geographical.District;
 using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
 using MilkMatrix.Api.Models.Request.Geographical.State;
@@ -46,11 +45,9 @@ namespace MilkMatrix.Api.Controllers.v1
 
         private readonly IMapper mapper;
 
-        private readonly IBankRegService bankRegService;
-
         public GeographicalController(IHttpContextAccessor httpContextAccessor, ILogging logging, IStateService stateService, 
             IDistrictService districtService, ITehsilService tehsilService, IVillageService villageService, 
-            IHamletService hamletService, IBankRegService bankRegService, IMapper mapper)
+            IHamletService hamletService, IMapper mapper)
         {
             // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -61,7 +58,6 @@ namespace MilkMatrix.Api.Controllers.v1
             this.tehsilService = tehsilService ?? throw new ArgumentNullException(nameof(tehsilService));
             this.villageService = villageService ?? throw new ArgumentNullException(nameof(villageService));
             this.hamletService = hamletService ?? throw new ArgumentNullException(nameof(hamletService));
-            this.bankRegService = bankRegService ?? throw new ArgumentNullException(nameof(bankRegService));
             this.mapper = mapper;
         }
 
@@ -634,123 +630,5 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the Hamlet.");
             }
         }
-
-        [HttpPost]
-        [Route("add-BankRegional")]
-        public async Task<IActionResult> AddBankRegional([FromBody] BankRegInsertReqModel request)
-        {
-            try
-            {
-                if ((request == null) || (!ModelState.IsValid))
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
-                    });
-                }
-                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                logger.LogInfo($"Add called for Bank Regional: {request.RegionalBankName}");
-                var requestParams = mapper.MapWithOptions<BankRegInsertRequest, BankRegInsertReqModel>(request
-                    , new Dictionary<string, object> {
-                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
-                });
-                await bankRegService.AddBankReg(requestParams);
-                logger.LogInfo($"Hamlet {request.RegionalBankName} added successfully.");
-                return Ok(new { message = "Bank Regional added successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error in Upsert Bank Regional", ex);
-                return StatusCode(500, "An error occurred while adding the RegionalBank.");
-            }
-        }
-
-
-        [HttpPut]
-        [Route("update-BankRegional")]
-        public async Task<IActionResult> UpdateBankRegional([FromBody] BankRegUpdateReqModel request)
-        {
-            if (!ModelState.IsValid || request.RegionalID <= 0)
-                return BadRequest("Invalid request.");
-            var UserId = 3;// httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            logger.LogInfo($"Update called for Bank Regional ID: {request.RegionalID}");
-            var requestParams = mapper.MapWithOptions<BankRegUpdateRequest, BankRegUpdateReqModel>(request
-                        , new Dictionary<string, object> {
-                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-                    });
-            await bankRegService.UpdateBankReg(requestParams);
-            logger.LogInfo($"Bank Regional with ID {request.RegionalCode} updated successfully.");
-            return Ok(new { message = "Bank Regional updated successfully." });
-        }
-
-
-
-        [HttpDelete("delete-BankRegional/{id}")]
-        public async Task<IActionResult> DeleteBankRegional(int id)
-        {
-            try
-            {
-                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await bankRegService.DeleteAsync(id, Convert.ToInt32(UserId));
-                logger.LogInfo($"Bank Regional with id {id} deleted successfully.");
-                return Ok(new { message = "Bank Regional deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Bank Regional with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Hamlet.");
-            }
-        }
-
-        [HttpGet("bankregional/{id}")]
-        public async Task<ActionResult<BankRegResponse>> GetBankRegionalById(int id)
-        {
-            try
-            {
-                logger.LogInfo($"Get Bank Regional by ID called: {id}");
-
-                var regionalBank = await bankRegService.GetById(id);
-
-                if (regionalBank == null)
-                {
-                    logger.LogInfo($"Bank Regional with ID {id} not found.");
-                    return NotFound(new { message = $"Bank Regional with ID {id} not found." });
-                }
-
-                logger.LogInfo($"Bank Regional with ID {id} retrieved successfully.");
-                return Ok(regionalBank);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving Bank Regional with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the Bank Regional.");
-            }
-        }
-
-        [HttpPost]
-        [Route("regional-bank-list")]
-        public async Task<IActionResult> GetRegionalBank([FromBody] BankRegionalModel request)
-        {
-            logger.LogInfo($"GetRegionalBanks request processed with ActionType: {request.ActionType}, " +
-                           $"RegionalId: {request.RegionalID}");
-
-            var regionalRequest = new BankRegionalRequest
-            {
-                BankRegionalId = request.RegionalID,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-
-            var response = regionalRequest.ActionType == ReadActionType.All
-                ? await bankRegService.GetBankReg(regionalRequest)
-                : await bankRegService.GetSpecificLists(regionalRequest);
-
-            return response != null && response.Any()
-                ? Ok(response)
-                : BadRequest("No records found.");
-        }
-
-
     }
 }
