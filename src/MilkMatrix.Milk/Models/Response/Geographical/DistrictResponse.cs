@@ -6,7 +6,7 @@ namespace MilkMatrix.Milk.Models.Response.Geographical
     {
         public int StateId { get; set; }
         public string StateName { get; set; } = string.Empty;
-        public string DistrictId { get; set; } = string.Empty;
+        //public string DistrictId { get; set; } = string.Empty;
 
     }
 }
