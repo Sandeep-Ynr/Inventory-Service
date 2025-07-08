@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Api.Models.Request.Geographical.BankRegional;
+namespace MilkMatrix.Api.Models.Request.Bank.BankRegional;
 
 public class BankRegUpdateReqModel
 {

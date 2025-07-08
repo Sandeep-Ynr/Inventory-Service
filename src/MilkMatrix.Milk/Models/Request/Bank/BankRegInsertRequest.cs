@@ -1,6 +1,6 @@
 using MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Milk.Models.Request.Geographical
+namespace MilkMatrix.Milk.Models.Request.Bank
 {
     public class BankRegInsertRequest
     {

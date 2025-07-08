@@ -1,10 +1,15 @@
 using System.Data;
 using Microsoft.Extensions.Options;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Response.Geographical;
@@ -17,14 +22,14 @@ namespace MilkMatrix.Milk.Implementations
         private readonly ILogging logging;
         private readonly AppConfig appConfig;
         private readonly IRepositoryFactory repositoryFactory;
+        private readonly IQueryMultipleData queryMultipleData;
 
-
-        public TehsilService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory)
+        public TehsilService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory, IQueryMultipleData queryMultipleData)
         {
             this.logging = logging.ForContext("ServiceName", nameof(TehsilService));
             this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
-
+            this.queryMultipleData = queryMultipleData;
         }
 
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(TehsilRequest request)
@@ -68,10 +73,9 @@ namespace MilkMatrix.Milk.Implementations
                 var repo = repositoryFactory
                            .ConnectDapper<TehsilResponse>(DbConstants.Main);
                 var data = await repo.QueryAsync<TehsilResponse>(TehsilQueries.GetTehsil, new Dictionary<string, object> 
-                { 
-                    { "ActionType", 2 },
-                    { "TehsilId", id },
-                    { "IsStatus", true }
+                {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "TehsilId", id }
                 }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new TehsilResponse();
@@ -167,6 +171,42 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
 
+        }
+        public async Task<IListsResponse<TehsilResponse>> GetAllAsync(IListsRequest request)
+        {
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
+            };
+
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<TehsilResponse, int, FiltersMeta>(TehsilQueries.GetTehsilList,
+                    DbConstants.Main,
+                    parameters,
+                    null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<TehsilResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
         }
 
 

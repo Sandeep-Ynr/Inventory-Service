@@ -1,7 +1,7 @@
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response;
 
-namespace MilkMatrix.Milk.Models.Response.Geographical
+namespace MilkMatrix.Milk.Models.Response.Bank
 {
     public class BankRegResponse : CommonLists
     {

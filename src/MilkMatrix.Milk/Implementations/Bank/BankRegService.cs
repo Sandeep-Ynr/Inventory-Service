@@ -6,14 +6,14 @@ using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response;
-using MilkMatrix.Milk.Contracts.Geographical;
-using MilkMatrix.Milk.Models.Request.Geographical;
-using MilkMatrix.Milk.Models.Response.Geographical;
-using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
+using MilkMatrix.Milk.Contracts.Bank;
+using MilkMatrix.Milk.Models.Request.Bank;
+using MilkMatrix.Milk.Models.Response.Bank;
+using static MilkMatrix.Milk.Models.Queries.BankQueries;
 
 namespace MilkMatrix.Milk.Implementations
 {
-    public class BankRegService : IBankRegService
+    public class BankRegService :IBankRegService
     {
         private readonly ILogging logging;
         private readonly AppConfig appConfig;
@@ -158,7 +158,5 @@ namespace MilkMatrix.Milk.Implementations
             );
             return response;
         }
-
-      
     }
 }
