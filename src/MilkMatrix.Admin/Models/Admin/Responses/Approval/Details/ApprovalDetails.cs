@@ -1,0 +1,20 @@
+namespace MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
+
+public class ApprovalDetails
+{
+    public int UserId { get; set; }
+
+    public int PageId { get; set; }
+
+    public int Level { get; set; }
+
+    public int BusinessId { get; set; }
+
+    public string DocumentNo { get; set; }
+
+    public string SubCode { get; set; }
+
+    public int LoginId { get; set; }
+
+    public DateTime ApprovalDate { get; set; }
+}

@@ -23,7 +23,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<ISubModuleService, SubModuleService>()
             .AddScoped<IBusinessService, BusinessService>()
             .AddScoped<IConfigurationService, ConfigurationService>();
+
         services.AddScoped<ICommonModules, CommonModules>();
+            services.AddScoped<IApprovalService, ApprovalService>();
         services.AddScoped<ITokenProcess, TokenProcess>();
 
         return services;

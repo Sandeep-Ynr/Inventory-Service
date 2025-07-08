@@ -9,5 +9,5 @@ public class ModuleUpsertModel
 
     public string? Icon { get; set; }
 
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 }

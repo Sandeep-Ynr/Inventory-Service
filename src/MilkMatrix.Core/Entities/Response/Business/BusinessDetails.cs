@@ -133,4 +133,6 @@ public class BusinessDetails
     public string? LogoImageId { get; set; }
 
     public string? LogoImagePath { get; set; }
+
+    public string BranchCode { get; set; }
 }

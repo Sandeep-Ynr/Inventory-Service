@@ -1,4 +1,5 @@
 using System.Data;
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin;
@@ -12,6 +13,7 @@ using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response.Business;
 using static MilkMatrix.Admin.Models.Constants;
 
@@ -117,6 +119,30 @@ public class CommonModules : ICommonModules
         {
             logger.LogError(ex.Message, ex);
             return Enumerable.Empty<FinancialYearDetails>();
+        }
+    }
+
+
+    public async Task<IEnumerable<Actions>?> GetActionDetailsAsync(int? id = null)
+    {
+        try
+        {
+            var repo = repositoryFactory
+                           .ConnectDapper<Actions>(DbConstants.Main);
+
+            var requestParams = new Dictionary<string, object>
+            {
+                { "ActionId", id },
+                { "ActionType", id != null && id > 0 ? ReadActionType.Individual : ReadActionType.All }
+            };
+            var data = await repo.QueryAsync<Actions>(AuthSpName.GetActions, requestParams, null);
+
+            return data != null && data.Count() > 0 ? data : default;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
+            return default;
         }
     }
 

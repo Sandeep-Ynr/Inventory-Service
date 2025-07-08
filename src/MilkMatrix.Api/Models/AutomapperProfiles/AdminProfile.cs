@@ -1,15 +1,21 @@
 using AutoMapper;
 using MilkMatrix.Admin.Models;
+using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Login.Requests;
+using MilkMatrix.Api.Models.Request.Admin.Approval.Level;
 using MilkMatrix.Api.Models.Request.Admin.Business;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
 using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Api.Models.Request.Login;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Infrastructure.Common.Utils;
+using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
+using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
+using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
+using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles;
 
@@ -88,5 +94,13 @@ public class AdminProfile : Profile
 
         CreateMap<SmsControlUpdateModel, SmsControlUpdate>()
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<InsertLevelModel, InsertLevel>()
+         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<UpdateModel, Update>()
+           .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<InsertDetailsModel, InsertDetails>();
     }
 }

@@ -1,3 +1,4 @@
+using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Common;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Responses.Modules;
@@ -32,4 +33,10 @@ public interface ICommonModules
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IEnumerable<FinancialYearDetails>> GetFinancialYearAsync(FinancialYearRequest request);
+
+    /// <summary>
+    /// Retrieves the details of a actions.
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<Actions>?> GetActionDetailsAsync(int? id = null);
 }

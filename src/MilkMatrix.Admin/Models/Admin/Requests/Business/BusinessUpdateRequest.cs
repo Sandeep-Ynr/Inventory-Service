@@ -53,7 +53,7 @@ public class BusinessUpdateRequest
     /// <summary>
     /// Gets or sets the status of the business, indicating whether it is currently active or inactive.
     /// </summary>
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the user who modified the business record. This is useful for tracking who added the business to the system.

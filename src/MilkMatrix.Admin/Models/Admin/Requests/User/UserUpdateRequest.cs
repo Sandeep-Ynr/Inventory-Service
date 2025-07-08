@@ -20,5 +20,5 @@ public class UserUpdateRequest
     public string? MobileNumber { get; set; }
     public int ModifyBy { get; set; }
 
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 }

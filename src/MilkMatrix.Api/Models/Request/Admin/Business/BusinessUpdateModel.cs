@@ -56,7 +56,7 @@ public class BusinessUpdateModel
     /// <summary>
     /// Gets or sets the status of the business, indicating whether it is currently active or inactive.
     /// </summary>
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; } 
 
     /// <summary>
     /// Gets or sets the website URL of the business. This can be used for online presence and customer engagement.

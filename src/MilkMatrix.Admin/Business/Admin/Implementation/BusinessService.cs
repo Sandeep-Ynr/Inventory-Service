@@ -68,7 +68,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["Mobile"] = request.PhoneNo,
                     ["Email"] = request.EmailId,
                     ["Website"] = request.Website,
-                    ["EsicNo"] = request.EsicNo,
+                    ["Esic"] = request.EsicNo,
                     ["GstNo"] = request.GstNo,
                     ["OpeningFinYear"] = request.OpFinancialYear,
                     ["OpeningFinDate"] = request.OpFromDate,
@@ -173,7 +173,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["Mobile"] = request.PhoneNo,
                     ["Email"] = request.EmailId,
                     ["Website"] = request.Website,
-                    ["EsicNo"] = request.EsicNo,
+                    ["Esic"] = request.EsicNo,
                     ["GstNo"] = request.GstNo,
                     ["OpeningFinYear"] = request.OpFinancialYear,
                     ["OpeningFinDate"] = request.OpFromDate,
@@ -186,10 +186,10 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["BranchCode"] = request.BranchCode,
                     ["ModifyBy"] = request.ModifyBy,
                     ["IsStatus"] = request.IsActive,
-                    ["ActionType"] = (int)CrudActionType.Create
+                    ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
+                await repo.UpdateAsync(BusinessSpName.BusinessUpsert, parameters);
                 logger.LogInfo($"Business {request.Name} updated successfully.");
             }
             catch (Exception ex)

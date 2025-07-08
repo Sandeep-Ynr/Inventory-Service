@@ -19,6 +19,7 @@ public static partial class Constants
         public const string VerifyPasswordChange = "usp_User_Varify_Password_Change"; //To validate and update user password
         public const string UserChangePassword = "usp_User_Change_Password";//To Change User Password
         public const string GetFinancialYear = "usp_financial_year"; //To get financial year details
+        public const string GetActions = "usp_action_manager"; //For Actions List
     }
 
     public static class UserSpName
@@ -77,6 +78,13 @@ public static partial class Constants
         public const string GetSmsSettings = "usp_sms_control_list"; //For getting sms settings
     }
 
+    public static class ApprovalSpName
+    {
+        public const string ApprovalUpsert = "usp_approval_level_insupd"; //For Approval Level Insert/Update
+        public const string GetApprovalLevels = "usp_get_approval_level"; //For getting approval levels
+        public const string ApprovalDetailsUpsert = "usp_approval_details_insupd"; //For Approval details Insert/Update
+        public const string GetApprovalDetails = "usp_get_approval_details"; //For getting approval details
+    }
 
     public static class AutoMapper
     {

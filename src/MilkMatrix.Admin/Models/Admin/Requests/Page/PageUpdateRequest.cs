@@ -23,5 +23,5 @@ public class PageUpdateRequest
 
     public int ModifyBy { get; set; }
 
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 }

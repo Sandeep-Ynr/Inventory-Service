@@ -21,5 +21,5 @@ public class FinancialYearRequest
     /// <summary>
     /// Gets or sets the status of the financial year. 
     /// </summary>
-    public bool? IsActive { get; set; } = true;
+    public bool? IsActive { get; set; }
 }
