@@ -28,7 +28,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
         private readonly IQueryMultipleData queryMultipleData;
 
-        private readonly AppConfig appConfig;
+        private readonly FileConfig fileConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BusinessService"/> class.
@@ -38,11 +38,11 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         /// <param name="appConfig"></param>
         /// <param name="queryMultipleData"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public BusinessService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
+        public BusinessService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<FileConfig> fileConfig, IQueryMultipleData queryMultipleData)
         {
             this.logger = logger.ForContext("ServiceName", nameof(BusinessService));
             this.repositoryFactory = repositoryFactory;
-            this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
+            this.fileConfig = fileConfig.Value ?? throw new ArgumentNullException(nameof(fileConfig), "FileConfig cannot be null");
             this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
         }
 
@@ -110,7 +110,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
             // 3. Apply filtering, sorting, and paging
-            var filtered = allResults.WithFullPath(appConfig.ApplicationDomain).AsQueryable().ApplyFilters(filters);
+            var filtered = allResults.WithFullPath(fileConfig.UploadFileHost).AsQueryable().ApplyFilters(filters);
             var sorted = filtered.ApplySorting(sorts);
             var paged = sorted.ApplyPaging(paging);
 
@@ -137,7 +137,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var data = await repo.QueryAsync<BusinessDetails>(BusinessSpName.GetBusinessDetails, new Dictionary<string, object> { { "BusinessId", id },
                                                                                 { "ActionType", (int)ReadActionType.Individual } }, null);
 
-                var result = data.Any() ? data.WithFullPath(appConfig.ApplicationDomain).FirstOrDefault() : default;
+                var result = data.Any() ? data.WithFullPath(fileConfig.UploadFileHost).FirstOrDefault() : default;
                 logger.LogInfo(result != null
                     ? $"Business with id {id} retrieved successfully."
                     : $"Business with id {id} not found.");

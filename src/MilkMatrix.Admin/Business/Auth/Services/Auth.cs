@@ -28,14 +28,18 @@ public class Auth : IAuth
 
     private readonly AppConfig appConfig;
 
+    private readonly FileConfig fileConfig;
+
+
     private ILogging logger;
 
     private readonly INotificationService notificationService;
-    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, ILogging logging, INotificationService notificationService)
+    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig,IOptions<FileConfig> fileConfig, ILogging logging, INotificationService notificationService)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(AppConfig));
+        this.fileConfig = fileConfig.Value ?? throw new ArgumentNullException(nameof(FileConfig));
         this.logger = logging.ForContext("ServiceName", nameof(Auth));
         this.notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService), "NotificationService cannot be null");
     }
@@ -236,7 +240,7 @@ public class Auth : IAuth
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            return data.Any() ? data.WithFullPath(appConfig.ApplicationDomain) : Enumerable.Empty<UserDetails>();
+            return data.Any() ? data.WithFullPath(fileConfig.UploadFileHost) : Enumerable.Empty<UserDetails>();
         }
         catch (Exception ex)
         {

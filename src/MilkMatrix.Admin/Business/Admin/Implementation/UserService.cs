@@ -28,7 +28,7 @@ public class UserService : IUserService
 
     private readonly IQueryMultipleData queryMultipleData;
 
-    private readonly AppConfig appConfig;
+    private readonly FileConfig fileConfig;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserService"/> class.
@@ -38,11 +38,11 @@ public class UserService : IUserService
     /// <param name="appConfig"></param>
     /// <param name="queryMultipleData"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public UserService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
+    public UserService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<FileConfig> fileConfig, IQueryMultipleData queryMultipleData)
     {
         this.logger = logger.ForContext("ServiceName", nameof(UserService));
         this.repositoryFactory = repositoryFactory;
-        this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
+        this.fileConfig = fileConfig.Value ?? throw new ArgumentNullException(nameof(fileConfig), "FileConfig cannot be null");
         this.queryMultipleData = queryMultipleData;
     }
 
@@ -113,7 +113,7 @@ public class UserService : IUserService
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            var result = data.Any() ? data.WithFullPath(appConfig.ApplicationDomain).FirstOrDefault() : new UserDetails();
+            var result = data.Any() ? data.WithFullPath(fileConfig.UploadFileHost).FirstOrDefault() : new UserDetails();
             logger.LogInfo(result != null
                 ? $"User with id {id} retrieved successfully."
                 : $"User with id {id} not found.");
@@ -181,7 +181,7 @@ public class UserService : IUserService
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
         // 3. Apply filtering, sorting, and paging
-        var filtered = allResults.WithFullPath(appConfig.ApplicationDomain).AsQueryable().ApplyFilters(filters);
+        var filtered = allResults.WithFullPath(fileConfig.UploadFileHost).AsQueryable().ApplyFilters(filters);
         var sorted = filtered.ApplySorting(sorts);
         var paged = sorted.ApplyPaging(paging);
 
