@@ -1,6 +1,6 @@
-using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Common.Extensions;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -110,7 +110,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
             // 3. Apply filtering, sorting, and paging
-            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var filtered = allResults.WithFullPath(appConfig.ApplicationDomain).AsQueryable().ApplyFilters(filters);
             var sorted = filtered.ApplySorting(sorts);
             var paged = sorted.ApplyPaging(paging);
 
@@ -137,7 +137,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var data = await repo.QueryAsync<BusinessDetails>(BusinessSpName.GetBusinessDetails, new Dictionary<string, object> { { "BusinessId", id },
                                                                                 { "ActionType", (int)ReadActionType.Individual } }, null);
 
-                var result = data.Any() ? data.FirstOrDefault() : default;
+                var result = data.Any() ? data.WithFullPath(appConfig.ApplicationDomain).FirstOrDefault() : default;
                 logger.LogInfo(result != null
                     ? $"Business with id {id} retrieved successfully."
                     : $"Business with id {id} not found.");

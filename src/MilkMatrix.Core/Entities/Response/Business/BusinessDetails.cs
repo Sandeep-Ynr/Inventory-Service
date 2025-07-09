@@ -130,9 +130,18 @@ public class BusinessDetails
     /// </summary>
     public string BranchSequence { get; set; }
 
+    /// <summary>
+    /// Gets or sets the unique identifier for the logo image associated with the business. This is used to display the business's logo in various interfaces and reports.
+    /// </summary>
     public string? LogoImageId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the file path for the logo image associated with the business. This is used to store and retrieve the logo image for display purposes.
+    /// </summary>
     public string? LogoImagePath { get; set; }
 
+    /// <summary>
+    /// Gets or sets the branch code for the business. This is used to uniquely identify branches within the business, especially in multi-branch setups.
+    /// </summary>
     public string BranchCode { get; set; }
 }

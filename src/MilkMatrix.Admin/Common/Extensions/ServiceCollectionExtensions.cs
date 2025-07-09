@@ -10,10 +10,7 @@ namespace MilkMatrix.Admin.Common.Extensions;
 public static class ServiceCollectionExtensions
 {
     // This method can be used to register services in the IServiceCollection
-    public static IServiceCollection AddAdminServices(this IServiceCollection services)
-    {
-        // Register your services here
-        // Example:
+    public static IServiceCollection AddAdminServices(this IServiceCollection services) =>
         services.AddScoped<IAuth, Auth>()
             .AddScoped<IUserService, UserService>()
             .AddScoped<IRoleService, RoleService>()
@@ -22,12 +19,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<IModuleService, ModuleService>()
             .AddScoped<ISubModuleService, SubModuleService>()
             .AddScoped<IBusinessService, BusinessService>()
-            .AddScoped<IConfigurationService, ConfigurationService>();
-
-        services.AddScoped<ICommonModules, CommonModules>();
-            services.AddScoped<IApprovalService, ApprovalService>();
-        services.AddScoped<ITokenProcess, TokenProcess>();
-
-        return services;
-    }
+            .AddScoped<IConfigurationService, ConfigurationService>()
+            .AddScoped<ICommonModules, CommonModules>()
+            .AddScoped<IApprovalService, ApprovalService>()
+            .AddScoped<IRejectionService, RejectionService>()
+            .AddScoped<ITokenProcess, TokenProcess>();
 }

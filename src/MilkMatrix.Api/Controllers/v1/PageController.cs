@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.Page;
@@ -127,5 +128,23 @@ public class PageController : ControllerBase
     {
         var result = await pageService.GetAllAsync(request);
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Retrieves a list of pages approval available.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("page-approval-list")]
+    public async Task<IActionResult> GetActions([FromQuery] int? id = null)
+    {
+        var response = await pageService.GetPagesForApprovalAsync(id);
+        return response != null && response.Any()
+            ? Ok(response)
+            : BadRequest(new ErrorResponse
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                ErrorMessage = string.Format(ErrorMessage.NotFound)
+            });
     }
 }

@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
+using MilkMatrix.Admin.Common.Extensions;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Admin.Models.Login.Response;
@@ -235,7 +236,7 @@ public class Auth : IAuth
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            return data.Any() ? data : Enumerable.Empty<UserDetails>();
+            return data.Any() ? data.WithFullPath(appConfig.ApplicationDomain) : Enumerable.Empty<UserDetails>();
         }
         catch (Exception ex)
         {

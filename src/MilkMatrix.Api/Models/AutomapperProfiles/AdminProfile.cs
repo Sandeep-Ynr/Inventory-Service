@@ -16,6 +16,8 @@ using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.In
 using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
 using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
+using MilkMatrix.Api.Models.Request.Admin.Rejection;
+using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles;
 
@@ -102,5 +104,8 @@ public class AdminProfile : Profile
            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
         CreateMap<InsertDetailsModel, InsertDetails>();
+
+        CreateMap<RejectionModel, InsertRejection>()
+           .ForMember(x => x.RejectedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
     }
 }

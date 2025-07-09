@@ -98,7 +98,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["PageId"] = request.PageId,
                     ["UserId"] = request.UserId,
                     ["Sno"] = request.Level,
-                    ["DepartmentId"] = request.DocNumber,
+                    ["DocNumber"] = request.DocNumber,
                     ["SubCode"] = request.SubCode,
                     ["loginId"] = request.LoginId,
                     ["ActionType"] = (int)CrudActionType.Create

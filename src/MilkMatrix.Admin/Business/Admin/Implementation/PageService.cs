@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Models.Admin;
 using MilkMatrix.Admin.Models.Admin.Requests.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Core.Abstractions.DataProvider;
@@ -169,5 +170,28 @@ public class PageService : IPageService
             Results = paged.ToList(),
             Filters = filterMetas
         };
+    }
+
+    public async Task<IEnumerable<CommonLists>?> GetPagesForApprovalAsync(int? id = null)
+    {
+        try
+        {
+            var repo = repositoryFactory
+                           .ConnectDapper<CommonLists>(DbConstants.Main);
+
+            var requestParams = new Dictionary<string, object>
+            {
+                { "PageId", id },
+                { "ActionType", id != null && id > 0 ? ReadActionType.Individual : ReadActionType.All }
+            };
+            var data = await repo.QueryAsync<CommonLists>(PageSpName.GetPagesForApproval, requestParams, null);
+
+            return data != null && data.Count() > 0 ? data : default;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
+            return default;
+        }
     }
 }

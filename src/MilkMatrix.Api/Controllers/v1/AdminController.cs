@@ -3,23 +3,23 @@ using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
+using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
 using MilkMatrix.Api.Models.Request.Admin.Approval.Level;
 using MilkMatrix.Api.Models.Request.Admin.Business;
+using MilkMatrix.Api.Models.Request.Admin.Rejection;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
 using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
-using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
+using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
 using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 
 namespace MilkMatrix.Api.Controllers.v1;
@@ -34,11 +34,12 @@ namespace MilkMatrix.Api.Controllers.v1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class AdminController : ControllerBase
 {
-    private readonly ICommonModules commonModules;
-    private readonly IApprovalService approvalService;
     private readonly IHttpContextAccessor ihttpContextAccessor;
     private readonly IMapper mapper;
     private ILogging logging;
+    private readonly ICommonModules commonModules;
+    private readonly IApprovalService approvalService;
+    private readonly IRejectionService rejectionService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AdminController"/> class.
@@ -46,14 +47,21 @@ public class AdminController : ControllerBase
     /// <param name="ihttpContextAccessor"></param>
     /// <param name="mapper"></param>
     /// <param name="logging"></param>
-    /// <param name="commonModules"></param>   
-    public AdminController(IHttpContextAccessor ihttpContextAccessor, IMapper mapper, ILogging logging, ICommonModules commonModules, IApprovalService approvalService)
+    /// <param name="commonModules"></param>
+    /// <param name="approvalService"></param>
+    /// <param name="rejectionService"></param>
+    public AdminController(IHttpContextAccessor ihttpContextAccessor,
+        IMapper mapper,
+        ILogging logging,
+        ICommonModules commonModules,
+        IApprovalService approvalService, IRejectionService rejectionService)
     {
         this.ihttpContextAccessor = ihttpContextAccessor;
         this.mapper = mapper;
         this.commonModules = commonModules;
         this.logging = logging.ForContext("ServiceName", nameof(AdminController));
         this.approvalService = approvalService;
+        this.rejectionService = rejectionService;
     }
 
     /// <summary>
@@ -251,6 +259,45 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> DetailsList([FromBody] ListsRequest request)
     {
         var result = await approvalService.GetAllDetailsAsync(request);
+        return Ok(result);
+    }
+    #endregion
+
+    #region Rejection
+
+    [HttpPost("rejection-insert")]
+    public async Task<IActionResult> InsertRejectionDetails([FromBody] RejectionModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<InsertRejection, RejectionModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+            });
+            await rejectionService.AddAsync(requestParams);
+            return Ok(new { message = "Success." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in insert details", ex);
+            return StatusCode(500, "An error occurred while processing the details.");
+        }
+    }
+
+    [HttpPost("rejection-list")]
+    public async Task<IActionResult> RejectionList([FromBody] ListsRequest request)
+    {
+        var result = await rejectionService.GetAllAsync(request);
         return Ok(result);
     }
     #endregion

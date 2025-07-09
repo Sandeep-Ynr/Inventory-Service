@@ -44,4 +44,9 @@ public sealed record AppConfig
     /// AllowToStoreOrdPwd 
     /// </summary>
     public bool AllowToStoreOrgPwd { get; set; }
+
+    /// <summary>
+    /// UI Domain
+    /// </summary>
+    public string ApplicationDomain { get; set; } = string.Empty;
 }

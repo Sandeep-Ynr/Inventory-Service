@@ -46,6 +46,7 @@ public static partial class Constants
     {
         public const string PageUpsert = "usp_page_manager_insupd"; //For page insert/update
         public const string GetPages = "usp_page_manager"; //For getting pages
+        public const string GetPagesForApproval = "usp_page_approval_list"; //For getting page required for approval form
     }
 
     public static class RolePageSpName
@@ -84,6 +85,12 @@ public static partial class Constants
         public const string GetApprovalLevels = "usp_get_approval_level"; //For getting approval levels
         public const string ApprovalDetailsUpsert = "usp_approval_details_insupd"; //For Approval details Insert/Update
         public const string GetApprovalDetails = "usp_get_approval_details"; //For getting approval details
+    }
+
+    public static class RejectionSpName
+    {
+        public const string RejectionInsert = "usp_rejection_details_insupd"; //For rejction Insert
+        public const string GetRejectioDetails = "usp_get_rejection_details"; //For getting rejection details
     }
 
     public static class AutoMapper

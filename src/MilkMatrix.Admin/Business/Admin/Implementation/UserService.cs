@@ -113,7 +113,7 @@ public class UserService : IUserService
                        .ConnectDapper<UserDetails>(DbConstants.Main);
             var data = await repo.QueryAsync<UserDetails>(AuthSpName.LoginUserDetails, new Dictionary<string, object> { { "UserId", id } }, null);
 
-            var result = data.Any() ? data.FirstOrDefault() : new UserDetails();
+            var result = data.Any() ? data.WithFullPath(appConfig.ApplicationDomain).FirstOrDefault() : new UserDetails();
             logger.LogInfo(result != null
                 ? $"User with id {id} retrieved successfully."
                 : $"User with id {id} not found.");
@@ -181,7 +181,7 @@ public class UserService : IUserService
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
         // 3. Apply filtering, sorting, and paging
-        var filtered = allResults.AsQueryable().ApplyFilters(filters);
+        var filtered = allResults.WithFullPath(appConfig.ApplicationDomain).AsQueryable().ApplyFilters(filters);
         var sorted = filtered.ApplySorting(sorts);
         var paged = sorted.ApplyPaging(paging);
 
