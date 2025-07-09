@@ -13,6 +13,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     protected readonly string _connectionString;
 
     protected readonly ILogging logger;
+
     // PropertyInfo cache for fast property lookup
     private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyInfo>> cachedProperty = new();
 

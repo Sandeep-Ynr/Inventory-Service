@@ -16,10 +16,9 @@ public interface IApprovalService
     /// <summary>
     /// Retrieves the details of an approval level by its unique identifier.
     /// </summary>
-    /// <param name="userId"></param>
     /// <param name="pageId"></param>
     /// <returns></returns>
-    Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int userId, int pageId);
+    Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId);
 
     /// <summary>
     /// Adds a new approval level to the system based on the provided request.

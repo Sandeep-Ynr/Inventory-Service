@@ -171,15 +171,14 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         ///<inheritdoc />
-        public async Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int userId, int pageId)
+        public async Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId)
         {
             try
             {
-                logger.LogInfo($"GetByIdAsync called for Approval id: {userId}, {pageId}");
+                logger.LogInfo($"GetByIdAsync called for Approval id: {pageId}");
                 var repo = repositoryFactory
                            .ConnectDapper<ApprovalResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<ApprovalResponse>(ApprovalSpName.GetApprovalLevels, new Dictionary<string, object> { { "userId", userId },
-                    { "page", pageId },
+                var data = await repo.QueryAsync<ApprovalResponse>(ApprovalSpName.GetApprovalLevels, new Dictionary<string, object> { { "pageId", pageId },
                     { "ActionType", (int)ReadActionType.Individual } }, null);
 
                 var result = data.Any() ? data : default;
