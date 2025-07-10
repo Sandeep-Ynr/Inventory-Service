@@ -5,10 +5,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Api.Models.Request.Bank.Bank;
 using MilkMatrix.Api.Models.Request.Bank.BankRegional;
 using MilkMatrix.Api.Models.Request.Bank.BankType;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Bank;
@@ -24,24 +26,27 @@ namespace MilkMatrix.Api.Controllers.v1
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class BankController :  ControllerBase
+    public class BankController : ControllerBase
     {
-
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ILogging logger;
         private readonly IBankRegService bankRegService;
         private readonly IBankTypeService bankTypeService;
+        private readonly IBankService bankService;
         private readonly IMapper mapper;
-        public BankController(IHttpContextAccessor httpContextAccessor, ILogging logging, IBankRegService bankRegService, IBankTypeService bankTypeService,IMapper mapper)
+        public BankController(IHttpContextAccessor httpContextAccessor, ILogging logging, IBankRegService bankRegService,
+            IBankTypeService bankTypeService, IBankService bankService, IMapper mapper)
         {
             // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logging.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logging));
             this.bankRegService = bankRegService ?? throw new ArgumentNullException(nameof(bankRegService));
             this.bankTypeService = bankTypeService ?? throw new ArgumentNullException(nameof(bankTypeService));
+            this.bankService = bankService ?? throw new ArgumentNullException(nameof(bankService));
             this.mapper = mapper;
         }
 
+        #region Bank-Regional
         [HttpPost]
         [Route("regional-bank-list")]
         public async Task<IActionResult> GetRegionalBank([FromBody] BankRegionalModel request)
@@ -90,7 +95,6 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-
         [HttpPost]
         [Route("add-bankRegional")]
         public async Task<IActionResult> AddBankRegional([FromBody] BankRegInsertReqModel request)
@@ -121,7 +125,6 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while adding the RegionalBank.");
             }
         }
-
 
         [HttpPut]
         [Route("update-bankRegional")]
@@ -155,7 +158,10 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the Hamlet.");
             }
         }
+        #endregion
 
+
+        #region Bank-Type
         [HttpPost]
         [Route("bankType-list")]
         public async Task<ActionResult> GetBankType([FromBody] BankTypeRequestModel request)
@@ -262,7 +268,112 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the Bank Type.");
             }
         }
+        #endregion
 
+
+        #region Bank-Master
+        [HttpPost]
+        [Route("bank-list")]
+        public async Task<IActionResult> BankList([FromBody] ListsRequest request)
+        {
+            var result = await bankService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("bankID{id}")]
+        public async Task<ActionResult<BankResponse?>> GetByBankId(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Bank by ID called for ID: {id}");
+                var bank = await bankService.GetById(id);
+                if (bank == null)
+                {
+                    logger.LogInfo($"Bank with ID {id} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"Bank with ID {id} retrieved successfully.");
+                return Ok(bank);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Bank with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Bank.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add-bank")]
+        public async Task<IActionResult> AddBank([FromBody] BankInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Bank: {request.BankName}");
+
+                var requestParams = mapper.MapWithOptions<BankInsertRequest, BankInsertRequestModel>(request,
+                    new Dictionary<string, object>{
+                              { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await bankService.AddBank(requestParams);
+                logger.LogInfo($"Bank {request.BankName} added successfully.");
+                return Ok(new { message = "Bank added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Bank", ex);
+                return StatusCode(500, "An error occurred while adding the Bank.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update-bank")]
+        public async Task<IActionResult> UpdateBank([FromBody] BankUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || request.BankID <= 0)
+                return BadRequest("Invalid request.");
+
+            var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<BankUpdateRequest, BankUpdateRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
+                });
+
+            await bankService.UpdateBank(requestParams);
+            logger.LogInfo($"Bank with ID {request.BankID} updated successfully.");
+            return Ok(new { message = "Bank updated successfully." });
+        }
+
+        [HttpDelete("bank-delete/{id}")]
+        public async Task<IActionResult> DeleteBank(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await bankService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"Bank with ID {id} deleted successfully.");
+                return Ok(new { message = "Bank deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Bank with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Bank.");
+            }
+        }
+        #endregion
 
     }
 }
