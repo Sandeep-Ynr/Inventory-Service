@@ -177,7 +177,7 @@ namespace MilkMatrix.Milk.Implementations
 
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<BankResponse, int, FiltersMeta>(BankTypeQueries.GetBankList,
+                .GetMultiDetailsAsync<BankResponse, int, FiltersMeta>(BankMasterQueries.GetBankList,
                     DbConstants.Main,
                     parameters,
                     null);

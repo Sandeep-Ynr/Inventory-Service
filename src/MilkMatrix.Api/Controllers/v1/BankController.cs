@@ -48,27 +48,13 @@ namespace MilkMatrix.Api.Controllers.v1
 
         #region Bank-Regional
         [HttpPost]
-        [Route("regional-bank-list")]
-        public async Task<IActionResult> GetRegionalBank([FromBody] BankRegionalModel request)
+        [Route("regional-list")]
+        public async Task<IActionResult> regionalList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetRegionalBanks request processed with ActionType: {request.ActionType}, " +
-                           $"RegionalId: {request.RegionalID}");
-
-            var regionalRequest = new BankRegionalRequest
-            {
-                BankRegionalId = request.RegionalID,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-
-            var response = regionalRequest.ActionType == ReadActionType.All
-                ? await bankRegService.GetBankReg(regionalRequest)
-                : await bankRegService.GetSpecificLists(regionalRequest);
-
-            return response != null && response.Any()
-                ? Ok(response)
-                : BadRequest("No records found.");
+            var result = await bankRegService.GetAllAsync(request);
+            return Ok(result);
         }
+
 
         [HttpGet("bankregional/{id}")]
         public async Task<ActionResult<BankRegResponse>> GetBankRegionalById(int id)
@@ -164,24 +150,13 @@ namespace MilkMatrix.Api.Controllers.v1
         #region Bank-Type
         [HttpPost]
         [Route("bankType-list")]
-        public async Task<ActionResult> GetBankType([FromBody] BankTypeRequestModel request)
+        public async Task<IActionResult> BankTypeList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetBankType request processed with ActionType: {request.ActionType}, " +
-                $"BankTypeId: {request.BankTypeId}, StateId: {request.BankTypeId}, " +
-                $"DistrictId: {request.BankTypeId}");
-
-            var bankTypeReq = new BankTypeRequest
-            {
-                BankTypeId = request.BankTypeId,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-            var response = request.ActionType == ReadActionType.All
-                 ? await bankTypeService.GetBankTypes(bankTypeReq)
-                : await bankTypeService.GetSpecificLists(bankTypeReq);
-
-            return response.Any() ? Ok(response) : BadRequest("No bank type data found.");
+            var result = await bankTypeService.GetAll(request);
+            return Ok(result);
         }
+
+
 
         [HttpGet("bankTypeID{id}")]
         public async Task<ActionResult<BankTypeResponse?>> GetByBankTypeId(int id)

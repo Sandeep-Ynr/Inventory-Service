@@ -1,6 +1,9 @@
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Models.Request.Bank;
 using MilkMatrix.Milk.Models.Response.Bank;
+using MilkMatrix.Milk.Models.Response.Geographical;
 
 
 namespace MilkMatrix.Milk.Contracts.Bank
@@ -13,5 +16,7 @@ namespace MilkMatrix.Milk.Contracts.Bank
         Task AddBankReg(BankRegInsertRequest request);
         Task UpdateBankReg(BankRegUpdateRequest request);
         Task DeleteAsync(int id, int userId);
+        Task<IListsResponse<BankRegResponse>> GetAllAsync(IListsRequest request);
+
     }
 }
