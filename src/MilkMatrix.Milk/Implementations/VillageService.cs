@@ -1,11 +1,17 @@
 using System.Data;
 using Azure.Core;
 using Microsoft.Extensions.Options;
+using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
+using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Models.Request;
 using MilkMatrix.Milk.Models.Request.Geographical;
@@ -21,12 +27,14 @@ namespace MilkMatrix.Milk.Implementations
         private readonly AppConfig appConfig;
 
         private readonly IRepositoryFactory repositoryFactory;
+         private readonly IQueryMultipleData queryMultipleData;
 
-        public VillageService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory)
+        public VillageService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory, IQueryMultipleData queryMultipleData)
         {
             this.logging = logging.ForContext("ServiceName", nameof(VillageService));
             this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(VillageService));
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
+            this.queryMultipleData = queryMultipleData;
         }
 
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request)
@@ -70,7 +78,7 @@ namespace MilkMatrix.Milk.Implementations
 
                 var result = data.Any() ? data.FirstOrDefault() : new VillageResponse();
 
-                if (result != null && result.VillageId > 0)
+                if (result != null && result.Id > 0)
                 {
                     logging.LogInfo($"User with id {villageId} retrieved successfully.");
                     return result;
@@ -154,14 +162,52 @@ namespace MilkMatrix.Milk.Implementations
                    VillageQueries.AddVillage , requestParams, CommandType.StoredProcedure
                 );
 
-                logging.LogInfo($"District with id {id} deleted successfully.");
+                logging.LogInfo($"Village with id {id} deleted successfully.");
 
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in DeleteAsync for District id: {id}", ex);
+                logging.LogError($"Error in DeleteAsync for Village id: {id}", ex);
                 throw;
             }
+        }
+
+        public async Task<IListsResponse<VillageResponse>> GetAllAsync(IListsRequest request)
+        {
+
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
+            };
+
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<VillageResponse, int, FiltersMeta>(VillageQueries.GetVillageList,
+                    DbConstants.Main,
+                    parameters,
+                    null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<VillageResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
         }
     }
 }
