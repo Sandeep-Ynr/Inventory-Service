@@ -2,7 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Implementations.Plant;
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -15,8 +17,9 @@ namespace MilkMatrix.Milk.Common.Extensions
                    .AddScoped<ITehsilService, TehsilService>()
                    .AddScoped<IVillageService, VillageService>()
                    .AddScoped<IHamletService, HamletService>()
-                    .AddScoped<IBankRegService, BankRegService>()
-                    .AddScoped<IBankTypeService, BankTypeService>()
-                    .AddScoped<IBankService, BankService>();
+                   .AddScoped<IBankRegService, BankRegService>()
+                   .AddScoped<IBankTypeService, BankTypeService>()
+                   .AddScoped<IBankService, BankService>()
+                   .AddScoped<IPlantService, PlantService>();
     }
 }

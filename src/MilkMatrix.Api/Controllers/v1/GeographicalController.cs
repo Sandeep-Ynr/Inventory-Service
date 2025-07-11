@@ -216,7 +216,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 }
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-                logger.LogInfo($"Add called for Tehsil: {request.DistrictName}");
+                logger.LogInfo($"Add called for District: {request.DistrictName}");
                 var requestParams = mapper.MapWithOptions<DistrictInsertRequest, DistrictInsertRequestModel>(request
                     , new Dictionary<string, object> {
                                 { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
