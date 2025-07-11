@@ -24,4 +24,11 @@ public static partial class BankQueries
         public const string GetBankList = "usp_bank_list";
     }
 
+    public static class BranchQueries
+    {
+        public const string GetBranch = "usp_bank_details";
+        public const string AddBranch = "usp_bank_insupd";
+        public const string GetBranchList = "usp_branch_list";
+    }
+
 }
