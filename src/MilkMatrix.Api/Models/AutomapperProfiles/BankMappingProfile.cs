@@ -3,6 +3,7 @@ using Azure.Core;
 using MilkMatrix.Api.Models.Request.Bank.Bank;
 using MilkMatrix.Api.Models.Request.Bank.BankRegional;
 using MilkMatrix.Api.Models.Request.Bank.BankType;
+using MilkMatrix.Api.Models.Request.Bank.Branch;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Bank;
@@ -65,5 +66,47 @@ public class BankMappingProfile : Profile
             .ForMember(dest => dest.IsNationalized, opt => opt.MapFrom(src => src.IsNationalized))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus)) // updated name
             .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
+
+
+    CreateMap<BranchInsertRequestModel, BranchInsertRequest>()
+           .ForMember(dest => dest.BankID, opt => opt.MapFrom(src => src.BankID))
+           .ForMember(dest => dest.BranchCode, opt => opt.MapFrom(src => src.BranchCode))
+           .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.BranchName))
+           .ForMember(dest => dest.LocalBranchName, opt => opt.MapFrom(src => src.LocalBranchName))
+           .ForMember(dest => dest.IFSC, opt => opt.MapFrom(src => src.IFSC))
+           .ForMember(dest => dest.StateID, opt => opt.MapFrom(src => src.StateID))
+           .ForMember(dest => dest.DistrictID, opt => opt.MapFrom(src => src.DistrictID))
+           .ForMember(dest => dest.TehsilID, opt => opt.MapFrom(src => src.TehsilID))
+           .ForMember(dest => dest.VillageID, opt => opt.MapFrom(src => src.VillageID))
+           .ForMember(dest => dest.HamletID, opt => opt.MapFrom(src => src.HamletID))
+           .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+           .ForMember(dest => dest.AddressHindi, opt => opt.MapFrom(src => src.AddressHindi))
+           .ForMember(dest => dest.Pincode, opt => opt.MapFrom(src => src.Pincode))
+           .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+           .ForMember(dest => dest.ContactNo, opt => opt.MapFrom(src => src.ContactNo))
+           .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+           .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
+            CreateMap<BranchUpdateRequestModel, BranchUpdateRequest>()
+            .ForMember(dest => dest.BranchID, opt => opt.MapFrom(src => src.BranchId))
+            .ForMember(dest => dest.BankID, opt => opt.MapFrom(src => src.BankID))
+            .ForMember(dest => dest.BranchCode, opt => opt.MapFrom(src => src.BranchCode))
+            .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.BranchName))
+            .ForMember(dest => dest.LocalBranchName, opt => opt.MapFrom(src => src.LocalBranchName))
+            .ForMember(dest => dest.IFSC, opt => opt.MapFrom(src => src.IFSC))
+            .ForMember(dest => dest.StateID, opt => opt.MapFrom(src => src.StateID))
+            .ForMember(dest => dest.DistrictID, opt => opt.MapFrom(src => src.DistrictID))
+            .ForMember(dest => dest.TehsilID, opt => opt.MapFrom(src => src.TehsilID))
+            .ForMember(dest => dest.VillageID, opt => opt.MapFrom(src => src.VillageID))
+            .ForMember(dest => dest.HamletID, opt => opt.MapFrom(src => src.HamletID))
+            .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+            .ForMember(dest => dest.AddressHindi, opt => opt.MapFrom(src => src.AddressHindi))
+            .ForMember(dest => dest.Pincode, opt => opt.MapFrom(src => src.Pincode))
+            .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+            .ForMember(dest => dest.ContactNo, opt => opt.MapFrom(src => src.ContactNo))
+            .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+            .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
     }
 }
