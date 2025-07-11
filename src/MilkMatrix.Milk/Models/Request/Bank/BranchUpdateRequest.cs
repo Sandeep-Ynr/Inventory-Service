@@ -5,6 +5,8 @@ namespace MilkMatrix.Milk.Models.Request.Bank
     {
         public int BranchID { get; set; }
         public string BranchCode { get; set; } = string.Empty;
+
+        
         public int BankID { get; set; }
         public string BranchName { get; set; } = string.Empty;
         public string? LocalBranchName { get; set; }

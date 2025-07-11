@@ -1,4 +1,6 @@
 using System.Data;
+using System.Net;
+using System.Net.NetworkInformation;
 using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.DataProvider;
@@ -15,7 +17,9 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Models.Request.Bank;
 using MilkMatrix.Milk.Models.Response.Bank;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.BankQueries;
+using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 namespace MilkMatrix.Milk.Implementations
 {
     public class BranchService : IBranchService
@@ -34,30 +38,40 @@ namespace MilkMatrix.Milk.Implementations
         }
         public async Task AddBranch(BranchInsertRequest request)
         {
-            var repo = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-            var requestParams = new Dictionary<string, object>
-        {
-            {"ActionType", (int)CrudActionType.Create},
-            {"BranchCode", request.BranchCode },
-            {"BankID", request.BankID },
-            {"BranchName", request.BranchName },
-            {"LocalBranchName", request.LocalBranchName ?? (object)DBNull.Value },
-            {"IFSC", request.IFSC },
-            {"StateID", request.StateID },
-            {"DistrictID", request.DistrictID },
-            {"TehsilID", request.TehsilID },
-            {"VillageID", request.VillageID },
-            {"HamletID", request.HamletID },
-            {"Address", request.Address ?? (object)DBNull.Value },
-            {"AddressHindi", request.AddressHindi ?? (object)DBNull.Value },
-            {"Pincode", request.Pincode ?? (object)DBNull.Value },
-            {"ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
-            {"ContactNo", request.ContactNo ?? (object)DBNull.Value },
-            {"IsStatus", request.IsActive },
-            {"CreatedBy", request.CreatedBy },
-        };
-            await repo.AddAsync(BranchQueries.AddBranch, requestParams, CommandType.StoredProcedure);
-            logging.LogInfo($"Branch {request.BranchName} added successfully.");
+            try
+            {
+                var repo = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    {"ActionType", (int)CrudActionType.Create},
+                    {"BranchCode", request.BranchCode },
+                    {"BankID", request.BankID },
+                    {"BranchName", request.BranchName },
+                    {"LocalBranchName", request.LocalBranchName ?? (object)DBNull.Value },
+                    {"IFSC", request.IFSC },
+                    {"StateID", request.StateID },
+                    {"DistrictID", request.DistrictID },
+                    {"TehsilID", request.TehsilID },
+                    {"VillageID", request.VillageID },
+                    {"HamletID", request.HamletID },
+                    {"Address", request.Address ?? (object)DBNull.Value },
+                    {"AddressHindi", request.AddressHindi ?? (object)DBNull.Value },
+                    {"Pincode", request.Pincode ?? (object)DBNull.Value },
+                    {"ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
+                    {"ContactNo", request.ContactNo ?? (object)DBNull.Value },
+                    {"IsStatus", request.IsActive },
+                    {"CreatedBy", request.CreatedBy }
+                };
+                await repo.AddAsync(BranchQueries.AddBranch, requestParams, CommandType.StoredProcedure);
+                logging.LogInfo($"Branch {request.BranchName} added successfully.");
+
+            }
+
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in AddAsync for Bank: {request.BranchName}", ex);
+                throw;
+            }
         }
 
         public async Task UpdateBranch(BranchUpdateRequest request)
@@ -104,20 +118,33 @@ namespace MilkMatrix.Milk.Implementations
 
         public async Task<BranchResponse?> GetByBranchId(int id)
         {
-            var repo = repositoryFactory.ConnectDapper<BranchResponse>(DbConstants.Main);
-            var result = await repo.QueryAsync<BranchResponse>(BranchQueries.GetBranch, new Dictionary<string, object>
-                {
-                    {"ActionType", 2 },
-                    {"BranchID", id },
-                    {"IsStatus", true }
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for user id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<BranchResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<BranchResponse>(BranchQueries.GetBranchList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "BranchID", id }
                 }, null);
-            return result.FirstOrDefault();
+
+                var result = data.Any() ? data.FirstOrDefault() : new BranchResponse();
+                logging.LogInfo(result != null
+                    ? $"Branch with id {id} retrieved successfully."
+                    : $"Branch with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for Branch id: {id}", ex);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<BranchResponse>> GetBranches(BranchRequest request)
         {
             var repo = repositoryFactory.Connect<BranchResponse>(DbConstants.Main);
-            var result = await repo.QueryAsync<BranchResponse>(BranchQueries.GetBranch, new Dictionary<string, object>
+            var result = await repo.QueryAsync<BranchResponse>(BranchQueries.GetBranchList, new Dictionary<string, object>
         {
             {"ActionType", (int)request.ActionType },
             {"BranchID", request.BranchID },
