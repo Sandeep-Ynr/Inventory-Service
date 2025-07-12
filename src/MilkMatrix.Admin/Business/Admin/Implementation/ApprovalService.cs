@@ -1,3 +1,5 @@
+using System.Transactions;
+using Azure.Core;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
@@ -12,6 +14,7 @@ using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
+using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Admin.Models.Constants;
 using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
 using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
@@ -46,71 +49,93 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         ///<inheritdoc />
-        public async Task AddAsync(InsertLevel request)
+        public async Task AddAsync(IEnumerable<InsertLevel> requests)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+            if (requests == null || !requests.Any())
+                throw new ArgumentNullException(nameof(requests), "Request cannot be null");
 
-            try
+            requests.ForEach(async x =>
             {
-                logger.LogInfo($"AddAsync called for approval Level: {request.PageId}");
-
-                var repo = repositoryFactory.ConnectDapper<InsertLevel>(DbConstants.Main);
-
-                var parameters = new Dictionary<string, object>
+                await DeleteAsync(x.PageId, x.UserId);
+            });
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                foreach (var request in requests)
                 {
-                    ["BusinessId"] = request.BusinessId,
-                    ["PageId"] = request.PageId,
-                    ["UserId"] = request.UserId,
-                    ["Sno"] = request.Level,
-                    ["DepartmentId"] = request.DepartmentId,
-                    ["amount"] = request.Amount,
-                    ["Status"] = true,
-                    ["CreatedBy"] = request.CreatedBy,
-                    ["ActionType"] = (int)CrudActionType.Create
-                };
+                    try
+                    {
 
-                await repo.AddAsync(ApprovalSpName.ApprovalUpsert, parameters);
-                logger.LogInfo($"approval {request.BusinessId} added successfully.");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, ex);
-                throw;
+                        var repo = repositoryFactory.ConnectDapper<InsertLevel>(DbConstants.Main);
+
+                        var parameters = new Dictionary<string, object>
+                        {
+                            ["BusinessId"] = request.BusinessId,
+                            ["PageId"] = request.PageId,
+                            ["UserId"] = request.UserId,
+                            ["Sno"] = request.Level,
+                            ["DepartmentId"] = request.DepartmentId,
+                            ["amount"] = request.Amount,
+                            ["Status"] = true,
+                            ["CreatedBy"] = request.CreatedBy,
+                            ["ActionType"] = (int)CrudActionType.Create
+                        };
+
+                        await repo.AddAsync(ApprovalSpName.ApprovalUpsert, parameters);
+                        logger.LogInfo($"approval {request.BusinessId} added successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex.Message, ex);
+                        throw;
+                    }
+                }
+                scope.Complete();
             }
         }
 
         ///<inheritdoc />
-        public async Task AddDetailsAsync(InsertDetails request)
+        public async Task AddDetailsAsync(IEnumerable<InsertDetails> requests)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+            if (requests == null || !requests.Any())
+                throw new ArgumentNullException(nameof(requests), "Request cannot be null");
 
-            try
+            requests.ForEach(async x =>
             {
-                logger.LogInfo($"AddAsync called for approval details: {request.PageId}");
+                await DeleteAsync(x.PageId, x.UserId);
+            });
 
-                var repo = repositoryFactory.ConnectDapper<InsertDetails>(DbConstants.Main);
-
-                var parameters = new Dictionary<string, object>
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                foreach (var request in requests)
                 {
-                    ["BusinessId"] = request.BusinessId,
-                    ["PageId"] = request.PageId,
-                    ["UserId"] = request.UserId,
-                    ["Sno"] = request.Level,
-                    ["DocNumber"] = request.DocNumber,
-                    ["SubCode"] = request.SubCode,
-                    ["loginId"] = request.LoginId,
-                    ["ActionType"] = (int)CrudActionType.Create
-                };
+                    try
+                    {
+                        logger.LogInfo($"AddAsync called for approval details: {request.PageId}");
 
-                await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
-                logger.LogInfo($"Approval {request.PageId} added successfully.");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, ex);
-                throw;
+                        var repo = repositoryFactory.ConnectDapper<InsertDetails>(DbConstants.Main);
+
+                        var parameters = new Dictionary<string, object>
+                        {
+                            ["BusinessId"] = request.BusinessId,
+                            ["PageId"] = request.PageId,
+                            ["UserId"] = request.UserId,
+                            ["Sno"] = request.Level,
+                            ["DocNumber"] = request.DocNumber,
+                            ["SubCode"] = request.SubCode,
+                            ["loginId"] = request.LoginId,
+                            ["ActionType"] = (int)CrudActionType.Create
+                        };
+
+                        await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
+                        logger.LogInfo($"Approval {request.PageId} added successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex.Message, ex);
+                        throw;
+                    }
+                }
+                scope.Complete();
             }
         }
 

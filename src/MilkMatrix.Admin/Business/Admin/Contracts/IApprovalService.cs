@@ -25,7 +25,7 @@ public interface IApprovalService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddAsync(InsertLevel request);
+    Task AddAsync(IEnumerable<InsertLevel> requests);
 
     /// <summary>
     /// Updates an existing approval level in the system based on the provided request.
@@ -54,7 +54,7 @@ public interface IApprovalService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddDetailsAsync(InsertDetails request);
+    Task AddDetailsAsync(IEnumerable<InsertDetails> request);
 
     /// <summary>
     /// Retrieves a list of approval details from the system based on the provided request parameters.
