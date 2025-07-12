@@ -6,6 +6,5 @@ namespace MilkMatrix.Api.Models.Request.Bank.BankType
         public string BankTypeName { get; set; } = string.Empty;
         public string? BankTypeDescription { get; set; }
         public bool? IsStatus { get; set; }
-        public int CreatedBy { get; set; }
     }
 }
