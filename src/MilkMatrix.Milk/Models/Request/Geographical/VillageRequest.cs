@@ -8,8 +8,7 @@ namespace MilkMatrix.Milk.Models.Request.Geographical
         public int? VillageId { get; set; }
         public int? TehsilId { get; set; }
         public bool? IsActive { get; set; }
-        public string? VillageName { get; set; }
-        public bool? IsStatus { get; set; }
+        public string? TehsilName { get; set; }
         public bool? IsDeleted { get; set; }
     }
 }

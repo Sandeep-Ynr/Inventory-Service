@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Abstractions.Listings.Request;
+using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Milk.Models.Request;
 using MilkMatrix.Milk.Models.Request.Geographical;
@@ -10,10 +12,10 @@ namespace MilkMatrix.Milk.Contracts.Geographical
         Task AddVillage(VillageInsertRequest request);
         Task UpdateVillage(VillageUpdateRequest request);
         Task DeleteAsync(int id, int userId);
-
         Task<VillageResponse?> GetByVillageId(int villageId);
         Task<IEnumerable<VillageResponse>> GetVillages(VillageRequest request);
         Task<IEnumerable<CommonLists>> GetSpecificLists(VillageRequest request);
+        Task<IListsResponse<VillageResponse>> GetAllAsync(IListsRequest request);
 
     }
 }

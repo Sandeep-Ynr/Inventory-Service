@@ -384,28 +384,12 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>List of Village</returns>
         [HttpPost]
         [Route("village-list")]
-        public async Task<IActionResult> GetVillages([FromBody] VillageRequestModel request)
+        public async Task<IActionResult> VillageList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetDistricts request processed with ActionType: " +
-               $"{request.ActionType}, ActionType: " +
-               $"{request.VillageId}, VillageId:" +
-               $" {request.TehsilId}");
-
-            var villageRequest = new VillageRequest
-            {
-                VillageId = request.VillageId,
-                TehsilId = request.VillageId,
-                //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-
-            var response = request.ActionType == ReadActionType.All
-                ? await villageService.GetVillages(villageRequest)
-                : await villageService.GetSpecificLists(villageRequest);
-
-            return response.Any() ? Ok(response) : BadRequest();
+            var result = await villageService.GetAllAsync(request);
+            return Ok(result);
         }
+
         [HttpGet("village{id}")]
         public async Task<ActionResult<VillageResponse?>> GetByVillageId(int id)
         {
@@ -497,28 +481,12 @@ namespace MilkMatrix.Api.Controllers.v1
         /// <returns>Hamlet List</returns>
         [HttpPost]
         [Route("hamlet-list")]
-        public async Task<ActionResult> GetHamlets([FromBody] HamletRequestModel request)
+        public async Task<IActionResult> HamletList([FromBody] ListsRequest request)
         {
-            logger.LogInfo($"GetHamlets request processed with ActionType: " +
-               $"{request.ActionType}, ActionType: " +
-               $"{request.VillageId}, VillageId:" +
-               $" {request.TehsilId}");
-            var hamletRequest = new HamletRequest
-            {
-                VillageId = request.VillageId,
-                HamletId = request.HamletId,
-                //ActionType = request.ActionType,
-                ActionType = (ReadActionType)request.ActionType,
-                IsActive = true
-            };
-            var response = request.ActionType == ReadActionType.All
-                ? await hamletService.GetHamlets(hamletRequest)
-                : await hamletService.GetSpecificLists(hamletRequest);
-            return response.Any() ? Ok(response) : BadRequest();
-
+            var result = await hamletService.GetAllAsync(request);
+            return Ok(result);
         }
-        
-        [HttpGet("HamletId{id}")]
+        [HttpGet("hamlet{id}")]
         public async Task<ActionResult<TehsilResponse?>> GetByHamletId(int id)
         {
             try
