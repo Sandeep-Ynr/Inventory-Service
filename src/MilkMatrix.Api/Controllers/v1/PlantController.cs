@@ -1,25 +1,25 @@
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Geographical.District;
-using MilkMatrix.Api.Models.Request.Geographical.Hamlet;
-using MilkMatrix.Api.Models.Request.Geographical.State;
-using MilkMatrix.Api.Models.Request.Geographical.Tehsil;
-using MilkMatrix.Api.Models.Request.Geographical.Village;
+using MilkMatrix.Api.Models.Request.Plant;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Implementations;
+
+//using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Request.Plant;
-using MilkMatrix.Milk.Models.Response.Geographical;
 using MilkMatrix.Milk.Models.Response.Plant;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
@@ -36,26 +36,27 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ILogging logger;
         private readonly IMapper mapper;
+        private readonly IPlantService plantService;
 
-        public PlantController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper)
+        public PlantController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IPlantService plantService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
             this.mapper = mapper;
+            this.plantService = plantService;
         }
 
         [HttpPost]
-        [Route("state-list")]
+        [Route("list")]
         public async Task<IActionResult> PlantList([FromBody] ListsRequest request)
         {
-            //var result = await stateService.GetAllAsync(request);
-            var result = '';
+            var result = await plantService.GetAllAsync(request);
             return Ok(result);
         }
 
         [HttpPost]
         [Route("add")]
-        public async Task<IActionResult> AddPlant([FromBody] PlantInsertRequest request)
+        public async Task<IActionResult> AddPlantAsync([FromBody] PlantInsertRequestModel request)
         {
             try
             {
@@ -69,20 +70,59 @@ namespace MilkMatrix.Api.Controllers.v1
                 }
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-                logger.LogInfo($"Add called for Plant: {request.DistrictName}");
-                var requestParams = mapper.MapWithOptions<DistrictInsertRequest, DistrictInsertRequestModel>(request
-                    , new Dictionary<string, object> {
-                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                logger.LogInfo($"Add called for Plant: {request.PlantName}");
+                var requestParams = mapper.MapWithOptions<PlantInsertRequest, PlantInsertRequestModel>(request
+                    , new Dictionary<string, object> 
+                    {
+                        { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
                 });
-                await districtService.AddDistrictsAsync(requestParams);
-                logger.LogInfo($"District {request.DistrictName} added successfully.");
-                return Ok(new { message = "District added successfully." });
+                await plantService.AddPlantAsync(requestParams);
+                logger.LogInfo($"Plant {request.PlantName} added successfully.");
+                return Ok(new { message = "Plant added successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError("Error in Upsert Tehsil", ex);
-                return StatusCode(500, "An error occurred while adding the Tehsil.");
+                logger.LogError("Error in Add Plant", ex);
+                return StatusCode(500, "An error occurred while adding the Plant.");
             }
-        }       
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public async Task<IActionResult> UpdatePlantAsync(int id, [FromBody] PlantUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            // Ensure the route ID is used
+            //request.VillageId = id;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<PlantUpdateRequest, PlantUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await plantService.UpdatePlantAsync(requestParams);
+            logger.LogInfo($"Plant with id {request.DistrictId} updated successfully.");
+            return Ok(new { message = "Plant updated successfully." });
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeletePlant(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await plantService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Plant with id {id} deleted successfully.");
+                return Ok(new { message = "Plant deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Plant with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Plant.");
+            }
+        }
+
+
     }
 }

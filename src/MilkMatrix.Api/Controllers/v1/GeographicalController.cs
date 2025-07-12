@@ -263,7 +263,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error deleting role with id: {id}", ex);
+                logger.LogError($"Error deleting district with id: {id}", ex);
                 return StatusCode(500, "An error occurred while deleting the District.");
             }
         }
