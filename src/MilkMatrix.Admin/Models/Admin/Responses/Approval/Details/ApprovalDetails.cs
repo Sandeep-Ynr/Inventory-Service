@@ -10,6 +10,9 @@ public class ApprovalDetails
 
     public int BusinessId { get; set; }
 
+    public string PageName { get; set; }
+    public string BusinessName { get; set; }
+
     public string DocNo { get; set; }
 
     public string SubCode { get; set; }
