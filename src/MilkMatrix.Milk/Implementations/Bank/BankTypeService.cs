@@ -15,7 +15,9 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Models.Request.Bank;
 using MilkMatrix.Milk.Models.Response.Bank;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using static MilkMatrix.Milk.Models.Queries.BankQueries;
+using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 namespace MilkMatrix.Milk.Implementations
 {
     public class BankTypeService : IBankTypeService
@@ -81,7 +83,7 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-        public async Task DeleteAsync(int id, int userId)
+        public async Task Delete(int id, int userId)
         {
             try
             {
@@ -107,24 +109,23 @@ namespace MilkMatrix.Milk.Implementations
             }
 
         }
-        public async Task<BankTypeResponse?> GetByBankTypeId(int id)
+        public async Task<BankTypeResponse?> GetById(int id)
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Tehsil id: {id}");
+                logging.LogInfo($"GetByIdAsync called for Bank Type id: {id}");
                 var repo = repositoryFactory
                            .ConnectDapper<BankTypeResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<BankTypeResponse>(BankTypeQueries.GetBankType, new Dictionary<string, object>
+                var data = await repo.QueryAsync<BankTypeResponse>(BankTypeQueries.GetBankTypeList, new Dictionary<string, object>
                 {
-                    { "ActionType", 2 },
-                    { "BankTypeID", id },
-                    { "IsStatus", true }
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "BankTypeId", id }
                 }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new BankTypeResponse();
                 logging.LogInfo(result != null
-                    ? $"Tehsil with id {id} retrieved successfully."
-                    : $"Tehsil with id {id} not found.");
+                    ? $"Bank Type with id {id} retrieved successfully."
+                    : $"Bank Type with id {id} not found.");
                 return result;
             }
             catch (Exception ex)
@@ -142,7 +143,7 @@ namespace MilkMatrix.Milk.Implementations
                     {"ActionType",(int)request.ActionType },
                     {"IsStatus", request.IsActive}
                 };
-            var response = await repository.QueryAsync<BankTypeResponse>(BankTypeQueries.GetBankType, requestParams, null, CommandType.StoredProcedure);
+            var response = await repository.QueryAsync<BankTypeResponse>(BankTypeQueries.GetBankTypeList, requestParams, null, CommandType.StoredProcedure);
             return response;
         }
         public async Task<IEnumerable<CommonLists>> GetSpecificLists(BankTypeRequest request)
@@ -153,7 +154,7 @@ namespace MilkMatrix.Milk.Implementations
                     {"ActionType",(int)request.ActionType },
                     {"IsStatus", request.IsActive}
                 };
-            var response = await repository.QueryAsync<CommonLists>(BankTypeQueries.GetBankType, requestParams, null, CommandType.StoredProcedure);
+            var response = await repository.QueryAsync<CommonLists>(BankTypeQueries.GetBankTypeList, requestParams, null, CommandType.StoredProcedure);
             return response;
         }
 

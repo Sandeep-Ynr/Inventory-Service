@@ -23,7 +23,7 @@ using MilkMatrix.Milk.Models.Response.Bank;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -48,6 +48,105 @@ namespace MilkMatrix.Api.Controllers.v1
             this.branchService = branchService ?? throw new ArgumentNullException(nameof(branchService));
             this.mapper = mapper;
         }
+        #region Bank-Type
+        [HttpPost]
+        [Route("bankType-list")]
+        public async Task<IActionResult> BankTypeList([FromBody] ListsRequest request)
+        {
+            var result = await bankTypeService.GetAll(request);
+            return Ok(result);
+        }
+
+
+
+        [HttpGet("bankTypeID{id}")]
+        public async Task<ActionResult<BankTypeResponse?>> GetBankTypeId(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Bank Type by id called for id: {id}");
+                var user = await bankTypeService.GetById(id);
+                if (user == null)
+                {
+                    logger.LogInfo($"Bank Type with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Bank Type with id {id} retrieved successfully.");
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Bank Type with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Bank Type.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add-bankType")]
+        public async Task<IActionResult> AddBankType([FromBody] BankTypeInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Bank Type: {request.BankTypeName}");
+                var requestParams = mapper.MapWithOptions<BankTypeInsertRequest, BankTypeInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await bankTypeService.AddBankType(requestParams);
+                logger.LogInfo($"Bank Type {request.BankTypeName} added successfully.");
+                return Ok(new { message = "Bank Type added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Upsert BankType", ex);
+                return StatusCode(500, "An error occurred while adding the Hamlet.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update-bankType")]
+        public async Task<IActionResult> UpdateBankType([FromBody] BankTypeUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || request.BankTypeId <= 0)
+                return BadRequest("Invalid request.");
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<BankTypeUpdateRequest, BankTypeUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await bankTypeService.UpdateBankType(requestParams);
+            logger.LogInfo($"Bank Type with id {request.BankTypeId} updated successfully.");
+            return Ok(new { message = "Bank Type updated successfully." });
+        }
+
+        [HttpDelete("bankType-delete/{id}")]
+        public async Task<IActionResult> DeleteBankType(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await bankTypeService.Delete(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Bank Type with id {id} deleted successfully.");
+                return Ok(new { message = "Bank Type deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Bank Type with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Bank Type.");
+            }
+        }
+        #endregion
+
+
 
         #region Bank-Regional
         [HttpPost]
@@ -150,103 +249,7 @@ namespace MilkMatrix.Api.Controllers.v1
         #endregion
 
 
-        #region Bank-Type
-        [HttpPost]
-        [Route("bankType-list")]
-        public async Task<IActionResult> BankTypeList([FromBody] ListsRequest request)
-        {
-            var result = await bankTypeService.GetAll(request);
-            return Ok(result);
-        }
-
-
-
-        [HttpGet("bankTypeID{id}")]
-        public async Task<ActionResult<BankTypeResponse?>> GetByBankTypeId(int id)
-        {
-            try
-            {
-                logger.LogInfo($"Get Bank Type by id called for id: {id}");
-                var user = await bankTypeService.GetByBankTypeId(id);
-                if (user == null)
-                {
-                    logger.LogInfo($"Bank Type with id {id} not found.");
-                    return NotFound();
-                }
-                logger.LogInfo($"Bank Type with id {id} retrieved successfully.");
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving Bank Type with id: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the Bank Type.");
-            }
-        }
-
-        [HttpPost]
-        [Route("add-bankType")]
-        public async Task<IActionResult> AddBankType([FromBody] BankTypeInsertRequestModel request)
-        {
-            try
-            {
-                if ((request == null) || (!ModelState.IsValid))
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
-                    });
-                }
-                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                logger.LogInfo($"Add called for Bank Type: {request.BankTypeName}");
-                var requestParams = mapper.MapWithOptions<BankTypeInsertRequest, BankTypeInsertRequestModel>(request
-                    , new Dictionary<string, object> {
-                                { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
-                });
-                await bankTypeService.AddBankType(requestParams);
-                logger.LogInfo($"Bank Type {request.BankTypeName} added successfully.");
-                return Ok(new { message = "Bank Type added successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error in Upsert BankType", ex);
-                return StatusCode(500, "An error occurred while adding the Hamlet.");
-            }
-        }
-
-        [HttpPut]
-        [Route("update-bankType")]
-        public async Task<IActionResult> UpdateBankType([FromBody] BankTypeUpdateRequestModel request)
-        {
-            if (!ModelState.IsValid || request.BankTypeId <= 0)
-                return BadRequest("Invalid request.");
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            var requestParams = mapper.MapWithOptions<BankTypeUpdateRequest, BankTypeUpdateRequestModel>(request
-                        , new Dictionary<string, object> {
-                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-                    });
-            await bankTypeService.UpdateBankType(requestParams);
-            logger.LogInfo($"Bank Type with id {request.BankTypeId} updated successfully.");
-            return Ok(new { message = "Bank Type updated successfully." });
-        }
-
-        [HttpDelete("bankType-delete/{id}")]
-        public async Task<IActionResult> DeleteBankType(int id)
-        {
-            try
-            {
-                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await bankTypeService.DeleteAsync(id, Convert.ToInt32(UserId));
-                logger.LogInfo($"Hamlet with id {id} deleted successfully.");
-                return Ok(new { message = "Bank Type deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Hamlet with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Bank Type.");
-            }
-        }
-        #endregion
+        
 
 
         #region Bank-Master

@@ -12,7 +12,6 @@ public static partial class BankQueries
     }
     public static class BankTypeQueries
     {
-        public const string GetBankType = "usp_banktype_details";
         public const string AddBankType = "usp_banktype_insupd";
         public const string GetBankTypeList = "usp_bank_type_list";
 
