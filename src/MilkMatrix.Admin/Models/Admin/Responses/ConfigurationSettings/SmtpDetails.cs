@@ -29,4 +29,6 @@ public class SmtpDetails
     /// Gets or sets the password for SMTP authentication.
     /// </summary>
     public string SmtpPassword { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
 }

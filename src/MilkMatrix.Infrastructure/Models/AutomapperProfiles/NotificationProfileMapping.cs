@@ -20,5 +20,9 @@ public class NotificationProfileMapping : Profile
         CreateMap<NotificationResponse, OTPResponse>()
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
             .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+        CreateMap<OTPResponse, NotificationResponse>()
+         .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+         .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
     }
 }

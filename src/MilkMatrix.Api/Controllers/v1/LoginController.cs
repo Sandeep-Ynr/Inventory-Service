@@ -168,7 +168,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 });
             }
             result = await iAuthentication.ForgotPassword(mapper.Map<ForgotPasswordRequest>(model));
-            if (result.Status != HttpStatusCode.OK.ToString())
+            if (result.Status != ((int)HttpStatusCode.OK).ToString())
             {
                 return BadRequest(new ErrorResponse
                 {
@@ -223,8 +223,9 @@ namespace MilkMatrix.Api.Controllers.v1
         public async Task<IActionResult> UserChangePassword(ChangePasswordModel model)
         {
             var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            model.UserId = string.IsNullOrEmpty(model.UserId) ? userId : model.UserId;
-            var result = await iAuthentication.ChangePassword(mapper.Map<ChangePasswordRequest>(model));
+            var result = await iAuthentication.ChangePassword(mapper.MapWithOptions<ChangePasswordRequest, ChangePasswordModel>(model, new Dictionary<string, object> {
+            { Constants.AutoMapper.LoginId ,Convert.ToInt32(userId)}
+                }));
             if (result == null || result.Status != HttpStatusCode.OK.ToString())
             {
                 return NotFound("No record found");
