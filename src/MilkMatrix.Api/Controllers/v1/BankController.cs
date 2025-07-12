@@ -153,13 +153,13 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("regional-list")]
         public async Task<IActionResult> regionalList([FromBody] ListsRequest request)
         {
-            var result = await bankRegService.GetAllAsync(request);
+            var result = await bankRegService.GetAll(request);
             return Ok(result);
         }
 
 
         [HttpGet("bankregional/{id}")]
-        public async Task<ActionResult<BankRegResponse>> GetBankRegionalById(int id)
+        public async Task<ActionResult<BankRegResponse>> GetBankRegnById(int id)
         {
             try
             {
@@ -236,14 +236,14 @@ namespace MilkMatrix.Api.Controllers.v1
             try
             {
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await bankRegService.DeleteAsync(id, Convert.ToInt32(UserId));
+                await bankRegService.Delete(id, Convert.ToInt32(UserId));
                 logger.LogInfo($"Bank Regional with id {id} deleted successfully.");
                 return Ok(new { message = "Bank Regional deleted successfully." });
             }
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting Bank Regional with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Hamlet.");
+                return StatusCode(500, "An error occurred while deleting the Regional.");
             }
         }
         #endregion

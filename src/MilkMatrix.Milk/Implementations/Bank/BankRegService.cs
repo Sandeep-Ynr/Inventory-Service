@@ -83,7 +83,7 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-        public async Task DeleteAsync(int id, int userId)
+        public async Task Delete(int id, int userId)
         {
             try
             {
@@ -107,17 +107,15 @@ namespace MilkMatrix.Milk.Implementations
 
         public async Task<BankRegResponse?> GetById(int id)
         {
-
             try
             {
                 logging.LogInfo($"GetByIdAsync called for Tehsil id: {id}");
                 var repo = repositoryFactory
                            .ConnectDapper<BankRegResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgion, new Dictionary<string, object>
+                var data = await repo.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgionList, new Dictionary<string, object>
                 {
-                    { "ActionType", 2 },
-                    { "RegionalID", id },
-                    { "IsStatus", true }
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "RegionalID", id }
                 }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new BankRegResponse();
@@ -128,11 +126,9 @@ namespace MilkMatrix.Milk.Implementations
             }
             catch (Exception ex)
             {
-
+                logging.LogError($"Error in GetById for Bank Regional id: {id}", ex);
                 throw;
             }
-            
-            
         }
         public async Task<IEnumerable<BankRegResponse>> GetBankReg(BankRegionalRequest request)
         {
@@ -144,7 +140,7 @@ namespace MilkMatrix.Milk.Implementations
                 {"IsStatus", request.IsActive}
             };
 
-            var response = await repository.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgion, requestParams, null, CommandType.StoredProcedure);
+            var response = await repository.QueryAsync<BankRegResponse>(BankRelgionQueries.GetBankRelgionList, requestParams, null, CommandType.StoredProcedure);
 
             return response;
         }
@@ -159,12 +155,12 @@ namespace MilkMatrix.Milk.Implementations
                 { "RegionalID", request.BankRegionalId  },
             };
             var response = await repository.QueryAsync<CommonLists>(
-                BankRelgionQueries.GetBankRelgion, requestParams, null, CommandType.StoredProcedure
+                BankRelgionQueries.GetBankRelgionList, requestParams, null, CommandType.StoredProcedure
             );
             return response;
         }
 
-        public async Task<IListsResponse<BankRegResponse>> GetAllAsync(IListsRequest request)
+        public async Task<IListsResponse<BankRegResponse>> GetAll(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>() {
                 { "ActionType", (int)ReadActionType.All }

@@ -4,11 +4,8 @@ public static partial class BankQueries
 {
     public static class BankRelgionQueries
     {
-        public const string GetBankRelgion = "usp_regionalbank_details";
         public const string AddBankRelgion = "usp_regionalbank_insupd";
         public const string GetBankRelgionList = "usp_regional_bank_list";
-
-        
     }
     public static class BankTypeQueries
     {
