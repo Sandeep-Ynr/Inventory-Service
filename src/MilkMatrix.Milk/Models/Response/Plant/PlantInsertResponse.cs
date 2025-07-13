@@ -7,8 +7,11 @@ using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Milk.Models.Response.Plant
 {
-    public class PlantInsertResponse : CommonLists
+    //public class PlantInsertResponse : CommonLists
+    public class PlantInsertResponse
     {
+        public int? Id { get; set; }
+        public string? Name { get; set; }
         public int CompanyId { get; set; }
         public string? CompanyName{ get; set; }
         public string? Capacity { get; set; }

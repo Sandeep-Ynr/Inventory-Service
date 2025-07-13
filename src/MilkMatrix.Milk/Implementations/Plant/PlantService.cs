@@ -192,6 +192,30 @@ namespace MilkMatrix.Milk.Implementations.Plant
             };
         }
 
+        public async Task<PlantInsertResponse?> GetByIdAsync(int id)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for Plant id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<PlantInsertResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<PlantInsertResponse>(PlantQuery.GetPlantList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "PlantId", id }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new PlantInsertResponse();
+                logging.LogInfo(result != null
+                    ? $"Plant with id {id} retrieved successfully."
+                    : $"Plant with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for Plant id: {id}", ex);
+                throw;
+            }
+        }
 
 
     }

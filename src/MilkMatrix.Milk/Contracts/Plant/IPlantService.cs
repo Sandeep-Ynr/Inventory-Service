@@ -11,6 +11,7 @@ namespace MilkMatrix.Milk.Contracts.Plant
     public interface IPlantService
     {
         Task<IListsResponse<PlantResponse>> GetAllAsync(IListsRequest request);
+        Task<PlantInsertResponse?> GetByIdAsync(int id);
         Task AddPlantAsync(PlantInsertRequest request);
         Task UpdatePlantAsync(PlantUpdateRequest request);
         Task DeleteAsync(int id, int userId);

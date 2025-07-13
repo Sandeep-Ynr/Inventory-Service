@@ -20,6 +20,7 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Geographical;
 using MilkMatrix.Milk.Models.Request.Plant;
+using MilkMatrix.Milk.Models.Response.Geographical;
 using MilkMatrix.Milk.Models.Response.Plant;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
@@ -52,6 +53,28 @@ namespace MilkMatrix.Api.Controllers.v1
         {
             var result = await plantService.GetAllAsync(request);
             return Ok(result);
+        }
+
+        [HttpGet("plant{id}")]
+        public async Task<ActionResult<PlantInsertResponse?>> GetById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Plant by id called for id: {id}");
+                var plant = await plantService.GetByIdAsync(id);
+                if (plant == null)
+                {
+                    logger.LogInfo($"Plant with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Plant with id {id} retrieved successfully.");
+                return Ok(plant);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Plant with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Plant.");
+            }
         }
 
         [HttpPost]
