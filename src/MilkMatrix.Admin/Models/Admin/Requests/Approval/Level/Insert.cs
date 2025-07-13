@@ -4,7 +4,7 @@ public class Insert
 {
     public int UserId { get; set; }
 
-    public int? PageId { get; set; }
+    public int PageId { get; set; }
 
     public int Level { get; set; }
 

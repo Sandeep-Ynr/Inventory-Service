@@ -7,12 +7,12 @@ namespace MilkMatrix.Milk.Contracts.Bank
 {
     public interface IBankTypeService
     {
-        Task<IEnumerable<BankTypeResponse>> GetBankTypes(BankTypeRequest request);
-        Task<BankTypeResponse?> GetByBankTypeId(int id);
         Task AddBankType(BankTypeInsertRequest request);
         Task UpdateBankType(BankTypeUpdateRequest request);
+        Task Delete(int id, int userId);
         Task<IEnumerable<CommonLists>> GetSpecificLists(BankTypeRequest request);
         Task<IListsResponse<BankTypeResponse>> GetAll(IListsRequest request);
-        Task DeleteAsync(int id, int userId);
+        Task<BankTypeResponse?> GetById(int id);
+        Task<IEnumerable<BankTypeResponse>> GetBankTypes(BankTypeRequest request);
     }
 }

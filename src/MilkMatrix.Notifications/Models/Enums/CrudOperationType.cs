@@ -2,7 +2,7 @@ namespace MilkMatrix.Notifications.Models.Enums;
 
 public enum CrudOperationType
 {
-    Read,
+    Read =1,
     Insert,
     Update,
     Delete,

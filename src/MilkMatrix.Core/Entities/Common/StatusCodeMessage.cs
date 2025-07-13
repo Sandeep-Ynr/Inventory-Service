@@ -16,4 +16,5 @@ public static class StatusCodeMessage
     public const string OtpErrorMessage = "Failed to send Otp";
     public const string IdNotFound = "Record not found.";
     public const string LogOutError = "Failed to sign out.";
+    public const string OldPasswordNotMatching = "Provided password is not matching.";
 }

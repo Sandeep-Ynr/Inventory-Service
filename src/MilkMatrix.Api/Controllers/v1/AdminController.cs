@@ -158,7 +158,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpPost("approval-level-insert")]
-    public async Task<IActionResult> InsertApprovalLevels([FromBody] InsertLevelModel request)
+    public async Task<IActionResult> InsertApprovalLevels([FromBody] IEnumerable<InsertLevelModel> request)
     {
         try
         {
@@ -172,7 +172,7 @@ public class AdminController : ControllerBase
             }
             var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var requestParams = mapper.MapWithOptions<InsertLevel, InsertLevelModel>(request
+            var requestParams = mapper.MapWithOptions<IEnumerable<InsertLevel>,IEnumerable<InsertLevelModel>>(request
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
@@ -186,37 +186,6 @@ public class AdminController : ControllerBase
         }
     }
 
-    [HttpPut("approval-level-update")]
-    public async Task<IActionResult> UpdateApprovalLevel([FromBody] UpdateModel request)
-    {
-        try
-        {
-            if (request == null)
-            {
-                return BadRequest(new ErrorResponse
-                {
-                    StatusCode = (int)HttpStatusCode.BadRequest,
-                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
-                });
-            }
-            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
-            var requestParams = mapper.MapWithOptions<Update, UpdateModel>(request
-                , new Dictionary<string, object> {
-            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-            });
-            await approvalService.UpdateAsync(requestParams);
-
-            return Ok(new { message = "Details updated successfully." });
-        }
-        catch (Exception ex)
-        {
-            logging.LogError("Error in insert approval level", ex);
-            return StatusCode(500, "An error occurred while processing the approval level.");
-        }
-    }
-
-
     [HttpPost("approval-level-list")]
     public async Task<IActionResult> List([FromBody] ListsRequest request)
     {
@@ -227,7 +196,7 @@ public class AdminController : ControllerBase
 
     #region Approval details
     [HttpPost("approval-details-insert")]
-    public async Task<IActionResult> InsertApprovalDetails([FromBody] InsertDetailsModel request)
+    public async Task<IActionResult> InsertApprovalDetails([FromBody]IEnumerable<InsertDetailsModel> request)
     {
         try
         {
@@ -241,7 +210,7 @@ public class AdminController : ControllerBase
             }
             var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var requestParams = mapper.MapWithOptions<InsertDetails, InsertDetailsModel>(request
+            var requestParams = mapper.MapWithOptions<IEnumerable<InsertDetails>,IEnumerable<InsertDetailsModel>>(request
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
@@ -266,7 +235,7 @@ public class AdminController : ControllerBase
     #region Rejection
 
     [HttpPost("rejection-insert")]
-    public async Task<IActionResult> InsertRejectionDetails([FromBody] RejectionModel request)
+    public async Task<IActionResult> InsertRejectionDetails([FromBody]IEnumerable<RejectionModel> request)
     {
         try
         {
@@ -280,7 +249,7 @@ public class AdminController : ControllerBase
             }
             var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var requestParams = mapper.MapWithOptions<InsertRejection, RejectionModel>(request
+            var requestParams = mapper.MapWithOptions< IEnumerable<InsertRejection>, IEnumerable<RejectionModel>>(request
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });

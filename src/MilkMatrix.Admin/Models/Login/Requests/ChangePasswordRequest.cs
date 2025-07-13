@@ -13,5 +13,10 @@ public class ChangePasswordRequest
     /// <summary>
     /// Gets or sets the new password for the user.
     /// </summary>
-    public string Password { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+
+    public string OldPassword { get; set; } = string.Empty;
+
+
+    public int LoggedInUser { get; set; }
 }

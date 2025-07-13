@@ -230,7 +230,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["SMTPServer"] = request.SmtpServer,
                     ["SMTPPort"] = request.SmtpPort,
                     ["SMTPUserId"] = request.SmtpUserId,
-                    ["SMTPPassword"] = request.SmtpPassword.EncodeSHA512(),
+                    ["SMTPPassword"] = request.SmtpPassword,
                     ["Status"] = true,
                     ["CreatedBy"] = request.CreatedBy,
                     ["ActionType"] = (int)CrudActionType.Create
@@ -263,13 +263,13 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["SMTPServer"] = request.SmtpServer,
                     ["SMTPPort"] = request.SmtpPort,
                     ["SMTPUserId"] = request.SmtpUserId,
-                    ["SMTPPassword"] = request.SmtpPassword.EncodeSHA512(),
+                    ["SMTPPassword"] = request.SmtpPassword,
                     ["Status"] = request.IsActive,
                     ["ModifyBy"] = request.ModifyBy,
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
+                await repo.UpdateAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
                 logger.LogInfo($"Smtp {request.SmtpServer} updated successfully.");
             }
             catch (Exception ex)

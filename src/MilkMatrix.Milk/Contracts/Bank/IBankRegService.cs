@@ -10,13 +10,12 @@ namespace MilkMatrix.Milk.Contracts.Bank
 {
     public interface IBankRegService
     {
+        Task<IListsResponse<BankRegResponse>> GetAll(IListsRequest request);
         Task<BankRegResponse?> GetById(int BankRegId);
         Task<IEnumerable<BankRegResponse>> GetBankReg(BankRegionalRequest request);
         Task<IEnumerable<CommonLists>> GetSpecificLists(BankRegionalRequest request);
         Task AddBankReg(BankRegInsertRequest request);
         Task UpdateBankReg(BankRegUpdateRequest request);
-        Task DeleteAsync(int id, int userId);
-        Task<IListsResponse<BankRegResponse>> GetAllAsync(IListsRequest request);
-
+        Task Delete(int id, int userId);
     }
 }

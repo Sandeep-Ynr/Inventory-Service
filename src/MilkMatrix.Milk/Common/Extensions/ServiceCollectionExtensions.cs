@@ -17,9 +17,9 @@ namespace MilkMatrix.Milk.Common.Extensions
                    .AddScoped<ITehsilService, TehsilService>()
                    .AddScoped<IVillageService, VillageService>()
                    .AddScoped<IHamletService, HamletService>()
-                   .AddScoped<IBankRegService, BankRegService>()
-                   .AddScoped<IBankTypeService, BankTypeService>()
-                   .AddScoped<IBankService, BankService>()
-                   .AddScoped<IPlantService, PlantService>();
+                    .AddScoped<IBankRegService, BankRegService>()
+                    .AddScoped<IBankTypeService, BankTypeService>()
+                    .AddScoped<IBankService, BankService>()
+                    .AddScoped<IBranchService, BranchService>();
     }
 }

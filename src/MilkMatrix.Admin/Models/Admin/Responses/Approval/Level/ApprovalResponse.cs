@@ -10,6 +10,9 @@ public class ApprovalResponse
 
     public int BusinessId { get; set; }
 
+    public string PageName { get; set; }
+    public string BusinessName { get; set; }
+
     public int Amount { get; set; }
 
     public int DepartmentId { get; set; }

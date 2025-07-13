@@ -20,6 +20,10 @@ public class Details
     /// </summary>
     public int BusinessId { get; set; }
 
+    public string PageName { get; set; }
+
+    public string BusinessName { get; set; }
+
     /// <summary>
     /// The level of the rejection, indicating its severity or importance.
     /// </summary>

@@ -20,6 +20,7 @@ public static partial class Constants
         public const string UserChangePassword = "usp_User_Change_Password";//To Change User Password
         public const string GetFinancialYear = "usp_financial_year"; //To get financial year details
         public const string GetActions = "usp_action_manager"; //For Actions List
+        public const string VerifyOldPassword = "usp_verify_old_password";
     }
 
     public static class UserSpName

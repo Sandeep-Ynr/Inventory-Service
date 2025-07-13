@@ -128,26 +128,24 @@ namespace MilkMatrix.Milk.Implementations
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Bank ID: {id}");
-                var repository = repositoryFactory.ConnectDapper<BankResponse>(DbConstants.Main);
-                var data = await repository.QueryAsync<BankResponse>(BankMasterQueries.GetBank,new Dictionary<string, object>
-                    {
-                        { "ActionType",  (int)ReadActionType.Individual },
-                        { "BankID", id },
-                        { "IsStatus", true }
-                    },
-                    null);
+                logging.LogInfo($"GetById called for Bank Type id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<BankResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<BankResponse>(BankMasterQueries.GetBankList, new Dictionary<string, object>
+                {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "BankId", id }
+                }, null);
 
-                var result = data.FirstOrDefault();
+                var result = data.Any() ? data.FirstOrDefault() : new BankResponse();
                 logging.LogInfo(result != null
-                    ? $"Bank with ID {id} retrieved successfully."
-                    : $"Bank with ID {id} not found.");
-
+                    ? $"Bank with id {id} retrieved successfully."
+                    : $"Bank with id {id} not found.");
                 return result;
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for Bank ID: {id}", ex);
+                logging.LogError($"Error in GetById for Bank id: {id}", ex);
                 throw;
             }
         }
@@ -163,7 +161,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "IsStatus", request.IsActive }
                 };
 
-            var response = await repository.QueryAsync<BankResponse>(BankMasterQueries.GetBank, requestParams, null, CommandType.StoredProcedure);
+            var response = await repository.QueryAsync<BankResponse>(BankMasterQueries.GetBankList, requestParams, null, CommandType.StoredProcedure);
             return response;
         }
 
@@ -213,7 +211,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "ActionType", (int)request.ActionType },
                     { "IsStatus", request.IsActive }
                 };
-            var response = await repository.QueryAsync<CommonLists>(BankMasterQueries.GetBank, requestParams, null, CommandType.StoredProcedure);
+            var response = await repository.QueryAsync<CommonLists>(BankMasterQueries.GetBankList, requestParams, null, CommandType.StoredProcedure);
             return response;
         }
     }

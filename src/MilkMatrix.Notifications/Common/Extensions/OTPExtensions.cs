@@ -27,13 +27,13 @@ public static class OTPExtensions
     public static Dictionary<string, object> PrepareSendOtpParameters(this CrudOperationType actionType, string mobile, string otp, string deviceToken, bool otpStatus) =>
        new Dictionary<string, object>
        {
-        { "ActionType", (int)actionType }, { "Mobile",mobile },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
+        { "ActionType", (int)actionType }, { "Id",mobile },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
        };
 
     public static Dictionary<string, object> PrepareSendEmailOtpParameters(this CrudOperationType actionType, string email, string otp, string deviceToken, bool otpStatus) =>
        new Dictionary<string, object>
        {
-        { "ActionType", (int)actionType }, { "EmailId",email },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
+        { "ActionType", (int)actionType }, { "Id",email },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
        };
 
     public static string FormatUrl(this string url, string mobile, string? senderId, string smsBody) => url.Replace(FixedStrings.Mobile, mobile)

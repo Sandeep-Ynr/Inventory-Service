@@ -1,6 +1,6 @@
+using System.Transactions;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
-using MilkMatrix.Admin.Models.Admin.Responses.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Responses.Rejection;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -40,36 +40,42 @@ public class RejectionService : IRejectionService
         this.repositoryFactory = repositoryFactory;
         this.queryMultipleData = queryMultipleData;
     }
-    public async Task AddAsync(InsertRejection request)
+    public async Task AddAsync(IEnumerable<InsertRejection> requests)
     {
-        if (request == null)
-            throw new ArgumentNullException(nameof(request), "Request cannot be null");
-
-        try
+        if (requests == null || !requests.Any())
+            throw new ArgumentNullException(nameof(requests), "Request cannot be null");
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            logger.LogInfo($"AddAsync called for rejection: {request.PageId}");
-
-            var repo = repositoryFactory.ConnectDapper<InsertRejection>(DbConstants.Main);
-
-            var parameters = new Dictionary<string, object>
+            foreach (var request in requests)
             {
-                ["BusinessId"] = request.BusinessId,
-                ["PageId"] = request.PageId,
-                ["UserId"] = request.UserId,
-                ["Sno"] = request.Level,
-                ["DocNo"] = request.DocNo,
-                ["Reason"] = request.Reason,
-                ["RejectedBy"] = request.RejectedBy,
-                ["ActionType"] = (int)CrudActionType.Create
-            };
+                try
+                {
+                    logger.LogInfo($"AddAsync called for rejection: {request.PageId}");
 
-            await repo.AddAsync(RejectionSpName.RejectionInsert, parameters);
-            logger.LogInfo($"Rejection {request.BusinessId} added successfully.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message, ex);
-            throw;
+                    var repo = repositoryFactory.ConnectDapper<InsertRejection>(DbConstants.Main);
+
+                    var parameters = new Dictionary<string, object>
+                    {
+                        ["BusinessId"] = request.BusinessId,
+                        ["PageId"] = request.PageId,
+                        ["UserId"] = request.UserId,
+                        ["Sno"] = request.Level,
+                        ["DocNo"] = request.DocNo,
+                        ["Reason"] = request.Reason,
+                        ["RejectedBy"] = request.RejectedBy,
+                        ["ActionType"] = (int)CrudActionType.Create
+                    };
+
+                    await repo.AddAsync(RejectionSpName.RejectionInsert, parameters);
+                    logger.LogInfo($"Rejection {request.BusinessId} added successfully.");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex.Message, ex);
+                    throw;
+                }
+            }
+            scope.Complete();
         }
     }
 

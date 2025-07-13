@@ -12,7 +12,7 @@ public interface IRejectionService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddAsync(InsertRejection request);
+    Task AddAsync(IEnumerable<InsertRejection> request);
 
     /// <summary>
     /// Retrieves a list of rejection details from the system based on the provided request parameters.

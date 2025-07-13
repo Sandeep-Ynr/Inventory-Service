@@ -11,6 +11,7 @@ using MilkMatrix.Core.Abstractions.Notification;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Dtos;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
@@ -34,7 +35,7 @@ public class Auth : IAuth
     private ILogging logger;
 
     private readonly INotificationService notificationService;
-    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig,IOptions<FileConfig> fileConfig, ILogging logging, INotificationService notificationService)
+    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IOptions<FileConfig> fileConfig, ILogging logging, INotificationService notificationService)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
@@ -291,6 +292,7 @@ public class Auth : IAuth
             {
                 EmailId = request.EmailId,
                 TemplateType = NotificationTemplateType.ForgotPassword,
+                OTPType = NotificationType.SystemEmail,
                 Content = verificationCode.ToString()
             };
 
@@ -306,7 +308,7 @@ public class Auth : IAuth
 
             if (notificationResponse.Code == (int)HttpStatusCode.OK)
             {
-                result.Message = SuccessMessage.ResetPasswordSuccessMessage;
+                result.Message = string.Format(SuccessMessage.ResetPasswordSuccessMessage, request.EmailId);
                 result.Status = notificationResponse.Code.ToString();
             }
             else
@@ -378,10 +380,35 @@ public class Auth : IAuth
 
         try
         {
+
+
             // Hash the password if provided
-            var hashedPassword = !string.IsNullOrEmpty(model.Password)
-                ? model.Password.EncodeSHA512()
+            var hashedPassword = !string.IsNullOrEmpty(model.NewPassword)
+                ? model.NewPassword.EncodeSHA512()
                 : string.Empty;
+
+            var userId = string.IsNullOrEmpty(model.UserId) ? model.LoggedInUser.ToString() : model.UserId;
+            if (!string.IsNullOrEmpty(model.UserId))
+            {
+                var repoFact = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+                userId = (await repoFact.QueryAsync<int>(AuthSpName.GetUserId, new Dictionary<string, object> { { "Id", model.UserId } }, null))?.FirstOrDefault().ToString();
+            }
+
+            YesOrNo? isOldPasswordMatched = YesOrNo.No;
+            if (!string.IsNullOrEmpty(model.OldPassword))
+            {
+                var repoFact = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+                isOldPasswordMatched = (await repoFact.QueryAsync<YesOrNo>(AuthSpName.VerifyOldPassword,
+                    new Dictionary<string, object> { { "Id", model.UserId }, { "oldPassword", model.OldPassword.EncodeSHA512() } }, null))?.FirstOrDefault();
+            }
+
+            if (isOldPasswordMatched.HasValue && isOldPasswordMatched.Value == YesOrNo.No)
+            {
+                result.Message = StatusCodeMessage.OldPasswordNotMatching;
+                result.Status = HttpStatusCode.InternalServerError.ToString();
+                logger.LogError($"UserChangePassword: Exception for UserId: {model.UserId}", new Exception(result.Message));
+                return result;
+            }
 
             if (string.IsNullOrWhiteSpace(hashedPassword))
             {
@@ -393,7 +420,7 @@ public class Auth : IAuth
 
             var queryParams = new Dictionary<string, object>
                  {
-                    { "Id", model.UserId },
+                    { "Id", userId },
                     { "Password", hashedPassword },
                     { "EncryptPassword", hashedPassword }
                  };

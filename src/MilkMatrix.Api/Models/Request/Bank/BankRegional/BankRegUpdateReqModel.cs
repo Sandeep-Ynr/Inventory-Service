@@ -9,6 +9,5 @@ public class BankRegUpdateReqModel
     public int RegionalCode { get; set; }
     public string RegionalBankName { get; set; } = string.Empty;
     public string RegionalBankShortName { get; set; } = string.Empty;
-    public int? ModifyBy { get; set; }
     public bool? IsStatus { get; set; }
 }
