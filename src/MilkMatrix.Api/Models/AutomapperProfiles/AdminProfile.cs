@@ -59,7 +59,8 @@ public class AdminProfile : Profile
             .ForMember(x => x.ActionType, opt => opt.MapFrom(src => src.Id != null && src.Id > 0 ? ReadActionType.Individual : ReadActionType.All));
 
         CreateMap<ChangePasswordModel, ChangePasswordRequest>()
-            .ForMember(x => x.LoggedInUser, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.LoginId]));
+            .ForMember(x => x.LoggedInUser, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.LoginId]))
+             .ForMember(x => x.UserId, opt => opt.MapFrom(src => src.EmailId));
 
         CreateMap<BusinessDataModel, BusinessDataRequest>()
             .ForMember(x => x.UserId, opt => opt.MapFrom((src, dest, destMember, context) => src.UserId != null && src.UserId > 0 ? src.UserId : context.Items[Constants.AutoMapper.LoginId]));

@@ -35,7 +35,7 @@ public class Auth : IAuth
     private ILogging logger;
 
     private readonly INotificationService notificationService;
-    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig,IOptions<FileConfig> fileConfig, ILogging logging, INotificationService notificationService)
+    public Auth(ITokenProcess tokenProcess, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IOptions<FileConfig> fileConfig, ILogging logging, INotificationService notificationService)
     {
         this.tokenProcess = tokenProcess;
         this.repositoryFactory = repositoryFactory;
@@ -380,9 +380,11 @@ public class Auth : IAuth
 
         try
         {
+
+
             // Hash the password if provided
-            var hashedPassword = !string.IsNullOrEmpty(model.Password)
-                ? model.Password.EncodeSHA512()
+            var hashedPassword = !string.IsNullOrEmpty(model.NewPassword)
+                ? model.NewPassword.EncodeSHA512()
                 : string.Empty;
 
             var userId = string.IsNullOrEmpty(model.UserId) ? model.LoggedInUser.ToString() : model.UserId;
@@ -392,6 +394,21 @@ public class Auth : IAuth
                 userId = (await repoFact.QueryAsync<int>(AuthSpName.GetUserId, new Dictionary<string, object> { { "Id", model.UserId } }, null))?.FirstOrDefault().ToString();
             }
 
+            YesOrNo? isOldPasswordMatched = YesOrNo.No;
+            if (!string.IsNullOrEmpty(model.OldPassword))
+            {
+                var repoFact = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
+                isOldPasswordMatched = (await repoFact.QueryAsync<YesOrNo>(AuthSpName.VerifyOldPassword,
+                    new Dictionary<string, object> { { "Id", model.UserId }, { "oldPassword", model.OldPassword.EncodeSHA512() } }, null))?.FirstOrDefault();
+            }
+
+            if (isOldPasswordMatched.HasValue && isOldPasswordMatched.Value == YesOrNo.No)
+            {
+                result.Message = StatusCodeMessage.OldPasswordNotMatching;
+                result.Status = HttpStatusCode.InternalServerError.ToString();
+                logger.LogError($"UserChangePassword: Exception for UserId: {model.UserId}", new Exception(result.Message));
+                return result;
+            }
 
             if (string.IsNullOrWhiteSpace(hashedPassword))
             {
