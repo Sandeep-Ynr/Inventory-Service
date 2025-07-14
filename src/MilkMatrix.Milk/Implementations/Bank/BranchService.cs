@@ -97,7 +97,7 @@ namespace MilkMatrix.Milk.Implementations
             {"ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
             {"ContactNo", request.ContactNo ?? (object)DBNull.Value },
             {"IsStatus", request.IsActive ?? (object)DBNull.Value },
-            {"ModifiedBy", request.ModifiedBy ?? (object)DBNull.Value },
+            {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value },
         };
             await repo.UpdateAsync(BranchQueries.AddBranch, requestParams, CommandType.StoredProcedure);
             logging.LogInfo($"Branch {request.BranchName} updated successfully.");
