@@ -18,16 +18,18 @@ internal static class AppServicesConfigurationExtenstion
         {
             services
               .AddAutoMapper(o =>
-               {
-                   o.AddProfile<AdminProfile>();
-                   o.AddProfile<RolePagesPermissionsProfile>();
-                   o.AddProfile<ModuleSubModuleMapping>();
-                   o.AddProfile<GeographicalMappingProfile>();
-                   o.AddProfile<NotificationProfileMapping>();
-                   o.AddProfile<UploaderProfileMapping>();
-                   o.AddProfile<BankMappingProfile>();
-                   o.AddProfile<RouteMappingProfile>();
-               })
+              {
+                  o.AddProfile<AdminProfile>();
+                  o.AddProfile<RolePagesPermissionsProfile>();
+                  o.AddProfile<ModuleSubModuleMapping>();
+                  o.AddProfile<GeographicalMappingProfile>();
+                  o.AddProfile<NotificationProfileMapping>();
+                  o.AddProfile<UploaderProfileMapping>();
+                  o.AddProfile<BankMappingProfile>();
+                  o.AddProfile<PlantMappingProfile>();
+                  o.AddProfile<RouteMappingProfile>();
+
+              })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)
               .AddAdminServices()
@@ -37,7 +39,7 @@ internal static class AppServicesConfigurationExtenstion
               .AddCors(options =>
               {
                   options.AddPolicy(hostContext.HostingEnvironment.EnvironmentName, builder =>
-                    {
+                  {
                       builder.AllowAnyOrigin()
                                .AllowAnyMethod()
                                .AllowAnyHeader();
