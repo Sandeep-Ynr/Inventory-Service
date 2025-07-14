@@ -6,7 +6,8 @@ namespace MilkMatrix.Milk.Models.Response.Route
     public class RouteResponse : CommonLists
     {
         public string? RegionalName { get; set; }
-        public string VehicleType { get; set; } = string.Empty;
+        public string? VehicleType { get; set; }
+        public int VehicleID { get; set; }
         public int VehicleCapacity { get; set; }
         public TimeSpan? MorningStartTime { get; set; }
         public TimeSpan? MorningEndTime { get; set; }

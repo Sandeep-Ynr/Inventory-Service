@@ -26,6 +26,7 @@ internal static class AppServicesConfigurationExtenstion
                    o.AddProfile<NotificationProfileMapping>();
                    o.AddProfile<UploaderProfileMapping>();
                    o.AddProfile<BankMappingProfile>();
+                   o.AddProfile<RouteMappingProfile>();
                })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)

@@ -12,12 +12,12 @@ namespace MilkMatrix.Milk.Models.Request.Route
         public string RouteCode { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
         public string? RegionalName { get; set; }
-        public string VehicleType { get; set; } = string.Empty;
+        public int VehicleID { get; set; }
         public int VehicleCapacity { get; set; }
-        public DateTime MorningStartTime { get; set; }
-        public DateTime MorningEndTime { get; set; }
-        public DateTime EveningStartTime { get; set; }
-        public DateTime EveningEndTime { get; set; }
+        public TimeSpan? MorningStartTime { get; set; }
+        public TimeSpan? MorningEndTime { get; set; }
+        public TimeSpan? EveningStartTime { get; set; }
+        public TimeSpan? EveningEndTime { get; set; }
         public decimal TotalKm { get; set; }
         public bool IsActive { get; set; }
         public long CreatedBy { get; set; }
