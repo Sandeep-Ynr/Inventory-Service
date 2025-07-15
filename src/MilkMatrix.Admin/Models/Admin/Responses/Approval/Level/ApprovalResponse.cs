@@ -13,9 +13,9 @@ public class ApprovalResponse
     public string PageName { get; set; }
     public string BusinessName { get; set; }
 
-    public int Amount { get; set; }
+    public string UserName { get; set; }
 
-    public int DepartmentId { get; set; }
+    public string HrmsCode { get; set; }
 
     public bool IsActive { get; set; }
 }
