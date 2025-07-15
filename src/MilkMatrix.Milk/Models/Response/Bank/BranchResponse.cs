@@ -15,7 +15,7 @@ namespace MilkMatrix.Milk.Models.Response.Bank
         public string? TehsilName { get; set; }
         public int VillageID { get; set; }
         public string? VillageName { get; set; }
-        public int HanletID { get; set; }
+        public int HamletID { get; set; }
         public string? HamletName { get; set; }
     }
 }

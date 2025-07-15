@@ -39,6 +39,19 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.TotalKm, opt => opt.MapFrom(src => src.TotalKm))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
+            CreateMap<VehicleTypeInsertRequestModel, VehicleTypeInsertRequest>()
+                 .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType))
+                 .ForMember(dest => dest.Capacity, opt => opt.MapFrom(src => src.Capacity))
+                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+            CreateMap<VehicleTypeUpdateRequestModel, VehicleTypeUpdateRequest>()
+                .ForMember(dest => dest.VehicleID, opt => opt.MapFrom(src => src.VehicleID))
+                .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType))
+                .ForMember(dest => dest.Capacity, opt => opt.MapFrom(src => src.Capacity))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
         }
     }
 }
