@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
@@ -14,6 +16,7 @@ public class ConfigurationDetails
     /// <summary>
     /// Gets or sets the name of the tag.
     /// </summary>
+    [GlobalSearch]
     public string TagName { get; set; } = string.Empty;
 
     /// <summary>
@@ -34,6 +37,7 @@ public class ConfigurationDetails
     /// <summary>
     /// Gets or sets the name of the associated business.
     /// </summary>
+    [GlobalSearch]
     public string BusinessName { get; set; } = string.Empty; 
 
     public bool? IsActive { get; set; }

@@ -164,7 +164,7 @@ namespace MilkMatrix.Milk.Implementations
                 .GetMultiDetailsAsync<BranchResponse, int, FiltersMeta>(BranchQueries.GetBranchList,
                     DbConstants.Main, parameters, null);
 
-            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 

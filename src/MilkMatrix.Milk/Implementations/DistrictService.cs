@@ -186,7 +186,7 @@ namespace MilkMatrix.Milk.Implementations
                     null);
 
             // 2. Build criteria from client request and filter meta
-            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 

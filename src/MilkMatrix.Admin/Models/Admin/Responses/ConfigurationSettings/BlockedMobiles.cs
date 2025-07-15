@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
@@ -12,10 +14,12 @@ public class BlockedMobiles
     /// <summary>
     /// Gets or sets the mobile number that is blocked.
     /// </summary>
+    [GlobalSearch]
     public string Mobile { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the name associated with the blocked mobile number.
     /// </summary>
+    [GlobalSearch]
     public string ContactName { get; set; } = string.Empty;
     /// <summary>
     /// Gets or sets the business identifier associated with the blocked mobile number.

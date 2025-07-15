@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
+using MilkMatrix.Core.Attributes;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Filters;
 
@@ -8,11 +10,10 @@ namespace MilkMatrix.Core.Extensions;
 public static class PagingExtensions
 {
     public static IQueryable<T> ApplyFilters<T>(
-    this IQueryable<T> query,
-    IEnumerable<FilterCriteria>? filters,
-    IEnumerable<string>? globalSearchFields = null,
-    Action<string>? logWarning = null
-)
+         this IQueryable<T> query,
+         IEnumerable<FilterCriteria>? filters,
+         Action<string>? logWarning = null
+     )
     {
         if (filters == null) return query;
 
@@ -20,57 +21,70 @@ public static class PagingExtensions
         {
             try
             {
-                // Multi-field/global search support
-                if (globalSearchFields != null && filter.Property.Equals(Constants.SearchString, StringComparison.OrdinalIgnoreCase))
+                // Attribute-based global search support
+                if (filter.Property.Equals(Constants.SearchString, StringComparison.OrdinalIgnoreCase))
                 {
-                    var param = Expression.Parameter(typeof(T), "x");
-                    Expression? body = null;
-                    foreach (var field in globalSearchFields)
-                    {
-                        var member = field.Split('.').Aggregate((Expression)param, Expression.PropertyOrField);
-                        var constant = Expression.Constant(filter.Value?.ToString()?.ToLower() ?? string.Empty);
-                        var toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes)!;
-                        var memberToLower = Expression.Call(member, toLowerMethod);
-                        var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
-                        var containsExpr = Expression.Call(memberToLower, containsMethod, constant);
+                    var requestParams = Expression.Parameter(typeof(T), "x");
+                    Expression? expressionBody = null;
 
-                        body = body == null ? containsExpr : Expression.OrElse(body, containsExpr);
-                    }
-                    if (body != null)
+                    // Find all properties marked with [Searchable]
+                    var globalSearchProps = typeof(T)
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(p => Attribute.IsDefined(p, typeof(GlobalSearch)) && p.PropertyType == typeof(string));
+
+                    var filterValue = filter.Value?.ToString()?.ToLower() ?? string.Empty;
+                    var expressionConstant = Expression.Constant(filterValue);
+
+                    var methodNameInLowerCase = typeof(string).GetMethod("ToLower", Type.EmptyTypes)!;
+                    var methodContains = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+
+                    foreach (var searchProps in globalSearchProps)
                     {
-                        var lambda = Expression.Lambda<Func<T, bool>>(body, param);
-                        query = query.Where(lambda);
+                        var attribute = searchProps.GetCustomAttribute<GlobalSearch>();
+                        var customAttributeName = attribute?.Name ?? searchProps.Name;
+
+                        var memberInfo = Expression.Property(requestParams, searchProps);
+                        var lowerCaseMemberInfo = Expression.Call(memberInfo, methodNameInLowerCase);
+                        var expressionContains = Expression.Call(lowerCaseMemberInfo, methodContains, expressionConstant);
+
+                        expressionBody = expressionBody == null ? expressionContains : Expression.OrElse(expressionBody, expressionContains);
+                    }
+
+                    if (expressionBody != null)
+                    {
+                        var func = Expression.Lambda<Func<T, bool>>(expressionBody, requestParams);
+                        query = query.Where(func);
                     }
                     continue; // Skip normal filter processing for this filter
                 }
 
                 // Normal filter processing
-                var paramNormal = Expression.Parameter(typeof(T), "x");
-                var memberNormal = filter.Property.Split('.')
-                    .Aggregate((Expression)paramNormal, Expression.PropertyOrField);
+                var normalfilters = Expression.Parameter(typeof(T), "x");
+                var normalMember = filter.Property.Split('.')
+                    .Aggregate((Expression)normalfilters, Expression.PropertyOrField);
 
-                var targetType = Nullable.GetUnderlyingType(memberNormal.Type) ?? memberNormal.Type;
-                var convertedValue = ConvertFilterValue(filter.Value, targetType);
+                var destinationType = Nullable.GetUnderlyingType(normalMember.Type) ?? normalMember.Type;
+                var convertedValue = ConvertFilterValue(filter.Value, destinationType);
 
-                var constantNormal = Expression.Constant(convertedValue, memberNormal.Type);
+                var constantNormal = Expression.Constant(convertedValue, normalMember.Type);
                 var bodyNormal = filter.Operator.ToLowerInvariant() switch
                 {
-                    "eq" => Expression.Equal(memberNormal, constantNormal),
-                    "neq" => Expression.NotEqual(memberNormal, constantNormal),
-                    "gt" => Expression.GreaterThan(memberNormal, constantNormal),
-                    "gte" => Expression.GreaterThanOrEqual(memberNormal, constantNormal),
-                    "lt" => Expression.LessThan(memberNormal, constantNormal),
-                    "lte" => Expression.LessThanOrEqual(memberNormal, constantNormal),
-                    "contains" => BuildStringExpression(memberNormal, constantNormal, "Contains"),
-                    "startswith" => BuildStringExpression(memberNormal, constantNormal, "StartsWith"),
-                    "endswith" => BuildStringExpression(memberNormal, constantNormal, "EndsWith"),
-                    "between" => BuildBetweenExpression(memberNormal, filter.Value),
+                    "eq" => Expression.Equal(normalMember, constantNormal),
+                    "neq" => Expression.NotEqual(normalMember, constantNormal),
+                    "gt" => Expression.GreaterThan(normalMember, constantNormal),
+                    "gte" => Expression.GreaterThanOrEqual(normalMember, constantNormal),
+                    "lt" => Expression.LessThan(normalMember, constantNormal),
+                    "lte" => Expression.LessThanOrEqual(normalMember, constantNormal),
+                    "contains" => BuildStringExpression(normalMember, constantNormal, "Contains"),
+                    "startswith" => BuildStringExpression(normalMember, constantNormal, "StartsWith"),
+                    "endswith" => BuildStringExpression(normalMember, constantNormal, "EndsWith"),
+                    "between" => BuildBetweenExpression(normalMember, filter.Value),
                     _ => LogAndReturnNull(logWarning, $"Unsupported operator '{filter.Operator}' for property '{filter.Property}'.")
                 };
 
                 if (bodyNormal == null) continue;
 
-                var lambdaNormal = Expression.Lambda<Func<T, bool>>(bodyNormal, paramNormal);
+                var lambdaNormal = Expression.Lambda<Func<T, bool>>(bodyNormal, normalfilters);
                 query = query.Where(lambdaNormal);
             }
             catch (Exception ex)

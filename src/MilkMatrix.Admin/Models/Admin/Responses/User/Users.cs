@@ -1,11 +1,19 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.User;
 
 public class Users
 {
     public int UserId { get; set; }
+
+    [GlobalSearch]
     public string? EmailId { get; set; }
+
+    [GlobalSearch]
     public string? UserName { get; set; }
     public string? HrmsCode { get; set; }
+
+    [GlobalSearch]
     public string? MobileNo { get; set; }
 
     public int UserType { get; set; }

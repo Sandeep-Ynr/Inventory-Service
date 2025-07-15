@@ -178,31 +178,13 @@ public class UserService : IUserService
                 null);
 
         // 1. Build field filters from request.Filters (Dictionary<string, object>)
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
-
-        // 2. Build global search fields
-        var globalFields = new[] { "username", "emailid", "mobileno" }; // Add more as needed
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
 
         // 3. Apply global search if request.Search is not null/empty
         var query = allResults.WithFullPath(fileConfig.UploadFileHost).AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(request.Search))
-        {
-            // Build a FilterCriteria for global search
-            var globalFilter = new FilterCriteria
-            {
-                Property = Constants.SearchString,
-                Operator = "contains",
-                Value = request.Search
-            };
-
-            // Insert globalFilter at the start of filters
-            filters = filters?.ToList() ?? new List<FilterCriteria>();
-            filters.Insert(0, globalFilter);
-        }
-
         // 4. Apply filters (global + field-specific)
-        var filtered = query.ApplyFilters(filters, globalFields);
+        var filtered = query.ApplyFilters(filters);
 
         // 5. Apply sorting and paging
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
