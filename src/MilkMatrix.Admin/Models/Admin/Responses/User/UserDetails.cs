@@ -28,4 +28,5 @@ public class UserDetails
 
     public string? Allbranch { get; set; }
 
+    public bool IsActive { get; set; }
 }

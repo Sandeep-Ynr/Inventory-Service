@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Text.Json;
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Filters;
 
 namespace MilkMatrix.Core.Extensions;
@@ -7,10 +8,11 @@ namespace MilkMatrix.Core.Extensions;
 public static class PagingExtensions
 {
     public static IQueryable<T> ApplyFilters<T>(
-        this IQueryable<T> query,
-        IEnumerable<FilterCriteria>? filters,
-        Action<string>? logWarning = null
-    )
+    this IQueryable<T> query,
+    IEnumerable<FilterCriteria>? filters,
+    IEnumerable<string>? globalSearchFields = null,
+    Action<string>? logWarning = null
+)
     {
         if (filters == null) return query;
 
@@ -18,33 +20,58 @@ public static class PagingExtensions
         {
             try
             {
-                var param = Expression.Parameter(typeof(T), "x");
-                var member = filter.Property.Split('.')
-                    .Aggregate((Expression)param, Expression.PropertyOrField);
+                // Multi-field/global search support
+                if (globalSearchFields != null && filter.Property.Equals(Constants.SearchString, StringComparison.OrdinalIgnoreCase))
+                {
+                    var param = Expression.Parameter(typeof(T), "x");
+                    Expression? body = null;
+                    foreach (var field in globalSearchFields)
+                    {
+                        var member = field.Split('.').Aggregate((Expression)param, Expression.PropertyOrField);
+                        var constant = Expression.Constant(filter.Value?.ToString()?.ToLower() ?? string.Empty);
+                        var toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes)!;
+                        var memberToLower = Expression.Call(member, toLowerMethod);
+                        var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) })!;
+                        var containsExpr = Expression.Call(memberToLower, containsMethod, constant);
 
-                var targetType = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
+                        body = body == null ? containsExpr : Expression.OrElse(body, containsExpr);
+                    }
+                    if (body != null)
+                    {
+                        var lambda = Expression.Lambda<Func<T, bool>>(body, param);
+                        query = query.Where(lambda);
+                    }
+                    continue; // Skip normal filter processing for this filter
+                }
+
+                // Normal filter processing
+                var paramNormal = Expression.Parameter(typeof(T), "x");
+                var memberNormal = filter.Property.Split('.')
+                    .Aggregate((Expression)paramNormal, Expression.PropertyOrField);
+
+                var targetType = Nullable.GetUnderlyingType(memberNormal.Type) ?? memberNormal.Type;
                 var convertedValue = ConvertFilterValue(filter.Value, targetType);
 
-                var constant = Expression.Constant(convertedValue, member.Type);
-                var body = filter.Operator.ToLowerInvariant() switch
+                var constantNormal = Expression.Constant(convertedValue, memberNormal.Type);
+                var bodyNormal = filter.Operator.ToLowerInvariant() switch
                 {
-                    "eq" => Expression.Equal(member, constant),
-                    "neq" => Expression.NotEqual(member, constant),
-                    "gt" => Expression.GreaterThan(member, constant),
-                    "gte" => Expression.GreaterThanOrEqual(member, constant),
-                    "lt" => Expression.LessThan(member, constant),
-                    "lte" => Expression.LessThanOrEqual(member, constant),
-                    "contains" => BuildStringExpression(member, constant, "Contains"),
-                    "startswith" => BuildStringExpression(member, constant, "StartsWith"),
-                    "endswith" => BuildStringExpression(member, constant, "EndsWith"),
-                    "between" => BuildBetweenExpression(member, filter.Value),
+                    "eq" => Expression.Equal(memberNormal, constantNormal),
+                    "neq" => Expression.NotEqual(memberNormal, constantNormal),
+                    "gt" => Expression.GreaterThan(memberNormal, constantNormal),
+                    "gte" => Expression.GreaterThanOrEqual(memberNormal, constantNormal),
+                    "lt" => Expression.LessThan(memberNormal, constantNormal),
+                    "lte" => Expression.LessThanOrEqual(memberNormal, constantNormal),
+                    "contains" => BuildStringExpression(memberNormal, constantNormal, "Contains"),
+                    "startswith" => BuildStringExpression(memberNormal, constantNormal, "StartsWith"),
+                    "endswith" => BuildStringExpression(memberNormal, constantNormal, "EndsWith"),
+                    "between" => BuildBetweenExpression(memberNormal, filter.Value),
                     _ => LogAndReturnNull(logWarning, $"Unsupported operator '{filter.Operator}' for property '{filter.Property}'.")
                 };
 
-                if (body == null) continue;
+                if (bodyNormal == null) continue;
 
-                var lambda = Expression.Lambda<Func<T, bool>>(body, param);
-                query = query.Where(lambda);
+                var lambdaNormal = Expression.Lambda<Func<T, bool>>(bodyNormal, paramNormal);
+                query = query.Where(lambdaNormal);
             }
             catch (Exception ex)
             {

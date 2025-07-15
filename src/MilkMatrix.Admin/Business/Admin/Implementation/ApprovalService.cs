@@ -73,8 +73,6 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                             ["PageId"] = request.PageId,
                             ["UserId"] = request.UserId,
                             ["Sno"] = request.Level,
-                            ["DepartmentId"] = request.DepartmentId,
-                            ["amount"] = request.Amount,
                             ["Status"] = true,
                             ["CreatedBy"] = request.CreatedBy,
                             ["ActionType"] = (int)CrudActionType.Create
@@ -174,7 +172,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 null);
 
             // 2. Build criteria from client request and filter meta
-            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
@@ -265,7 +263,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 null);
 
             // 2. Build criteria from client request and filter meta
-            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 

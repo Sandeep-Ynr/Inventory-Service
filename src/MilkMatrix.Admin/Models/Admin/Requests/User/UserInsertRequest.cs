@@ -20,4 +20,6 @@ public class UserInsertRequest
     public string MobileNumber { get; set; } = string.Empty;
 
     public int CreatedBy { get; set; }
+
+    public string? IsMFA { get; set; } 
 }

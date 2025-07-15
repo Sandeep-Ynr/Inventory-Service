@@ -139,7 +139,7 @@ public class RoleService : IRoleService
             null);
 
         // 2. Build criteria from client request and filter meta
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters);
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
