@@ -193,7 +193,7 @@ public class UserService : IUserService
             {
                 Property = Constants.SearchString,
                 Operator = "contains",
-                Value = request.Filters
+                Value = request.Search
             };
 
             // Insert globalFilter at the start of filters
