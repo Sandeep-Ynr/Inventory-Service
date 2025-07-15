@@ -5,6 +5,7 @@ using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Notifications.Common.Constants;
 using MilkMatrix.Notifications.Common.Extensions;
 using MilkMatrix.Notifications.Contracts;
@@ -73,7 +74,7 @@ public class EmailService : IEmailService
             }
 
             var result = otpResponse.IsOtpSent ?
-                    (OTPResponseEnum)await repoFact.ExecuteScalarAsync(NotificationSettings.SendOtpToUser, CrudOperationType.Insert.PrepareSendEmailOtpParameters(
+                    (OTPResponseEnum)await repoFact.ExecuteScalarAsync(NotificationSettings.SendOtpToUser, CrudActionType.Create.PrepareSendEmailOtpParameters(
                     emailRequest.EmailId, verificationCode.ToString(), FixedStrings.BlankValue, otpResponse.OtpStatus)) : OTPResponseEnum.Error;
 
             return otpResponse.PrepareResponse(result, verificationCode);

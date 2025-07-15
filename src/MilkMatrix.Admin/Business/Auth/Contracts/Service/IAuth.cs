@@ -57,7 +57,7 @@ public interface IAuth
     /// </summary>
     /// <param name="loginId">The login identifier.</param>
     /// <returns>A <see cref="TokenResponse"/> containing access and refresh tokens.</returns>
-    Task<TokenResponse> GetTokenResponseFromLoggedInUser(int loginId);
+    Task<(TokenResponse, LoginResponse)> GetTokenResponseFromLoggedInUser(int loginId);
 
     /// <summary>
     /// Initiates the forgot password process for the specified user.

@@ -148,7 +148,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 });
                 if (meta.Message != "Unauthorized")
                 {
-                    finalResponse.Data = await iAuthentication.GetTokenResponseFromLoggedInUser(userData!.FirstOrDefault()!.UserId);
+                    finalResponse.Data = (await iAuthentication.GetTokenResponseFromLoggedInUser(userData!.FirstOrDefault()!.UserId)).Item1;
                     finalResponse.Message = meta.Message;
                     return Ok(finalResponse);
                 }

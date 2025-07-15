@@ -1,5 +1,6 @@
 using System.Net;
 using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Notifications.Common.Constants;
 using MilkMatrix.Notifications.Models.Enums;
 using MilkMatrix.Notifications.Models.OTP.Response;
@@ -24,13 +25,13 @@ public static class OTPExtensions
             { "ActionType", (int)actionType }, { "Id",id }, {"IsStatus",isActive }
         };
 
-    public static Dictionary<string, object> PrepareSendOtpParameters(this CrudOperationType actionType, string mobile, string otp, string deviceToken, bool otpStatus) =>
+    public static Dictionary<string, object> PrepareSendOtpParameters(this CrudActionType actionType, string mobile, string otp, string deviceToken, bool otpStatus) =>
        new Dictionary<string, object>
        {
         { "ActionType", (int)actionType }, { "Id",mobile },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
        };
 
-    public static Dictionary<string, object> PrepareSendEmailOtpParameters(this CrudOperationType actionType, string email, string otp, string deviceToken, bool otpStatus) =>
+    public static Dictionary<string, object> PrepareSendEmailOtpParameters(this CrudActionType actionType, string email, string otp, string deviceToken, bool otpStatus) =>
        new Dictionary<string, object>
        {
         { "ActionType", (int)actionType }, { "Id",email },{ "DeviceToken",deviceToken },{ "otp",otp }, {"OtpStatus",otpStatus }
