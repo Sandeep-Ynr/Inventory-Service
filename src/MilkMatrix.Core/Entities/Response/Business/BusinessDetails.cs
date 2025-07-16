@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Core.Entities.Response.Business;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class BusinessDetails
     /// <summary>
     /// Gets or sets the name of the business.
     /// </summary>
+    [GlobalSearch]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
@@ -38,11 +41,13 @@ public class BusinessDetails
     /// <summary>
     /// Gets or sets the phone number of the business. This can be a landline or any other contact number associated with the business.
     /// </summary>
+    [GlobalSearch]
     public string PhoneNo { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the email address associated with the business. This is used for official communication and notifications.
     /// </summary>
+    [GlobalSearch]
     public string EmailId { get; set; } = string.Empty;
 
     /// <summary>

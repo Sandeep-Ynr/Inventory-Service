@@ -83,8 +83,17 @@ namespace MilkMatrix.Api.Controllers.v1
                 { Constants.AutoMapper.UserAgent ,userAgent },
                 { Constants.AutoMapper.IsLoginWithOtp , isLogingWithOtp }
             }));
+
             if (loginResponse == null)
                 return NotFound();
+            if(loginResponse.Status != HttpStatusCode.OK.ToString())
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = loginResponse.Message
+                });
+            }
             else
                 return Ok(loginResponse);
         }
@@ -139,7 +148,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 });
                 if (meta.Message != "Unauthorized")
                 {
-                    finalResponse.Data = await iAuthentication.GetTokenResponseFromLoggedInUser(userData!.FirstOrDefault()!.UserId);
+                    finalResponse.Data = (await iAuthentication.GetTokenResponseFromLoggedInUser(userData!.FirstOrDefault()!.UserId)).Item1;
                     finalResponse.Message = meta.Message;
                     return Ok(finalResponse);
                 }

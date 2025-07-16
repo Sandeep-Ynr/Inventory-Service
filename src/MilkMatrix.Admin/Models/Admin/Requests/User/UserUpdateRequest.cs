@@ -1,3 +1,5 @@
+using static MilkMatrix.Core.Entities.Common.Constants;
+
 namespace MilkMatrix.Admin.Models.Admin.Requests.User;
 
 public class UserUpdateRequest
@@ -21,4 +23,6 @@ public class UserUpdateRequest
     public int ModifyBy { get; set; }
 
     public bool? IsActive { get; set; }
+
+    public string? IsMFA { get; set; }
 }

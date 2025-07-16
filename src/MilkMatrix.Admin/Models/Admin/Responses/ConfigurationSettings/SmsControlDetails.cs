@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class SmsControlDetails
     /// <summary>
     /// Gets or sets the SMS merchant name.
     /// </summary>
+    [GlobalSearch]
     public string SmsMerchant { get; set; } = string.Empty;
 
     /// <summary>

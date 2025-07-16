@@ -1,3 +1,4 @@
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 
@@ -7,13 +8,29 @@ public static class FilterExtensions
 {
     public static List<FilterCriteria> BuildFilterCriteriaFromRequest(
      this IEnumerable<FiltersMeta> filterMetas,
-     Dictionary<string, object>? search)
+     Dictionary<string, object>? filters, string? search)
     {
         var criteria = new List<FilterCriteria>();
-        if (search == null) return criteria;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            // Build a FilterCriteria for global search
+            var globalFilter = new FilterCriteria
+            {
+                Property = Constants.SearchString,
+                Operator = "contains",
+                Value = search
+            };
+
+            // Insert globalFilter at the start of filters
+            criteria = criteria?.ToList() ?? new List<FilterCriteria>();
+            criteria.Insert(0, globalFilter);
+        }
+
+        if (filters == null) return criteria;
 
         // Create a case-insensitive dictionary for search keys
-        var searchCI = new Dictionary<string, object>(search, StringComparer.OrdinalIgnoreCase);
+        var searchCI = new Dictionary<string, object>(filters, StringComparer.OrdinalIgnoreCase);
 
         foreach (var meta in filterMetas)
         {

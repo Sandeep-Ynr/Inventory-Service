@@ -10,9 +10,5 @@ public class Insert
 
     public int? BusinessId { get; set; }
 
-    public decimal? Amount { get; set; }
-
-    public int? DepartmentId { get; set; }
-
     public int CreatedBy { get; set; }
 }

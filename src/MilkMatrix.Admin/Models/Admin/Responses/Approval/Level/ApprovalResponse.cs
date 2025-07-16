@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.Approval.Level;
 
 public class ApprovalResponse
@@ -10,12 +12,16 @@ public class ApprovalResponse
 
     public int BusinessId { get; set; }
 
+    [GlobalSearch]
     public string PageName { get; set; }
+
+    [GlobalSearch]
     public string BusinessName { get; set; }
 
-    public int Amount { get; set; }
+    [GlobalSearch]
+    public string UserName { get; set; }
 
-    public int DepartmentId { get; set; }
+    public string HrmsCode { get; set; }
 
     public bool IsActive { get; set; }
 }

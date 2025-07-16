@@ -1,4 +1,5 @@
 using System.Net;
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
@@ -80,9 +81,44 @@ public class Auth : IAuth
             loginId = data.FirstOrDefault(data => data.Result.Equals("SUCCESS", StringComparison.InvariantCultureIgnoreCase))?.ID ?? 0;
 
             finalResult.Message = data?.FirstOrDefault()?.Result;
+
+            int verificationCode = appConfig.AllowToCreateOTP
+                                 ? DefaultRandomNoLength.GenerateRandomNumber()
+                                 : 123456;
             if (loginId > 0)
             {
-                finalResult.Data = await GetTokenResponseFromLoggedInUser(loginId);
+                var tokenData = await GetTokenResponseFromLoggedInUser(loginId);
+                finalResult.Data = tokenData.Item1;
+                lResponse = tokenData.Item2;
+                if (!string.IsNullOrWhiteSpace(finalResult.Data.IsMFA) && finalResult.Data.IsMFA == YesNoString.Yes)
+                {
+                    var otpResponse = await notificationService.SendAsync<NotificationRequest, NotificationResponse>(
+                        new NotificationRequest
+                        {
+                            EmailId = lResponse.EmailId,
+                            MobileNumber = lResponse.MobileNo,
+                            TemplateType = NotificationTemplateType.Otp,
+                            OTPType = NotificationType.Both,
+                            Content = verificationCode.ToString()
+                        });
+                    if (otpResponse == null)
+                    {
+                        finalResult.Message = HttpStatusCode.InternalServerError.ToString();
+                        finalResult.Status = HttpStatusCode.InternalServerError.ToString();
+                    }
+
+                    if (otpResponse.Code == (int)HttpStatusCode.OK)
+                    {
+                        finalResult.Message = string.Format(SuccessMessage.OTPSuccess);
+                        finalResult.Status = otpResponse.Code.ToString();
+                    }
+                    else
+                    {
+                        finalResult.Message = otpResponse.Message ?? HttpStatusCode.InternalServerError.ToString();
+                        finalResult.Status = otpResponse.Status ?? HttpStatusCode.InternalServerError.ToString();
+                    }
+                }
+
                 logger.LogInfo("login successful");
             }
 
@@ -107,7 +143,7 @@ public class Auth : IAuth
     }
 
     /// <inheritdoc />
-    public async Task<TokenResponse> GetTokenResponseFromLoggedInUser(int loginId)
+    public async Task<(TokenResponse, LoginResponse)> GetTokenResponseFromLoggedInUser(int loginId)
     {
         var repoLogin = repositoryFactory
                                .ConnectDapper<LoginResponse>(DbConstants.Main);
@@ -119,7 +155,7 @@ public class Auth : IAuth
             IsMFA = lResponse.IsMFA,
             RefreshToken = lResponse.RefreshToken!
         };
-        return data;
+        return (data, lResponse);
     }
 
     /// <inheritdoc />

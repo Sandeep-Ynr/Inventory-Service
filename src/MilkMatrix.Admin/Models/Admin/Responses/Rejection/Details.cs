@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.Rejection;
 
 /// <summary>
@@ -20,8 +22,10 @@ public class Details
     /// </summary>
     public int BusinessId { get; set; }
 
+    [GlobalSearch]
     public string PageName { get; set; }
 
+    [GlobalSearch]
     public string BusinessName { get; set; }
 
     /// <summary>
@@ -32,6 +36,7 @@ public class Details
     /// <summary>
     /// The reason for the rejection, providing context or explanation for the decision.
     /// </summary>
+    [GlobalSearch]
     public string? Reason { get; set; }
 
     /// <summary>

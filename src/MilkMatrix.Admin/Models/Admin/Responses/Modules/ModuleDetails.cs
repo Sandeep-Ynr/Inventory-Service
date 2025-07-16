@@ -1,9 +1,11 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.Modules;
 
 public class ModuleDetails
 {
     public int ModuleId { get; set; }
-
+    [GlobalSearch]
     public string ModuleName { get; set; } = string.Empty;
 
     public string? ModuleIcon { get; set; }

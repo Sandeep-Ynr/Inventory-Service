@@ -6,6 +6,7 @@ using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Notifications.Common.Constants;
 using MilkMatrix.Notifications.Common.Extensions;
 using MilkMatrix.Notifications.Contracts;
@@ -47,7 +48,7 @@ public class SMSService : ISMSService
         {
             var otp = appConfig.AllowToCreateOTP ? FixedStrings.OtpLength.GenerateRendomNumber() : 123456;
 
-            var isUserExist = (await dbContext.ConnectDapper<string>(DbConstants.Main).QueryAsync<int>(UserSpName.GetUserId, new Dictionary<string, object> { { "Mobile", request.MobileNumber } }, null))?.FirstOrDefault() > 0;
+            var isUserExist = (await dbContext.ConnectDapper<string>(DbConstants.Main).QueryAsync<int>(UserSpName.GetUserId, new Dictionary<string, object> { { "Id", request.MobileNumber } }, null))?.FirstOrDefault() > 0;
 
             if (!isUserExist)
             {
@@ -62,7 +63,7 @@ public class SMSService : ISMSService
                     : new OTPResponse { Code = (int)HttpStatusCode.InternalServerError, Message = StatusCodeMessage.InternalServerError };
 
                 var result = response.IsOtpSent ?
-                    (OTPResponseEnum)await dbContext.ConnectDapper<string>(DbConstants.Main).ExecuteScalarAsync(NotificationSettings.SendOtpToUser, CrudOperationType.Insert.PrepareSendOtpParameters(
+                    (OTPResponseEnum)await dbContext.ConnectDapper<string>(DbConstants.Main).ExecuteScalarAsync(NotificationSettings.SendOtpToUser, CrudActionType.Create.PrepareSendOtpParameters(
                     request.MobileNumber, otp.ToString(), FixedStrings.BlankValue, response.OtpStatus)) : OTPResponseEnum.Error;
 
                 return response.PrepareResponse(result, otp);

@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Entities.Enums;
+
 namespace MilkMatrix.Api.Models.Request.Admin.User
 {
     public class UserUpsertModel
@@ -20,5 +22,7 @@ namespace MilkMatrix.Api.Models.Request.Admin.User
         public string? Mobile { get; set; }
 
         public bool? Status { get; set; }
+
+        public YesOrNo? IsMFA { get; set; }
     }
 }

@@ -2,6 +2,6 @@ namespace MilkMatrix.Notifications.Models.Enums;
 
 public enum OTPActionType
 {
-    All = 1,
-    Single = 2
+    All = 2,
+    Single = 1
 }

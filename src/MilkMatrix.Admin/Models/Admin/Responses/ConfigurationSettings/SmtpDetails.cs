@@ -1,3 +1,5 @@
+using MilkMatrix.Core.Attributes;
+
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
@@ -13,16 +15,18 @@ public class SmtpDetails
     /// <summary>
     /// Gets or sets the SMTP server address.
     /// </summary>
+    [GlobalSearch]
     public string SmtpServer { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the SMTP port number.
     /// </summary>
     public int SmtpPort { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the username for SMTP authentication.
     /// </summary>
+    [GlobalSearch]
     public string SmtpUserId { get; set; } = string.Empty;
     
     /// <summary>

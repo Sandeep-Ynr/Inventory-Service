@@ -40,7 +40,8 @@ public class AdminProfile : Profile
                   .ForMember(x => x.MobileNumber, opt => opt.MapFrom(src => src.Mobile))
                   .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.Status))
                   .ForMember(x => x.Password, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Password) ? src.Password.EncodeSHA512() : null))
-                  .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+                  .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]))
+                  .ForMember(x => x.IsMFA, opt => opt.MapFrom(src => src.IsMFA.HasValue && src.IsMFA == YesOrNo.Yes ? 'Y' : 'N'));
 
         CreateMap<UserUpsertModel, UserInsertRequest>()
                   .ForMember(x => x.RoleId, opt => opt.MapFrom(src => src.Roles))
@@ -49,7 +50,8 @@ public class AdminProfile : Profile
                   .ForMember(x => x.MobileNumber, opt => opt.MapFrom(src => src.Mobile))
                   .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessIds))
                   .ForMember(x => x.Password, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Password) ? src.Password.EncodeSHA512() : null))
-                  .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+                  .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]))
+                  .ForMember(x => x.IsMFA, opt => opt.MapFrom(src => src.IsMFA.HasValue && src.IsMFA == YesOrNo.Yes ? 'Y' : 'N'));
 
         CreateMap<ForgotPasswordModel, ForgotPasswordRequest>();
 

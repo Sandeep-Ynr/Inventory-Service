@@ -142,13 +142,13 @@ public class AdminController : ControllerBase
     {
         try
         {
-            var businessDetails = await approvalService.GetByIdAsync(pageId);
-            if (businessDetails == null)
+            var response = await approvalService.GetByIdAsync(pageId);
+            if (response == null)
             {
                 logging.LogInfo($"details with page {pageId} not found.");
                 return NoContent();
             }
-            return Ok(businessDetails);
+            return Ok(response);
         }
         catch (Exception ex)
         {

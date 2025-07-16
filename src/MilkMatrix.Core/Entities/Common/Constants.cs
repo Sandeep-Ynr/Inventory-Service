@@ -3,6 +3,8 @@ namespace MilkMatrix.Core.Entities.Common;
 public static partial class Constants
 {
     public const int DefaultRandomNoLength = 6;
+
+    public const string SearchString = "searchString";
     public static class ErrorMessage
     {
         public const string Error = "Some error occurred during creation please connect with administrator!!";
@@ -45,5 +47,11 @@ public static partial class Constants
         public const string RecordInserted = "Record has been inserterd successfully.";
         public const string RecordUpdated = "Record has been updated successfully.";
         public const string RecordDeleted = "Record has been deleted successfully.";
+    }
+
+    public static class YesNoString
+    {
+        public const string Yes = "Y";
+        public const string No = "N";
     }
 }

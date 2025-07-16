@@ -10,6 +10,7 @@ using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
@@ -65,6 +66,7 @@ public class UserService : IUserService
                 ["UserType"] = request.UserType,
                 ["ImageId"] = request.ImageId,
                 ["MobileNumber"] = request.MobileNumber,
+                ["IsMFA"] = request.IsMFA,
                 ["CreatedBy"] = request.CreatedBy,
                 ["Status"] = true,
                 ["ActionType"] = (int)CrudActionType.Create
@@ -146,6 +148,7 @@ public class UserService : IUserService
                 ["UserType"] = request.UserType,
                 ["ImageId"] = request.ImageId,
                 ["MobileNumber"] = request.MobileNumber,
+                ["IsMFA"] = request.IsMFA,
                 ["ModifyBy"] = request.ModifyBy,
                 ["Status"] = request.IsActive,
                 ["ActionType"] = (int)CrudActionType.Update
@@ -165,9 +168,8 @@ public class UserService : IUserService
     {
         var user = await GetByIdAsync(userId);
         var parameters = new Dictionary<string, object>() {
-            { "BusinessId", user.UserType == 0 ? default : user.BusinessId } };
+        { "BusinessId", user.UserType == 0 ? default : user.BusinessId } };
 
-        // 1. Fetch all results, count, and filter meta from stored procedure
         var (allResults, countResult, filterMetas) = await queryMultipleData
             .GetMultiDetailsAsync<Users, int, FiltersMeta>(
                 UserSpName.GetUsers,
@@ -175,20 +177,23 @@ public class UserService : IUserService
                 parameters,
                 null);
 
-        // 2. Build criteria from client request and filter meta
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Search);
+        // 1. Build field filters from request.Filters (Dictionary<string, object>)
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+
+        // 3. Apply global search if request.Search is not null/empty
+        var query = allResults.WithFullPath(fileConfig.UploadFileHost).AsQueryable();
+
+        // 4. Apply filters (global + field-specific)
+        var filtered = query.ApplyFilters(filters);
+
+        // 5. Apply sorting and paging
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
-
-        // 3. Apply filtering, sorting, and paging
-        var filtered = allResults.WithFullPath(fileConfig.UploadFileHost).AsQueryable().ApplyFilters(filters);
         var sorted = filtered.ApplySorting(sorts);
         var paged = sorted.ApplyPaging(paging);
 
-        // 4. Get count after filtering (before paging)
         var filteredCount = filtered.Count();
 
-        // 5. Return result
         return new ListsResponse<Users>
         {
             Count = filteredCount,
