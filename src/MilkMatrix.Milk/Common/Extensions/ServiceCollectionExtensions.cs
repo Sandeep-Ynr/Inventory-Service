@@ -10,6 +10,8 @@ using MilkMatrix.Milk.Contracts.Vehicle;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Mcc;
 using MilkMatrix.Milk.Implementations.Plant;
+using MilkMatrix.Milk.Contracts.Bmc;
+using MilkMatrix.Milk.Implementations.Bmc;
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -30,6 +32,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IRouteService, RouteService>()
                     .AddScoped<IVehicleTypeService, VehicleTypeService>()
                     .AddScoped<ISahayakVSPService, SahayakVSPService>()
-                    .AddScoped<IMccService, MccService>();
+                    .AddScoped<IMccService, MccService>()
+                    .AddScoped<IBmcService, BmcService>();
     }
 }
