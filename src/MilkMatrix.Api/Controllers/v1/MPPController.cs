@@ -9,6 +9,7 @@ using MilkMatrix.Api.Models.Request.Bank.Bank;
 using MilkMatrix.Api.Models.Request.Bank.BankRegional;
 using MilkMatrix.Api.Models.Request.Bank.BankType;
 using MilkMatrix.Api.Models.Request.Bank.Branch;
+using MilkMatrix.Api.Models.Request.MPP;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -20,12 +21,13 @@ using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Bank;
+using MilkMatrix.Milk.Models.Request.MPP;
 using MilkMatrix.Milk.Models.Response.Bank;
 using MilkMatrix.Milk.Models.Response.MPP;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -70,10 +72,91 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error retrieving MPP with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the record.");
+                return StatusCode(500, "An error occurred while retrieving the record." + ex);
             }
         }
 
+        [HttpPost("add")]
+        public async Task<IActionResult> Add([FromBody] MPPInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
 
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for MPP: {request.MPPName}");
+
+                var mappedRequest = mapper.MapWithOptions<MPPInsertRequest, MPPInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await mppService.AddMPP(mappedRequest);
+                return Ok(new { message = "MPP added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add MPP", ex);
+                return StatusCode(500, "An error occurred while adding the record." + ex);
+            }
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody] MPPUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.MPPID <= 0)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<MPPUpdateRequest, MPPUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                    { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+
+                await mppService.UpdateMPP(mappedRequest);
+                logger.LogInfo($"MPP with ID {request.MPPID} updated successfully.");
+                return Ok(new { message = "MPP updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating MPP", ex);
+                return StatusCode(500, "An error occurred while updating the record." + ex);
+            }
+
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await mppService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"MPP with ID {id} deleted successfully.");
+                return Ok(new { message = "MPP deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting MPP with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the record." + ex);
+            }
+        }
     }
+
+
 }
+

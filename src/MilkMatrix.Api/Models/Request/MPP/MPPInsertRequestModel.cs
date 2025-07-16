@@ -37,5 +37,7 @@ namespace MilkMatrix.Api.Models.Request.MPP
         public string? PouringMethod { get; set; }
 
         public bool IsActive { get; set; }
+
+        public int? Business_entity_id { get; set; }
     }
 }

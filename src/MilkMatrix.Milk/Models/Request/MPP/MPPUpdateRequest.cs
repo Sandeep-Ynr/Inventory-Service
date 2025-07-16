@@ -47,5 +47,6 @@ namespace MilkMatrix.Milk.Models.Request.MPP
         public bool? IsDeleted { get; set; }
 
         public long? ModifiedBy { get; set; }
+        public int? Business_entity_id { get; set; }
     }
 }

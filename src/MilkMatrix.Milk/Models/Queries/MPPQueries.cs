@@ -8,7 +8,7 @@ namespace MilkMatrix.Milk.Models.Queries
 {
     public static class MPPQueries
     {
-        public const string AddMPP = "usp_mpp_insupd";
-        public const string GetMPPList = "usp_mpp_list";
+        public const string AddMPP = "usp_mppmaster_insupd";
+        public const string GetMPPList = "usp_mppmaster_list";
     }
 }

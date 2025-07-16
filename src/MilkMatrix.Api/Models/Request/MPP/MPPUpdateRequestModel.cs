@@ -39,5 +39,6 @@ namespace MilkMatrix.Api.Models.Request.MPP
 
         public bool IsStatus { get; set; }
         public long? ModifyBy { get; set; }
+        public int? Business_entity_id { get; set; }
     }
 }

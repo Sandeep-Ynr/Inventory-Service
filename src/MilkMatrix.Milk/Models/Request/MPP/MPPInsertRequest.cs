@@ -51,6 +51,7 @@ namespace MilkMatrix.Milk.Models.Request.MPP
         public long? ModifiedBy { get; set; }
 
         public bool Status { get; set; } = true;
+        public int? Business_entity_id { get; set; }
     }
 }
 
