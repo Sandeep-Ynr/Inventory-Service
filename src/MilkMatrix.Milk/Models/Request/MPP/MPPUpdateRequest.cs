@@ -19,13 +19,11 @@ namespace MilkMatrix.Milk.Models.Request.MPP
         public DateTime? RegistrationDate { get; set; }
         public string? Logo { get; set; }
         public string? PunchLine { get; set; }
-
         public int StateID { get; set; }
         public int DistrictID { get; set; }
         public int TehsilID { get; set; }
         public int VillageID { get; set; }
         public int HamletID { get; set; }
-
         public string? Address { get; set; }
         public string? RegionalAddress { get; set; }
         public string? Pincode { get; set; }
@@ -34,18 +32,14 @@ namespace MilkMatrix.Milk.Models.Request.MPP
         public string? ContactPerson { get; set; }
         public string? ContactRegionalName { get; set; }
         public string? Pancard { get; set; }
-
         public int BankID { get; set; }
         public int BranchID { get; set; }
         public string? AccNo { get; set; }
         public string? IFSC { get; set; }
-
         public int? NoOfVillageMapped { get; set; }
         public string? PouringMethod { get; set; }
-
         public bool IsStatus { get; set; }
         public bool? IsDeleted { get; set; }
-
         public long? ModifiedBy { get; set; }
         public int? Business_entity_id { get; set; }
     }
