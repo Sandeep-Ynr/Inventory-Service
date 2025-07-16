@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MilkMatrix.Core.Entities.Response;
 
-namespace MilkMatrix.Milk.Models.Response.Plant
+namespace MilkMatrix.Milk.Models.Response.Mcc
 {
-    //public class PlantInsertResponse : CommonLists
-    public class PlantInsertResponse
+    public class MccIndividualResponse
     {
         public int? Id { get; set; }
         public string? Name { get; set; }
-        public int CompanyId { get; set; }
-        public string? CompanyName{ get; set; }
+        public int? BusinessId { get; set; }
         public string? Capacity { get; set; }
         public string? FSSSINumber { get; set; }
         public string? Description { get; set; }
@@ -31,8 +28,7 @@ namespace MilkMatrix.Milk.Models.Response.Plant
         public string? RegionalContactPerson { get; set; }
         public string? MobileNumber { get; set; }
         public string? EmailId { get; set; }
-        public DateOnly? StartDate { get; set; }
+        public string? StartDate { get; set; }
         public bool? IsWorking { get; set; }
-        //public bool? IsActive { get; set; }
     }
 }
