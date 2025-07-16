@@ -143,8 +143,8 @@ public static class EmailExtensions
                 Message.IsBodyHtml = true;
                 SmtpClient smtp = new SmtpClient(model.SmtpServer);
                 smtp.Port = model.SmtpPort;
-                smtp.Credentials = new NetworkCredential(model.SmtpUserId, model.SmtpPassword);
                 smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential(model.SmtpUserId, model.SmtpPassword); 
                 smtp.EnableSsl = true;
                 smtp.Send(Message);
             }
