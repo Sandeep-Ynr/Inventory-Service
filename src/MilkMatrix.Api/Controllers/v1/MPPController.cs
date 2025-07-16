@@ -5,29 +5,21 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Api.Models.Request.Bank.Bank;
-using MilkMatrix.Api.Models.Request.Bank.BankRegional;
-using MilkMatrix.Api.Models.Request.Bank.BankType;
-using MilkMatrix.Api.Models.Request.Bank.Branch;
 using MilkMatrix.Api.Models.Request.MPP;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Milk.Contracts.Bank;
-using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
-using MilkMatrix.Milk.Models.Request.Bank;
 using MilkMatrix.Milk.Models.Request.MPP;
-using MilkMatrix.Milk.Models.Response.Bank;
 using MilkMatrix.Milk.Models.Response.MPP;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
