@@ -90,7 +90,7 @@ public class Auth : IAuth
                 var tokenData = await GetTokenResponseFromLoggedInUser(loginId);
                 finalResult.Data = tokenData.Item1;
                 lResponse = tokenData.Item2;
-                if (!string.IsNullOrWhiteSpace(finalResult.Data.IsMFA) && finalResult.Data.IsMFA == YesNoString.Yes)
+                if (!string.IsNullOrWhiteSpace(finalResult.Data.IsMFA) && finalResult.Data.IsMFA == YesNoString.Yes && !login.IsLoginWithOtp)
                 {
                     var otpResponse = await notificationService.SendAsync<NotificationRequest, NotificationResponse>(
                         new NotificationRequest
@@ -125,6 +125,11 @@ public class Auth : IAuth
             #region HTTP Status
             if (finalResult.Message == "SUCCESS")
                 finalResult.Status = HttpStatusCode.OK.ToString();
+            else if (finalResult.Message == SuccessMessage.OTPSuccess)
+            {
+                finalResult.Data = new TokenResponse();
+                finalResult.Status = HttpStatusCode.OK.ToString();
+            }
             else if (finalResult.Message == "Your current IP address is not authorized to access this resource.Please make sure you are connecting from an authorized IP address and try again.")
                 finalResult.Status = HttpStatusCode.Unauthorized.ToString();
             else if (finalResult.Message == "Authentication/Authorization Failed.")

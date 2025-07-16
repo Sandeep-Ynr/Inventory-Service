@@ -66,11 +66,11 @@ namespace MilkMatrix.Api.Controllers.v1
                     ErrorMessage = string.Format(ErrorMessage.GenericException, "UserId", "Password")
                 });
             }
-            if (!isLogingWithOtp && string.IsNullOrEmpty(login.UserId))
+            if (!isLogingWithOtp && (string.IsNullOrEmpty(login.UserId) || string.IsNullOrEmpty(login.Password)))
             {
                 return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.BadRequest, ErrorMessage = string.Format(ErrorMessage.BadRequest, "UserId", "Password") });
             }
-            if (isLogingWithOtp && string.IsNullOrEmpty(login.Mobile))
+            if (isLogingWithOtp && (string.IsNullOrEmpty(login.Mobile) && string.IsNullOrEmpty(login.UserId)))
             {
                 return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.BadRequest, ErrorMessage = string.Format(ErrorMessage.BadRequest, "UserId", "Password") });
             }
