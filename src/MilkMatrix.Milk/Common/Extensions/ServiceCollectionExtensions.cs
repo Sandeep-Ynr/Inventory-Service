@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Mcc;
+using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Contracts.Route;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
@@ -30,6 +31,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IRouteService, RouteService>()
                     .AddScoped<IVehicleTypeService, VehicleTypeService>()
                     .AddScoped<ISahayakVSPService, SahayakVSPService>()
-                    .AddScoped<IMccService, MccService>();
+                    .AddScoped<IMccService, MccService>()
+                    .AddScoped<IMPPService, MPPService>();
     }
 }
