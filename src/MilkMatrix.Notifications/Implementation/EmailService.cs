@@ -34,7 +34,7 @@ public class EmailService : IEmailService
         this.repositoryFactory = repositoryFactory;
         this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(AppConfig));
         this.hostingEnvironment = hostingEnvironment;
-        this.logger = logger.ForContext("ServiceName",nameof(EmailService));
+        this.logger = logger.ForContext("ServiceName", nameof(EmailService));
         this.emailConfig = emailConfig.Value ?? throw new ArgumentNullException(nameof(EmailConfig));
     }
 
@@ -42,7 +42,10 @@ public class EmailService : IEmailService
     {
         var verificationCode = appConfig.AllowToSendMail
             ? FixedStrings.RandomNumberLength.GenerateRendomNumber()
-            : FixedStrings.DefaultVerificationCode;
+        : FixedStrings.DefaultVerificationCode;
+
+        verificationCode = emailRequest.VerificationCode ?? verificationCode;
+
         var repoFact = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
         var isUserExist = (await repoFact.QueryAsync<int>(UserSpName.GetUserId, new Dictionary<string, object> { { "Id", emailRequest.EmailId } }, null))?.FirstOrDefault() > 0;
         if (!isUserExist)
@@ -69,14 +72,14 @@ public class EmailService : IEmailService
                 emailSettings.MailTo = emailRequest.EmailId;
 
                 var responseFromEmail = emailSettings.SendMail(appConfig.AllowToSendMail, logger, hostingEnvironment.ContentRootPath);
-                verificationCode = responseFromEmail.Code == (int)HttpStatusCode.OK && emailConfig.OtpNeed == OTPEnum.Skip ? verificationCode : 0;
+
                 otpResponse = responseFromEmail.AutoGenenateOtpResponseModel(verificationCode);
             }
 
             var result = otpResponse.IsOtpSent ?
                     (OTPResponseEnum)await repoFact.ExecuteScalarAsync(NotificationSettings.SendOtpToUser, CrudActionType.Create.PrepareSendEmailOtpParameters(
                     emailRequest.EmailId, verificationCode.ToString(), FixedStrings.BlankValue, otpResponse.OtpStatus)) : OTPResponseEnum.Error;
-
+            verificationCode = result == OTPResponseEnum.Success && emailConfig.OtpNeed == OTPEnum.Skip ? verificationCode : 0;
             return otpResponse.PrepareResponse(result, verificationCode);
         }
     }

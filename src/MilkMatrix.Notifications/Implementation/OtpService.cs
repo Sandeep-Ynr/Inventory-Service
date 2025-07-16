@@ -1,6 +1,9 @@
 using System.Net;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Notifications.Common.Constants;
+using MilkMatrix.Notifications.Common.Extensions;
 using MilkMatrix.Notifications.Contracts;
 using MilkMatrix.Notifications.Models.Enums;
 using MilkMatrix.Notifications.Models.OTP.Request;
@@ -55,8 +58,9 @@ public class OtpService : IOtpService
             case OTPType.Both:
                 try
                 {
-                    var smsTask = await smsService.SendSMSAsync(new SMSRequest { MobileNumber = request.MobileNumber });
-                    var emailTask = await emailService.SendEmailAsync(new EmailRequest { EmailId = request.EmailId, TemplateType = request.TemplateType });
+                    var verificationCode = FixedStrings.RandomNumberLength.GenerateRendomNumber();
+                    var smsTask = await smsService.SendSMSAsync(new SMSRequest { MobileNumber = request.MobileNumber, VerificationCode = verificationCode });
+                    var emailTask = await emailService.SendEmailAsync(new EmailRequest { EmailId = request.EmailId, TemplateType = request.TemplateType , VerificationCode = verificationCode });
                     //var otpResponse = await Task.WhenAll(smsTask, emailTask).ConfigureAwait(false);
                     return emailTask;
                 }

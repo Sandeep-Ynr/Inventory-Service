@@ -18,7 +18,6 @@ public class ApprovalResponse
     [GlobalSearch]
     public string BusinessName { get; set; }
 
-    [GlobalSearch]
     public string UserName { get; set; }
 
     public string HrmsCode { get; set; }
