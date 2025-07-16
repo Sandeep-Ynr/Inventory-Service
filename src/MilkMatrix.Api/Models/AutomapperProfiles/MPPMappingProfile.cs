@@ -39,7 +39,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.NoOfVillageMapped, opt => opt.MapFrom(src => src.NoOfVillageMapped))
                 .ForMember(dest => dest.PouringMethod, opt => opt.MapFrom(src => src.PouringMethod))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive))
-                 .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
+                .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
 
@@ -75,7 +75,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.NoOfVillageMapped, opt => opt.MapFrom(src => src.NoOfVillageMapped))
                 .ForMember(dest => dest.PouringMethod, opt => opt.MapFrom(src => src.PouringMethod))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
-                 .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
+                .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
         }
     }

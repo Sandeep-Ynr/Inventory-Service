@@ -14,10 +14,7 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.MPP;
-using MilkMatrix.Milk.Models.Response.Bank;
 using MilkMatrix.Milk.Models.Response.MPP;
-using static MilkMatrix.Milk.Models.Queries.BankQueries;
-
 namespace MilkMatrix.Milk.Implementations
 {
     public class MPPService : IMPPService
