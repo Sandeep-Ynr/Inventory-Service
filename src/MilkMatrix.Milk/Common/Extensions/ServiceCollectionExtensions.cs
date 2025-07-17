@@ -13,6 +13,8 @@ using MilkMatrix.Milk.Implementations.Mcc;
 using MilkMatrix.Milk.Implementations.Plant;
 using MilkMatrix.Milk.Contracts.Bmc;
 using MilkMatrix.Milk.Implementations.Bmc;
+using MilkMatrix.Milk.Contracts.Animal;
+using MilkMatrix.Milk.Implementations.Animal;
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -35,6 +37,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<ISahayakVSPService, SahayakVSPService>()
                     .AddScoped<IMccService, MccService>()
                     .AddScoped<IMPPService, MPPService>()
-                    .AddScoped<IBmcService, BmcService>();
+                    .AddScoped<IBmcService, BmcService>()
+                    .AddScoped<IAnimalService, AnimalService>();
     }
 }
