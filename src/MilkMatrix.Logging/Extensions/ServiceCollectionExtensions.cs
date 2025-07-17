@@ -1,7 +1,3 @@
-using MilkMatrix.Logging.Config;
-using MilkMatrix.Logging.Contracts;
-using MilkMatrix.Logging.Implementation;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -20,17 +16,10 @@ public static class ServiceCollectionExtensions
     {
         builder.UseSerilog((context, configuration) =>  
         {
-            var config = context.Configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
-            Log.Logger = context.Configuration.ConfigureLogger(logFilePath);
+            context.Configuration.ConfigureLogger(logFilePath);
         });
-
-
         return builder;
     }
 
-    public static IServiceCollection RegisterLoggingDependencies(this IServiceCollection services)
-    {
-        services.AddSingleton<ILogs, Logs>();
-        return services;
-    }
+    public static IServiceCollection RegisterLoggingDependencies(this IServiceCollection services) => services;
 }

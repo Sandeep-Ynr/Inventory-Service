@@ -46,7 +46,9 @@ public class SMSService : ISMSService
     {
         try
         {
-            var otp = appConfig.AllowToCreateOTP ? FixedStrings.OtpLength.GenerateRendomNumber() : 123456;
+            var otp = appConfig.AllowToCreateOTP ? FixedStrings.OtpLength.GenerateRendomNumber() : FixedStrings.DefaultVerificationCode;
+
+            otp = request.VerificationCode ?? otp;
 
             var isUserExist = (await dbContext.ConnectDapper<string>(DbConstants.Main).QueryAsync<int>(UserSpName.GetUserId, new Dictionary<string, object> { { "Id", request.MobileNumber } }, null))?.FirstOrDefault() > 0;
 

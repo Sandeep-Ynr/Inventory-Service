@@ -7,14 +7,19 @@ internal static class Program
 {
     public static async Task Main(string[] args)
     {
-        CreateStaticLogger();
         try
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services
+                .AddConfigs(builder.Configuration);
+
             builder.Host.AddInfra();
-            
+
+            Log.Information("Application startup: Logging configuration applied.");
+
             builder.ConfigureServices();
-            
+
             await builder
                 .ConfigureApp()
                 .RunAsync();
@@ -23,15 +28,5 @@ internal static class Program
         {
             Console.WriteLine("An error occurred while starting the application: " + ex.Message);
         }
-    }
-
-    /// <summary>
-    ///     Creates the default static logger with the configuration provided.
-    /// </summary>
-    private static void CreateStaticLogger()
-    {
-        // We need to build twice the configuration to use it for the static logger.
-        var cfg = new ConfigurationBuilder();
-        cfg.ConfigureConfigurationBuilder(AppConfigurationHelpers.GetEnvironment());
     }
 }

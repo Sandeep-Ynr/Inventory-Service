@@ -136,6 +136,8 @@ public class Auth : IAuth
                 finalResult.Status = HttpStatusCode.Unauthorized.ToString();
             else if (finalResult.Message == "User name or password does not exist.")
                 finalResult.Status = HttpStatusCode.Unauthorized.ToString();
+
+            logger.LogInfo(finalResult.Message);
             #endregion
         }
         catch (Exception ex)
