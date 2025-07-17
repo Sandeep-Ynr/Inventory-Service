@@ -1,8 +1,8 @@
-using MilkMatrix.Logging.Config;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using MilkMatrix.Logging.Config;
 using Serilog;
 using Serilog.Enrichers.Sensitive;
-using Serilog.Formatting.Json;
 using Serilog.Exceptions;
 
 namespace MilkMatrix.Logging.Extensions;
@@ -12,27 +12,25 @@ public static class LoggingExtensions
     public static ILogger ConfigureLogger(this IConfiguration configuration, string filePath = "")
     {
         var loggerConfig = configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
-        //var logBasePath = string.IsNullOrEmpty(filePath)
-        //    ? loggerConfig?.DefaultLogPath ?? "logs"
-        //    : filePath;
 
-        var logBasePath = @"D:\Temp\logs";
-        ;
+        var logBasePath = string.IsNullOrWhiteSpace(filePath)
+              ? loggerConfig?.DefaultLogPath ?? "logs"
+              : filePath;
 
         var logger = new LoggerConfiguration()
             .ReadFrom
             .Configuration(configuration)
             .ConfigureLogMasking(configuration)
-             .Enrich.FromLogContext()
-    .Enrich.WithMachineName()
-    .Enrich.WithProcessId()
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
             .Enrich.WithProcessName()
-    .Enrich.WithExceptionDetails()
+            .Enrich.WithExceptionDetails()
+            .WriteTo.Console()
             .WriteTo.Map(
                 keyPropertyName: "ServiceName",
                 defaultKey: "General",
                 configure: (serviceName, wt) => wt.File(
-                    new JsonFormatter(renderMessage: true),
                     path: $"{logBasePath}/{serviceName}/log.json",
                     rollingInterval: RollingInterval.Day,
                     rollOnFileSizeLimit: true
@@ -40,18 +38,6 @@ public static class LoggingExtensions
             )
             .CreateLogger();
 
-        //var loggerConfig = configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
-        //return new LoggerConfiguration()
-        //    .ReadFrom
-        //    .Configuration(configuration)
-        //    .ConfigureLogMasking(configuration)
-        //        .WriteTo
-        //        .File(
-        //    new JsonFormatter(renderMessage: true),
-        //    string.IsNullOrEmpty(filePath) ? loggerConfig!.DefaultLogPath : filePath,
-        //    rollingInterval: RollingInterval.Day,
-        //    rollOnFileSizeLimit: true)
-        //        .CreateLogger();
         return logger;
     }
 
