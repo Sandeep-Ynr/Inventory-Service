@@ -31,6 +31,7 @@ internal static class AppServicesConfigurationExtenstion
                    o.AddProfile<SahayakVSPMappingProfile>();
                    o.AddProfile<MccMappingProfile>();
                    o.AddProfile<MPPMappingProfile>();
+                   o.AddProfile<BmcMappingProfile>();
                })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)
