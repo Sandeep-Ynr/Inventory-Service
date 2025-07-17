@@ -14,10 +14,9 @@ public static class ServiceCollectionExtensions
     /// <returns>The IHostBuilder for chaining</returns>  
     public static IHostBuilder AddLogging(this IHostBuilder builder, string? logFilePath = null)
     {
-        builder.UseSerilog((context, configuration) =>  
-        {
-            context.Configuration.ConfigureLogger(logFilePath);
-        });
+        builder.UseSerilog((context, configuration) =>
+            context.Configuration.ConfigureLogger(logFilePath)
+        );
         return builder;
     }
 

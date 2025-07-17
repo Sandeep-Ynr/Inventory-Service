@@ -10,9 +10,8 @@ public static class AppConfigurationHelpers
 
     public static IWebHostBuilder ConfigureAppConfigurations(this WebApplicationBuilder builder) => builder.WebHost
         .ConfigureAppConfiguration((hostingContext, config) =>
-        {
-            config.ConfigureConfigurationBuilder(hostingContext.HostingEnvironment.EnvironmentName);
-        });
+            config.ConfigureConfigurationBuilder(hostingContext.HostingEnvironment.EnvironmentName)
+        );
 
     public static void ConfigureConfigurationBuilder(this IConfigurationBuilder config, string environmentName) =>
         config
