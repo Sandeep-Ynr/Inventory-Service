@@ -1,20 +1,21 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
+using MilkMatrix.Milk.Contracts.Bmc;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Mcc;
 using MilkMatrix.Milk.Contracts.MPP;
+using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Contracts.Route;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
 using MilkMatrix.Milk.Contracts.Vehicle;
 using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Implementations.Animal;
+using MilkMatrix.Milk.Implementations.Bmc;
 using MilkMatrix.Milk.Implementations.Mcc;
 using MilkMatrix.Milk.Implementations.Plant;
-using MilkMatrix.Milk.Contracts.Bmc;
-using MilkMatrix.Milk.Implementations.Bmc;
-using MilkMatrix.Milk.Contracts.Animal;
-using MilkMatrix.Milk.Implementations.Animal;
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -38,6 +39,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMccService, MccService>()
                     .AddScoped<IMPPService, MPPService>()
                     .AddScoped<IBmcService, BmcService>()
-                    .AddScoped<IAnimalService, AnimalService>();
+                    .AddScoped<IAnimalService, AnimalService>()
+                    .AddScoped<IPartyGroupService, PartyGroupService>()
+                    .AddScoped<IPartyService, PartyService>();
     }
 }

@@ -33,6 +33,7 @@ internal static class AppServicesConfigurationExtenstion
                    o.AddProfile<MPPMappingProfile>();
                    o.AddProfile<BmcMappingProfile>();
                    o.AddProfile<AnimalMappingProfile>();
+                   o.AddProfile<PartyMappingProfile>();
                })
               .AddMilkServicesDependencies(hostContext.Configuration)
               .AddConfiguration(hostContext.Configuration)
