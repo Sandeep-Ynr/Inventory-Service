@@ -10,7 +10,6 @@ namespace MilkMatrix.Milk.Models.Response.Party
     public class PartyResponse : CommonLists
     {
         public string PartyCode { get; set; } = string.Empty;
-        public string PartyName { get; set; } = string.Empty;
         public string? PartyEmail { get; set; }
         public string? PartyShortName { get; set; }
         public string? PartyAddress { get; set; }

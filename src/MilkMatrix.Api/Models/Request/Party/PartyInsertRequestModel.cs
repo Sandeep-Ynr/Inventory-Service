@@ -3,6 +3,7 @@ namespace MilkMatrix.Api.Models.Request.Party
     public class PartyInsertRequestModel
     {
         public string PartyCode { get; set; } = string.Empty;
+        public int GroupId { get; set; } = 0;
         public string PartyName { get; set; } = string.Empty;
         public string? PartyEmail { get; set; }
         public string? PartyShortName { get; set; }
