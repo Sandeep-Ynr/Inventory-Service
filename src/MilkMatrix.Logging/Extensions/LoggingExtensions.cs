@@ -1,25 +1,39 @@
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using MilkMatrix.Logging.Config;
 using Serilog;
 using Serilog.Enrichers.Sensitive;
 using Serilog.Exceptions;
+using Serilog.Formatting.Json;
 
 namespace MilkMatrix.Logging.Extensions;
 
 public static class LoggingExtensions
 {
-    public static ILogger ConfigureLogger(this IConfiguration configuration, string filePath = "")
+    public static void ConfigureInfraLogging(this IConfiguration configuration, LoggerConfiguration loggerConfiguration, string filePath = "")
     {
         var loggerConfig = configuration.GetSection(LoggerConfig.SectionName).Get<LoggerConfig>();
 
+        // Ensure logBasePath is not null or empty
         var logBasePath = string.IsNullOrWhiteSpace(filePath)
-              ? loggerConfig?.DefaultLogPath ?? "logs"
-              : filePath;
+            ? loggerConfig?.BaseLogPath
+            : filePath;
 
-        var logger = new LoggerConfiguration()
-            .ReadFrom
-            .Configuration(configuration)
+        if (string.IsNullOrWhiteSpace(logBasePath))
+            throw new InvalidOperationException("Log base path is not configured.");
+
+        var defaultLogPath = loggerConfig?.DefaultLogPath;
+        if (string.IsNullOrWhiteSpace(defaultLogPath))
+            throw new InvalidOperationException("Default log path is not configured.");
+
+        var logDirectory = Path.Combine(logBasePath, defaultLogPath);
+
+        if (!Directory.Exists(logDirectory))
+        {
+            Directory.CreateDirectory(logDirectory);
+        }
+
+        loggerConfiguration
+            .ReadFrom.Configuration(configuration)
             .ConfigureLogMasking(configuration)
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
@@ -30,15 +44,12 @@ public static class LoggingExtensions
             .WriteTo.Map(
                 keyPropertyName: "ServiceName",
                 defaultKey: "General",
-                configure: (serviceName, wt) => wt.File(
-                    path: $"{logBasePath}/{serviceName}/log.json",
-                    rollingInterval: RollingInterval.Day,
-                    rollOnFileSizeLimit: true
-                )
-            )
-            .CreateLogger();
-
-        return logger;
+                 configure: (serviceName, wt) => wt.File(
+                            path: $"{logDirectory}/{serviceName}/log.json",
+                            rollingInterval: RollingInterval.Day,
+                            rollOnFileSizeLimit: true,
+                            formatter: new JsonFormatter())
+                        );
     }
 
     private static LoggerConfiguration ConfigureLogMasking(this LoggerConfiguration self, IConfiguration configuration)

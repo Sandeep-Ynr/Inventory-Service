@@ -7,8 +7,7 @@ namespace MilkMatrix.Logging.Implementation;
 public class Logs : ILogs
 {
     private readonly ILogger logger;
-
-    public Logs() : this(Log.Logger) { }
+    
     public Logs(ILogger logger)
     {
         this.logger = logger;

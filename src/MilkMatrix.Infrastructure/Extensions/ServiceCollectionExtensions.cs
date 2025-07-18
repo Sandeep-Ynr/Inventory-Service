@@ -14,9 +14,7 @@ using MilkMatrix.Infrastructure.Common.Notifications;
 using MilkMatrix.Infrastructure.Common.Uploader;
 using MilkMatrix.Infrastructure.Factories;
 using MilkMatrix.Logging.Config;
-using MilkMatrix.Logging.Contracts;
 using MilkMatrix.Logging.Extensions;
-using MilkMatrix.Logging.Implementation;
 using MilkMatrix.Notifications.Common.Extensions;
 using MilkMatrix.Notifications.Models.Config;
 using MilkMatrix.Uploader.Common.Extensions;
@@ -25,10 +23,13 @@ namespace MilkMatrix.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IHostBuilder AddInfra(this IHostBuilder hostBuilder, string? logFilePath = null)
-        {
 
-            hostBuilder.AddLogging(logFilePath);
+        public static IHostBuilder AddInfraLogging(this IHostBuilder hostBuilder, string? logFilePath = null) => hostBuilder.AddLogging(logFilePath);
+
+        public static IServiceCollection AddLoggingServices(this IServiceCollection services) => services.RegisterLoggingDependencies();
+
+        public static IHostBuilder AddInfra(this IHostBuilder hostBuilder)
+        {
             hostBuilder.ConfigureServices((context, services) =>
             {
                 services
@@ -40,8 +41,6 @@ namespace MilkMatrix.Infrastructure.Extensions
 
         public static IServiceCollection ConfigureInfraservices(this IServiceCollection services, IConfiguration configuration) =>
             services
-                .RegisterLoggingDependencies()
-                .AddSingleton<ILogs, Logs>()
                 .AddSingleton<ILogging, LoggingAdapter>()
                 .AddHttpClient()
                 .AddScoped<IClientFactory, ClientFactory>()

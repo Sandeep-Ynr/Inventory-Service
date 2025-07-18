@@ -11,22 +11,27 @@ internal static class Program
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services
-                .AddConfigs(builder.Configuration);
+            builder.Host.AddInfraLogging(builder.Environment.ContentRootPath);
 
+            builder.Services.AddLoggingServices();
+            builder.ConfigureAppConfigurations();
+            builder.Services.AddConfigs(builder.Configuration);
             builder.Host.AddInfra();
+            builder.Services.ConfigureServices(builder.Configuration, builder.Environment);
 
+            var appBuilt = builder.Build();
+            var app = appBuilt.ConfigureApp();
             Log.Information("Application startup: Logging configuration applied.");
-
-            builder.ConfigureServices();
-
-            await builder
-                .ConfigureApp()
-                .RunAsync();
+            await app.RunAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine("An error occurred while starting the application: " + ex.Message);
+        }
+
+        finally
+        {
+            Log.CloseAndFlush();
         }
     }
 }

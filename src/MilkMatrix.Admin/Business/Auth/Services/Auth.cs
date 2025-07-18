@@ -1,5 +1,4 @@
 using System.Net;
-using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
@@ -12,7 +11,6 @@ using MilkMatrix.Core.Abstractions.Notification;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
-using MilkMatrix.Core.Entities.Dtos;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
