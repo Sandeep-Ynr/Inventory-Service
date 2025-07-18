@@ -57,15 +57,22 @@ namespace MilkMatrix.Milk.Implementations
                     { "IsActive", request.IsActive },
                     { "CreatedBy", request.CreatedBy }
                 };
-
-                await repository.AddAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
-                logging.LogInfo($"Party {request.PartyName} added successfully.");
+                var message = await repository.AddAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"Party {message} added successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in AddAsync for Party: {request.PartyName}", ex);
+                logging.LogInfo($"Party {request.PartyName} added successfully.");
                 throw;
             }
+
         }
 
         public async Task UpdateParty(PartyUpdateRequest request)
@@ -93,13 +100,19 @@ namespace MilkMatrix.Milk.Implementations
                     { "IsActive", request.IsActive },
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
                 };
-
-                await repository.UpdateAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
-                logging.LogInfo($"Party {request.PartyName} updated successfully.");
+                var message = await repository.AddAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"Party {message} updated successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in UpdateAsync for Party: {request.PartyName}", ex);
+                logging.LogInfo($"Party {request.PartyName} updated successfully.");
                 throw;
             }
         }
