@@ -23,7 +23,6 @@ internal static class AppServicesConfigurationExtenstion
                 o.AddProfile<NotificationProfileMapping>();
                 o.AddProfile<UploaderProfileMapping>();
                 o.AddProfile<PlantMappingProfile>();
-                o.AddProfile<RouteMappingProfile>();
                 o.AddProfile<BankMappingProfile>();
                 o.AddProfile<SahayakVSPMappingProfile>();
                 o.AddProfile<MccMappingProfile>();
@@ -32,6 +31,7 @@ internal static class AppServicesConfigurationExtenstion
                 o.AddProfile<AnimalMappingProfile>();
                 o.AddProfile<PartyMappingProfile>();
                 o.AddProfile<MilkMappingProfile>();
+                o.AddProfile<LogisticsMappingProfile>();
             })
             .AddMilkServicesDependencies(configuration)
             .AddConfiguration(configuration)
