@@ -1,8 +1,9 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.Modules;
 
-public class ModuleDetails
+public class ModuleDetails : Audit
 {
     public int ModuleId { get; set; }
     [GlobalSearch]

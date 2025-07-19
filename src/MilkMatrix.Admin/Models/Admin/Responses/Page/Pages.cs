@@ -1,8 +1,9 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.Page;
 
-public class Pages
+public class Pages : Audit
 {
     public string? ActionId { get; set; }
     public int PageId { get; set; }

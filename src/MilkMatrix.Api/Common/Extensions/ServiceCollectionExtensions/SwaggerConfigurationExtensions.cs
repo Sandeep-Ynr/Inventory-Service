@@ -6,7 +6,7 @@ namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
 
 public static class SwaggerConfigurationExtensions
 {
-    public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration) => SwaggerOptionsHelpers.ConfigureSwaggerOptions(services);
+    public static IServiceCollection AddSwagger(this IServiceCollection services) => SwaggerOptionsHelpers.ConfigureSwaggerOptions(services);
 
     public static IApplicationBuilder UseSwagger(this IApplicationBuilder app, IApiVersionDescriptionProvider provider, IWebHostEnvironment hostingEnvironment) => app.UseSwagger().UseSwaggerUI(c =>
     {

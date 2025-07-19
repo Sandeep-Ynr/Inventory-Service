@@ -1,12 +1,13 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
 /// Represents a tag or setting associated with a business.
 /// </summary>
-public class ConfigurationDetails
-{
+public class ConfigurationDetails : Audit
+{ 
 
     /// <summary>
     /// Gets or sets the unique identifier for the tag.

@@ -1,8 +1,9 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.SubModules;
 
-public class SubModuleDetails
+public class SubModuleDetails : Audit
 {
     public int SubModuleId { get; set; }
 

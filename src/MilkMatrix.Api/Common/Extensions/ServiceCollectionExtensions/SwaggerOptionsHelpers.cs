@@ -7,18 +7,11 @@ namespace MilkMatrix.Api.Common.Extensions.ServiceCollectionExtensions;
 
 internal static class SwaggerOptionsHelpers
 {
-    public static IServiceCollection ConfigureSwaggerOptions(IServiceCollection services)
+    public static IServiceCollection ConfigureSwaggerOptions(this IServiceCollection services)
     {
+        // Register SwaggerGen
         services.AddSwaggerGen(swaggerOptions =>
         {
-            // Resolve the temporary IApiVersionDescriptionProvider service
-            var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
-
-            // Add a swagger document for each discovered API version
-            foreach (var description in provider.ApiVersionDescriptions)
-            {
-                swaggerOptions.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
-            }
             swaggerOptions.EnableAnnotations();
 
             // -- we can un-commit these once we have a complete template for us
@@ -35,19 +28,29 @@ internal static class SwaggerOptionsHelpers
             swaggerOptions.CustomSchemaIds(type => type.ToString());
             swaggerOptions.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-                   {
-                       new OpenApiSecurityScheme
-                       {
-                           Reference = new OpenApiReference
-                           {
-                               Type = ReferenceType.SecurityScheme,
-                               Id = "Bearer"
-                           }
-                       },
-                       new string[] { }
-                   }
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] { }
+                }
             });
             swaggerOptions.OperationFilter<CustomHeaderFilter>();
+        });
+
+        // Register a post-configuration action to add Swagger docs for each API version
+        services.PostConfigure<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>(options =>
+        {
+            var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+            foreach (var description in provider.ApiVersionDescriptions)
+            {
+                options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
+            }
         });
 
         return services;

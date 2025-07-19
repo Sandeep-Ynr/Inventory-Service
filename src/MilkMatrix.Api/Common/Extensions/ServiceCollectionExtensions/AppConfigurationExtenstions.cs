@@ -9,14 +9,12 @@ public static class AppConfigurationExtenstions
 {
     public const string AllowAllOrigin = "AllowAllOrigins";
 
-    public static WebApplication ConfigureApp(this WebApplicationBuilder builder)
+    public static WebApplication ConfigureApp(this WebApplication app)
     {
-       
-        var app = builder.Build();
         var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
         _ = app.Environment.IsDevelopment()
-      ? app.UseDeveloperExceptionPage()
-      : app.UseHsts();
+            ? app.UseDeveloperExceptionPage()
+            : app.UseHsts();
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
@@ -36,13 +34,12 @@ public static class AppConfigurationExtenstions
             .UseCors(AppConstants.AllowAllOrigin)
             .UseAuthentication()
             .UseAuthorization()
- 
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             })
             .UseHealthChecks("/health");
-      
+
         return app;
     }
 }
