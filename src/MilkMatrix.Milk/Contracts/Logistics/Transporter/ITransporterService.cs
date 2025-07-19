@@ -16,7 +16,7 @@ namespace MilkMatrix.Milk.Contracts.Logistics.Transporter
     {
         Task AddTransporter(TransporterInsertRequest request);
         Task UpdateTransporter(TransporterUpdateRequest request);
-        Task Delete(string transporterId, int userId);
+        Task Delete(int transporterId, int userId);
         Task<TransporterResponse?> GetById(int id);
         Task<IEnumerable<TransporterResponse>> GetTransporters(TransporterRequest request);
         Task<IListsResponse<TransporterResponse>> GetAll(IListsRequest request);

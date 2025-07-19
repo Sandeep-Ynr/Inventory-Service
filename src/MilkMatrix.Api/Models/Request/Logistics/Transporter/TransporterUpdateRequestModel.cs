@@ -2,7 +2,7 @@ namespace MilkMatrix.Api.Models.Request.Logistics.Transporter
 {
     public class TransporterUpdateRequestModel
     {
-        public string TransporterID { get; set; } = string.Empty;
+        public int TransporterID { get; set; }
         public string TransporterName { get; set; } = string.Empty;
         public string? LocalName { get; set; }
         public string? Address { get; set; }

@@ -38,7 +38,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.transporterService = transporterService ?? throw new ArgumentNullException(nameof(transporterService));
             this.mapper = mapper;
         }
-        #region Transport-Regional
+        #region Transportssssssss
         [HttpPost("list-transporter")]
         public async Task<IActionResult> GetList([FromBody] ListsRequest request)
         {
@@ -82,9 +82,7 @@ namespace MilkMatrix.Api.Controllers.v1
                         ErrorMessage = ErrorMessage.InvalidRequest
                     });
                 }
-
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
                 var mappedRequest = mapper.MapWithOptions<TransporterInsertRequest, TransporterInsertRequestModel>(
                     request,
                     new Dictionary<string, object>
@@ -116,9 +114,7 @@ namespace MilkMatrix.Api.Controllers.v1
                         ErrorMessage = ErrorMessage.InvalidRequest
                     });
                 }
-
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
                 var mappedRequest = mapper.MapWithOptions<TransporterUpdateRequest, TransporterUpdateRequestModel>(
                     request,
                     new Dictionary<string, object>
@@ -138,7 +134,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpDelete("delete/{transporterId}")]
-        public async Task<IActionResult> Delete(string transporterId)
+        public async Task<IActionResult> Delete(int transporterId)
         {
             try
             {

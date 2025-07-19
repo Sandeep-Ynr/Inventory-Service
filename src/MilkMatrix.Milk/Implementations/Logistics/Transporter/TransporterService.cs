@@ -24,7 +24,6 @@ namespace MilkMatrix.Milk.Implementations
         private readonly AppConfig appConfig;
         private readonly IRepositoryFactory repositoryFactory;
         private readonly IQueryMultipleData queryMultipleData;
-
         public TransporterService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory, IQueryMultipleData queryMultipleData)
         {
             this.logging = logging.ForContext("ServiceName", nameof(TransporterService));
@@ -32,7 +31,6 @@ namespace MilkMatrix.Milk.Implementations
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this.queryMultipleData = queryMultipleData;
         }
-
         public async Task AddTransporter(TransporterInsertRequest request)
         {
             try
@@ -89,53 +87,49 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
-
         public async Task UpdateTransporter(TransporterUpdateRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-
                 var requestParams = new Dictionary<string, object>
-        {
-            { "ActionType", (int)CrudActionType.Update },
-            { "TransporterID", request.TransporterID },
-            { "TransporterName", request.TransporterName },
-            { "LocalName", request.LocalName ?? (object)DBNull.Value },
-            { "Address", request.Address ?? (object)DBNull.Value },
-            { "PhoneNo", request.PhoneNo ?? (object)DBNull.Value },
-            { "MobileNo", request.MobileNo ?? (object)DBNull.Value },
-            { "Email", request.Email ?? (object)DBNull.Value },
-            { "Pincode", request.Pincode ?? (object)DBNull.Value },
-            { "RegistrationNo", request.RegistrationNo ?? (object)DBNull.Value },
-            { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
-            { "LocalContactPerson", request.LocalContactPerson ?? (object)DBNull.Value },
-            { "BankID", request.BankID },
-            { "BranchID", request.BranchID },
-            { "BranchCode", request.BranchCode ?? (object)DBNull.Value },
-            { "BankAccountNo", request.BankAccountNo ?? (object)DBNull.Value },
-            { "IFSC", request.IFSC ?? (object)DBNull.Value },
-            { "GSTIN", request.GSTIN ?? (object)DBNull.Value },
-            { "TdsPer", request.TdsPer ?? (object)DBNull.Value },
-            { "PanNo", request.PanNo ?? (object)DBNull.Value },
-            { "BeneficiaryName", request.BeneficiaryName ?? (object)DBNull.Value },
-            { "AgreementNo", request.AgreementNo ?? (object)DBNull.Value },
-            { "Declaration", request.Declaration ?? (object)DBNull.Value },
-            { "SecurityChequeNo", request.SecurityChequeNo ?? (object)DBNull.Value },
-            { "CompanyCode", request.CompanyCode },
-            { "StateID", request.StateID },
-            { "DistrictID", request.DistrictID },
-            { "TehsilID", request.TehsilID },
-            { "VillageID", request.VillageID },
-            { "HamletID", request.HamletID },
-            { "SecurityAmount", request.SecurityAmount ?? (object)DBNull.Value },
-            { "VendorID", request.VendorID  },
-            { "IsStatus", request.IsStatus},
-            { "UpdatedBy", request.ModifiedBy ?? (object)DBNull.Value }
-        };
-
-                var message = await repository.UpdateAsync("usp_transporter_insupd", requestParams, CommandType.StoredProcedure);
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "TransporterID", request.TransporterID },
+                    { "TransporterName", request.TransporterName },
+                    { "LocalName", request.LocalName ?? (object)DBNull.Value },
+                    { "Address", request.Address ?? (object)DBNull.Value },
+                    { "PhoneNo", request.PhoneNo ?? (object)DBNull.Value },
+                    { "MobileNo", request.MobileNo ?? (object)DBNull.Value },
+                    { "Email", request.Email ?? (object)DBNull.Value },
+                    { "Pincode", request.Pincode ?? (object)DBNull.Value },
+                    { "RegistrationNo", request.RegistrationNo ?? (object)DBNull.Value },
+                    { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
+                    { "LocalContactPerson", request.LocalContactPerson ?? (object)DBNull.Value },
+                    { "BankID", request.BankID },
+                    { "BranchID", request.BranchID },
+                    { "BranchCode", request.BranchCode ?? (object)DBNull.Value },
+                    { "BankAccountNo", request.BankAccountNo ?? (object)DBNull.Value },
+                    { "IFSC", request.IFSC ?? (object)DBNull.Value },
+                    { "GSTIN", request.GSTIN ?? (object)DBNull.Value },
+                    { "TdsPer", request.TdsPer ?? (object)DBNull.Value },
+                    { "PanNo", request.PanNo ?? (object)DBNull.Value },
+                    { "BeneficiaryName", request.BeneficiaryName ?? (object)DBNull.Value },
+                    { "AgreementNo", request.AgreementNo ?? (object)DBNull.Value },
+                    { "Declaration", request.Declaration ?? (object)DBNull.Value },
+                    { "SecurityChequeNo", request.SecurityChequeNo ?? (object)DBNull.Value },
+                    { "CompanyCode", request.CompanyCode },
+                    { "StateID", request.StateID },
+                    { "DistrictID", request.DistrictID },
+                    { "TehsilID", request.TehsilID },
+                    { "VillageID", request.VillageID },
+                    { "HamletID", request.HamletID },
+                    { "SecurityAmount", request.SecurityAmount ?? (object)DBNull.Value },
+                    { "VendorID", request.VendorID  },
+                    { "IsStatus", request.IsStatus},
+                    { "ModifiedBy", request.ModifiedBy ?? (object)DBNull.Value }
+                };
+                var message = await repository.UpdateAsync(TransporterQueries.AddTransporter, requestParams, CommandType.StoredProcedure);
 
                 if (message.StartsWith("Error"))
                     throw new Exception($"Stored Procedure Error: {message}");
@@ -148,8 +142,6 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
-
         public async Task Delete(int id, int userId)
         {
             try
@@ -157,21 +149,24 @@ namespace MilkMatrix.Milk.Implementations
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", (int)CrudActionType.Delete },
-                    { "TransporterID", id },
-                    { "ModifiedBy", userId }
+                    {"ActionType" , (int)CrudActionType.Delete },
+                    {"TransporterID", id },
+                    { "ModifiedBy", userId },
                 };
 
-                var message = await repository.DeleteAsync("usp_transporter_insupd", requestParams, CommandType.StoredProcedure);
-                logging.LogInfo($"Transporter with id {id} deleted successfully.");
+                var response = await repository.DeleteAsync(
+                   TransporterQueries.AddTransporter, requestParams, CommandType.StoredProcedure
+                );
+
+                logging.LogInfo($"Transporter Type with id {id} deleted successfully.");
+
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error deleting Transporter ID: {id}", ex);
+                logging.LogError($"Error in DeleteAsync for Transporter id: {id}", ex);
                 throw;
             }
         }
-
         public async Task<TransporterResponse?> GetById(int id)
         {
             try
@@ -192,7 +187,6 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
         public async Task<IEnumerable<TransporterResponse>> GetTransporters(TransporterRequest request)
         {
             try
@@ -213,7 +207,6 @@ namespace MilkMatrix.Milk.Implementations
                 throw;
             }
         }
-
         public async Task<IListsResponse<TransporterResponse>> GetAll(IListsRequest request)
         {
             var parameters = new Dictionary<string, object> {
@@ -238,56 +231,6 @@ namespace MilkMatrix.Milk.Implementations
                 Results = paged.ToList(),
                 Filters = filterMetas
             };
-        }
-
-        private Dictionary<string, object> BuildParams(dynamic request, CrudActionType actionType)
-        {
-            return new Dictionary<string, object>
-            {
-                { "ActionType", (int)actionType },
-                { "LocalName", request.LocalName ?? (object)DBNull.Value },
-                { "Address", request.Address ?? (object)DBNull.Value },
-                { "PhoneNo", request.PhoneNo ?? (object)DBNull.Value },
-                { "MobileNo", request.MobileNo ?? (object)DBNull.Value },
-                { "Email", request.Email ?? (object)DBNull.Value },
-                { "Pincode", request.Pincode ?? (object)DBNull.Value },
-                { "RegistrationNo", request.RegistrationNo ?? (object)DBNull.Value },
-                { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
-                { "LocalContactPerson", request.LocalContactPerson ?? (object)DBNull.Value },
-                { "BankID", request.BankID },
-                { "BranchID", request.BranchID },
-                { "BranchCode", request.BranchCode ?? (object)DBNull.Value },
-                { "BankAccountNo", request.BankAccountNo ?? (object)DBNull.Value },
-                { "IFSC", request.IFSC ?? (object)DBNull.Value },
-                { "GSTIN", request.GSTIN ?? (object)DBNull.Value },
-                { "TdsPer", request.TdsPer ?? (object)DBNull.Value },
-                { "PanNo", request.PanNo ?? (object)DBNull.Value },
-                { "BeneficiaryName", request.BeneficiaryName ?? (object)DBNull.Value },
-                { "AgreementNo", request.AgreementNo ?? (object)DBNull.Value },
-                { "Declaration", request.Declaration ?? (object)DBNull.Value },
-                { "SecurityChequeNo", request.SecurityChequeNo ?? (object)DBNull.Value },
-                { "CompanyCode", request.CompanyCode },
-                { "StateID", request.StateID },
-                { "DistrictID", request.DistrictID },
-                { "TehsilID", request.TehsilID },
-                { "VillageID", request.VillageID },
-                { "HamletID", request.HamletID },
-                { "SecurityAmount", request.SecurityAmount ?? (object)DBNull.Value },
-                { "VendorCode", request.VendorCode ?? (object)DBNull.Value },
-                { "VendorName", request.VendorName ?? (object)DBNull.Value },
-                { "IsStatus", request.IsStatus ?? true },
-                { actionType == CrudActionType.Create ? "CreatedBy" : "ModifiedBy", request.CreatedBy ?? request.ModifiedBy ?? 0 }
-            };
-        }
-
-        public Task Delete(string transporterId, int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TransporterResponse?> GetById(string transporterId)
-        {
-            throw new NotImplementedException();
         }
     }
 }
