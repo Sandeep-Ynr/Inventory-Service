@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Milk.Models.Request.Logistics.VehcleType
+namespace MilkMatrix.Milk.Models.Request.Logistics.VehcileType
 {
     public class VehicleTypeRequest
     {

@@ -18,7 +18,7 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
-using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;

@@ -14,7 +14,7 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Models.Queries;
-using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using static MilkMatrix.Milk.Models.Queries.VehicleQueries;
 

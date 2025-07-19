@@ -4,7 +4,7 @@ using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
-using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -127,6 +127,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.VendorID, opt => opt.MapFrom(src => src.VendorID))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
-        }
+
+           }
     }
 }
