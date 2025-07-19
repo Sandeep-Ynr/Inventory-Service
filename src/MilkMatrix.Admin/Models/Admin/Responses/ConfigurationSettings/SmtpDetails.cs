@@ -1,11 +1,12 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
 /// Represents the details of an SMTP configuration setting.
 /// </summary>
-public class SmtpDetails
+public class SmtpDetails : Audit
 {
     /// <summary>
     /// Gets or sets the unique identifier for the SMTP configuration setting.

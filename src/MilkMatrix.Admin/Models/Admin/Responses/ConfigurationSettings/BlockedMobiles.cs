@@ -1,11 +1,12 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
 /// Represents a blocked mobile entry in the system.
 /// </summary>
-public class BlockedMobiles
+public class BlockedMobiles : Audit
 {
     /// <summary>
     /// Gets or sets the unique identifier for the blocked mobile entry.
@@ -28,5 +29,5 @@ public class BlockedMobiles
     /// <summary>
     /// Gets or sets a value indicating whether the blocked mobile entry is active.
     /// </summary>
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 }

@@ -1,11 +1,12 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 
 /// <summary>
 /// Represents the details of an SMS control configuration setting.
 /// </summary>
-public class SmsControlDetails
+public class SmsControlDetails : Audit
 {
     /// <summary>
     /// Gets or sets the unique identifier for the SMS control configuration setting.
@@ -32,11 +33,6 @@ public class SmsControlDetails
     /// Gets or sets the URL link for the SMS service.
     /// </summary>
     public string UrlLink { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the template ID for SMS messages.
-    /// </summary>
-    public int TemplateId { get; set; }
 
     /// <summary>
     /// Gets or sets the order ID associated with the SMS control configuration.

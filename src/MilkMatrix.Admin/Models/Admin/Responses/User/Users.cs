@@ -1,8 +1,9 @@
 using MilkMatrix.Core.Attributes;
+using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.User;
 
-public class Users
+public class Users : Audit
 {
     public int UserId { get; set; }
 
