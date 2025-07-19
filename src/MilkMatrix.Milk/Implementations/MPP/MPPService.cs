@@ -74,9 +74,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "CreatedBy", request.CreatedBy ?? 0 }
                 };
 
-                //await repository.AddAsync(MPPQueries.AddMPP, requestParams, CommandType.StoredProcedure);
-
-                var message = await repository.AddAsync("usp_mppmaster_insupd", requestParams, CommandType.StoredProcedure);
+             var message = await repository.AddAsync("usp_mppmaster_insupd", requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
                 {
                     throw new Exception($"Stored Procedure Error: {message}");
