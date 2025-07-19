@@ -13,31 +13,35 @@ using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
-using MilkMatrix.Milk.Contracts.Animal;
-using MilkMatrix.Milk.Implementations.Animal;
-using MilkMatrix.Milk.Models.Request.Animal;
+using MilkMatrix.Milk.Contracts.Milk;
+using MilkMatrix.Milk.Implementations.Milk;
+using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Response.Animal;
-using static MilkMatrix.Milk.Models.Queries.AnimalQueries;
 
-namespace MilkMatrix.Milk.Implementations.Animal
+//using MilkMatrix.Milk.Models.Response.Animal;
+using MilkMatrix.Milk.Models.Response.Milk;
+using static MilkMatrix.Milk.Models.Queries.AnimalQueries;
+using static MilkMatrix.Milk.Models.Queries.MilkQueries;
+
+namespace MilkMatrix.Milk.Implementations.Milk
 {
-    public class AnimalService : IAnimalService
+    public class MilkService : IMilkService
     {
         private readonly ILogging logging;
         private readonly AppConfig appConfig;
         private readonly IRepositoryFactory repositoryFactory;
         private readonly IQueryMultipleData queryMultipleData;
 
-        public AnimalService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory, IQueryMultipleData queryMultipleData)
+        public MilkService(ILogging logging, IOptions<AppConfig> appConfig, IRepositoryFactory repositoryFactory, IQueryMultipleData queryMultipleData)
         {
-            this.logging = logging.ForContext("ServiceName", nameof(AnimalService));
+            this.logging = logging.ForContext("ServiceName", nameof(MilkService));
             this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig));
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this.queryMultipleData = queryMultipleData;
         }
 
 
-        public async Task AddAsync(AnimalTypeInsertRequest request)
+        public async Task AddAsync(MilkTypeInsertRequest request)
         {
             try
             {
@@ -45,25 +49,24 @@ namespace MilkMatrix.Milk.Implementations.Animal
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
-                    { "AnimalTypeCode", request.AnimalTypeCode ?? (object)DBNull.Value },
-                    { "AnimalTypeName",request.AnimalTypeName ?? (object)DBNull.Value },
+                    { "MilkTypeName",request.MilkTypeName ?? (object)DBNull.Value },
                     { "Description", request. Description ?? (object)DBNull.Value },
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
                 };
-                var response = await repository.AddAsync(AnimalQuery.InsupdAnimalType, requestParams, CommandType.StoredProcedure);
+                var response = await repository.AddAsync(MilkTypeQueries.InsupdMilkType, requestParams, CommandType.StoredProcedure);
                 // Return the inserted StateId or Name, etc. depending on your SP response
                 //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
-                logging.LogInfo($"Animal Type {request.AnimalTypeName} added successfully.");
+                logging.LogInfo($"Milk Type {request.MilkTypeName} added successfully.");
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in AddAsync for Animal Type: {request.AnimalTypeName}", ex);
+                logging.LogError($"Error in AddAsync for Milk Type: {request.MilkTypeName}", ex);
                 throw;
             }
         }
 
-        public async Task UpdateAsync(AnimalTypeUpdateRequest request)
+        public async Task UpdateAsync(MilkTypeUpdateRequest request)
         {
             try
             {
@@ -72,21 +75,20 @@ namespace MilkMatrix.Milk.Implementations.Animal
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
-                    { "AnimalTypeId", request.AnimalTypeId},
-                    { "AnimalTypeCode", request.AnimalTypeCode ?? (object)DBNull.Value },
-                    { "AnimalTypeName",request.AnimalTypeName ?? (object)DBNull.Value },
+                    { "MilkTypeId", request.MilkTypeId},
+                    { "MilkTypeName",request.MilkTypeName ?? (object)DBNull.Value },
                     { "Description", request. Description ?? (object)DBNull.Value },
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "ModifyBy", request.ModifyBy }
                 };
 
-                await repository.UpdateAsync(AnimalQuery.InsupdAnimalType, requestParams, CommandType.StoredProcedure);
+                await repository.UpdateAsync(MilkTypeQueries.InsupdMilkType, requestParams, CommandType.StoredProcedure);
 
-                logging.LogInfo($"Animal Type {request.AnimalTypeName} updated successfully.");
+                logging.LogInfo($"Milk Type {request.MilkTypeName} updated successfully.");
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in UpdateAsync for Animal Type: {request.AnimalTypeName}", ex);
+                logging.LogError($"Error in UpdateAsync for Milk Type: {request.MilkTypeName}", ex);
                 throw;
             }
         }
@@ -99,26 +101,26 @@ namespace MilkMatrix.Milk.Implementations.Animal
                 var requestParams = new Dictionary<string, object>
                 {
                     {"ActionType" , (int)CrudActionType.Delete },
-                    {"AnimalTypeId", id },
+                    {"MilkTypeId", id },
                     {"IsActive", false },
                     {"ModifyBy", userId }
 
                 };
 
-                var response = await repository.DeleteAsync(AnimalQuery.InsupdAnimalType, requestParams, CommandType.StoredProcedure);
+                var response = await repository.DeleteAsync(MilkTypeQueries.InsupdMilkType, requestParams, CommandType.StoredProcedure);
 
-                logging.LogInfo($"Animal Type with id {id} deleted successfully.");
+                logging.LogInfo($"Milk Type with id {id} deleted successfully.");
 
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in DeleteAsync for Animal Type id: {id}", ex);
+                logging.LogError($"Error in DeleteAsync for Milk Type id: {id}", ex);
                 throw;
             }
 
         }
 
-        public async Task<IListsResponse<AnimalTypeInsertResponse>> GetAllAsync(IListsRequest request)
+        public async Task<IListsResponse<MilkTypeInsertResponse>> GetAllAsync(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>() {
                 { "ActionType", (int)ReadActionType.All },
@@ -128,7 +130,7 @@ namespace MilkMatrix.Milk.Implementations.Animal
 
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<AnimalTypeInsertResponse, int, FiltersMeta>(AnimalQuery.GetAnimalTypeList,
+                .GetMultiDetailsAsync<MilkTypeInsertResponse, int, FiltersMeta>(MilkTypeQueries.GetMilkTypeList,
                     DbConstants.Main, parameters, null);
 
             // 2. Build criteria from client request and filter meta
@@ -145,7 +147,7 @@ namespace MilkMatrix.Milk.Implementations.Animal
             var filteredCount = filtered.Count();
 
             // 5. Return result
-            return new ListsResponse<AnimalTypeInsertResponse>
+            return new ListsResponse<MilkTypeInsertResponse>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),
@@ -153,30 +155,29 @@ namespace MilkMatrix.Milk.Implementations.Animal
             };
         }
 
-        public async Task<AnimalTypeInsertResponse?> GetByIdAsync(int id)
+        public async Task<MilkTypeInsertResponse?> GetByIdAsync(int id)
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Animal Type id: {id}");
+                logging.LogInfo($"GetByIdAsync called for Milk Type id: {id}");
                 var repo = repositoryFactory
-                           .ConnectDapper<AnimalTypeInsertResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<AnimalTypeInsertResponse>(AnimalQuery.GetAnimalTypeList, new Dictionary<string, object> {
+                           .ConnectDapper<MilkTypeInsertResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<MilkTypeInsertResponse>(MilkTypeQueries.GetMilkTypeList, new Dictionary<string, object> {
                     { "ActionType", (int)ReadActionType.Individual },
-                    { "AnimalTypeId", id }
+                    { "MilkTypeId", id }
                 }, null);
 
-                var result = data.Any() ? data.FirstOrDefault() : new AnimalTypeInsertResponse();
+                var result = data.Any() ? data.FirstOrDefault() : new MilkTypeInsertResponse();
                 logging.LogInfo(result != null
-                    ? $"Animal Type with id {id} retrieved successfully."
-                    : $"Animal Type with id {id} not found.");
+                    ? $"Milk Type with id {id} retrieved successfully."
+                    : $"Milk Type with id {id} not found.");
                 return result;
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for Animal Type id: {id}", ex);
+                logging.LogError($"Error in GetByIdAsync for Milk Type id: {id}", ex);
                 throw;
             }
         }
-
     }
 }
