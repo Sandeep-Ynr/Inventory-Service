@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MilkMatrix.Milk.Models.Request.Logistics.Route
+namespace MilkMatrix.Milk.Models.Request.Logistics.VehcleType
 {
     public class VehicleTypeInsertRequest
     {

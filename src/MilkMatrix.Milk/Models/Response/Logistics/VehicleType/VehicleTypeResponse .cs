@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MilkMatrix.Core.Entities.Response;
 
-namespace MilkMatrix.Milk.Models.Response.Logistics.Route
+namespace MilkMatrix.Milk.Models.Response.Logistics.VehicleType
 {
     public class VehicleTypeResponse : CommonLists
     {

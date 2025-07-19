@@ -14,11 +14,11 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Models.Queries;
-using MilkMatrix.Milk.Models.Request.Logistics.Route;
-using MilkMatrix.Milk.Models.Response.Logistics.Route;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
+using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using static MilkMatrix.Milk.Models.Queries.VehicleQueries;
 
-namespace MilkMatrix.Milk.Implementations
+namespace MilkMatrix.Milk.Implementations.Logistics.Route
 {
     public class VehicleTypeService : IVehicleTypeService
     {
@@ -45,7 +45,7 @@ namespace MilkMatrix.Milk.Implementations
                 logging.LogInfo($"GetByIdAsync called for Vehicle ID: {vehicleId}");
                 var repo = repositoryFactory.ConnectDapper<VehicleTypeResponse>(DbConstants.Main);
 
-                var data = await repo.QueryAsync<VehicleTypeResponse>(VehicleQueries.GetVehicleList,
+                var data = await repo.QueryAsync<VehicleTypeResponse>(GetVehicleList,
                     new Dictionary<string, object>
                     {
                         { "ActionType", (int)ReadActionType.Individual },
@@ -75,7 +75,7 @@ namespace MilkMatrix.Milk.Implementations
                 { "IsStatus", request.IsStatus }
             };
 
-            return await repository.QueryAsync<CommonLists>(VehicleQueries.GetVehicleList, requestParams, null, CommandType.StoredProcedure);
+            return await repository.QueryAsync<CommonLists>(GetVehicleList, requestParams, null, CommandType.StoredProcedure);
         }
 
         public async Task<IListsResponse<VehicleTypeResponse>> GetAll(IListsRequest request)
@@ -87,7 +87,7 @@ namespace MilkMatrix.Milk.Implementations
 
             var (allResults, countResult, filterMetas) = await queryMultipleData
                 .GetMultiDetailsAsync<VehicleTypeResponse, int, FiltersMeta>(
-                    VehicleQueries.GetVehicleList,
+                    GetVehicleList,
                     DbConstants.Main,
                     parameters,
                     null);
@@ -124,7 +124,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "CreatedBy", request.CreatedBy }
                 };
 
-                await repository.AddAsync(VehicleQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.AddAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle '{request.VehicleType}' added successfully.");
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
                 };
 
-                await repository.UpdateAsync(VehicleQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.UpdateAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle '{request.VehicleType}' updated successfully.");
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "ModifyBy", userId }
                 };
 
-                await repository.DeleteAsync(VehicleQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.DeleteAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle with ID {vehicleId} deleted successfully.");
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ namespace MilkMatrix.Milk.Implementations
                 { "IsStatus", request.IsStatus }
             };
 
-            return await repository.QueryAsync<VehicleTypeResponse>(VehicleQueries.GetVehicleList, requestParams, null, CommandType.StoredProcedure);
+            return await repository.QueryAsync<VehicleTypeResponse>(GetVehicleList, requestParams, null, CommandType.StoredProcedure);
         }
 
     

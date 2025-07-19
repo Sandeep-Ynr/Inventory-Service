@@ -18,8 +18,10 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
+using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1

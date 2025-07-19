@@ -18,7 +18,7 @@ using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using static MilkMatrix.Milk.Models.Queries.BankQueries;
 
-namespace MilkMatrix.Milk.Implementations
+namespace MilkMatrix.Milk.Implementations.Logistics.Route
 {
     public class RouteService : IRouteService
     {

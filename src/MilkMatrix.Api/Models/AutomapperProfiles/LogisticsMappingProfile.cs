@@ -4,6 +4,7 @@ using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
+using MilkMatrix.Milk.Models.Request.Logistics.VehcleType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
