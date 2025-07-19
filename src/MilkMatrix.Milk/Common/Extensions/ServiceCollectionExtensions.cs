@@ -4,6 +4,7 @@ using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Mcc;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
@@ -41,6 +42,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IBmcService, BmcService>()
                     .AddScoped<IAnimalService, AnimalService>()
                     .AddScoped<IPartyGroupService, PartyGroupService>()
-                    .AddScoped<IPartyService, PartyService>();
+                    .AddScoped<IPartyService, PartyService>()
+                    .AddScoped<ITransporterService, TransporterService>();
     }
 }
