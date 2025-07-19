@@ -1,8 +1,13 @@
-namespace MilkMatrix.Api.Models.Request.Route
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MilkMatrix.Milk.Models.Request.Logistics.Route
 {
-    public class RouteUpdateRequestModel
+    public class RouteInsertRequest
     {
-        public int RouteID { get; set; }
         public string Name { get; set; } = string.Empty;
         public string RouteCode { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
@@ -14,7 +19,7 @@ namespace MilkMatrix.Api.Models.Request.Route
         public TimeSpan? EveningStartTime { get; set; }
         public TimeSpan? EveningEndTime { get; set; }
         public decimal TotalKm { get; set; }
-        public long? ModifyBy { get; set; }
-        public bool IsStatus { get; set; }
+        public bool IsActive { get; set; }
+        public long CreatedBy { get; set; }
     }
 }

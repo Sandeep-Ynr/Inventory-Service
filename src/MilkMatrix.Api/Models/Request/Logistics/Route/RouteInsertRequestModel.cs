@@ -1,4 +1,4 @@
-namespace MilkMatrix.Api.Models.Request.Route
+namespace MilkMatrix.Api.Models.Request.Logistics.Route
 {
     public class RouteInsertRequestModel
     {

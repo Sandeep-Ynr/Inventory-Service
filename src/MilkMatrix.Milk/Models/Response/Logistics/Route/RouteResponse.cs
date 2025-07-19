@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MilkMatrix.Core.Entities.Response;
 
-namespace MilkMatrix.Milk.Models.Response.Route
+namespace MilkMatrix.Milk.Models.Response.Logistics.Route
 {
     public class RouteResponse : CommonLists
     {

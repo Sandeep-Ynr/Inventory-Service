@@ -1,6 +1,6 @@
 using MilkMatrix.Core.Entities.Enums;
 
-namespace MilkMatrix.Milk.Models.Request.Route
+namespace MilkMatrix.Milk.Models.Request.Logistics.Route
 {
     public class RouteUpdateRequest
     {

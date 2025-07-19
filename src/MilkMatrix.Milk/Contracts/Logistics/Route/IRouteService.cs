@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Entities.Response;
-using MilkMatrix.Milk.Models.Request.Route;
-using MilkMatrix.Milk.Models.Response.Route;
-namespace MilkMatrix.Milk.Contracts.Route
+using MilkMatrix.Milk.Models.Request.Logistics.Route;
+using MilkMatrix.Milk.Models.Response.Logistics.Route;
+
+namespace MilkMatrix.Milk.Contracts.Logistics.Route
 {
     public interface IRouteService
     {

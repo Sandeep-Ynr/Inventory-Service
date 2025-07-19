@@ -12,10 +12,10 @@ using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
-using MilkMatrix.Milk.Contracts.Route;
+using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Models.Queries;
-using MilkMatrix.Milk.Models.Request.Route;
-using MilkMatrix.Milk.Models.Response.Route;
+using MilkMatrix.Milk.Models.Request.Logistics.Route;
+using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using static MilkMatrix.Milk.Models.Queries.BankQueries;
 
 namespace MilkMatrix.Milk.Implementations

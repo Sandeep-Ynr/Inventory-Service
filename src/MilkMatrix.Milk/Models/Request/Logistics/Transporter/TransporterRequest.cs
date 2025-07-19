@@ -12,6 +12,5 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Transporter
         public ReadActionType? ActionType { get; set; } = ReadActionType.All;
         public string? TransporterID { get; set; }
         public bool? IsStatus { get; set; }
-
     }
 }
