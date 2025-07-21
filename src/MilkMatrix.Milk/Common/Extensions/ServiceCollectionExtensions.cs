@@ -7,6 +7,7 @@ using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
+using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Contracts.Mcc;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.MPP;
@@ -49,6 +50,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IPartyService, PartyService>()
                     .AddScoped<IMilkService, MilkService>()
                     .AddScoped<ITransporterService, TransporterService>()
-                    .AddScoped<IVehicleService, VehicleService>();
+                    .AddScoped<IVehicleService, VehicleService>()
+                    .AddScoped<IVendorService, IVendorService>();
     }
 }
