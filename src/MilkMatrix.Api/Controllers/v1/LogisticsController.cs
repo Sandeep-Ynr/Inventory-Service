@@ -443,25 +443,26 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPut("update-vehicle")]
-        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleTypeUpdateRequestModel request)
+        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || request.VehicleID <= 0)
+            if (!ModelState.IsValid || request.VehicleId <= 0)
                 return BadRequest("Invalid request.");
 
             var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var requestParams = mapper.MapWithOptions<VehicleTypeUpdateRequest, VehicleTypeUpdateRequestModel>(
+            var requestParams = mapper.MapWithOptions<VehicleUpdateRequest, VehicleUpdateRequestModel>(
                 request,
                 new Dictionary<string, object>
                 {
                  { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
                 });
 
-            await vehicleTypeService.UpdateVehicleType(requestParams);
+            await vehicleService.UpdateVehicle(requestParams);
 
-            logger.LogInfo($"Vehicle Type with id {request.VehicleID} updated successfully.");
-            return Ok(new { message = "Vehicle Type updated successfully." });
+            logger.LogInfo($"Vehicle Type with id {request.VehicleId} updated successfully.");
+            return Ok(new { message = "Vehicle updated successfully." });
         }
+
 
         [HttpDelete("vehicle-delete/{id}")]
         public async Task<IActionResult> DeleteVehicle(int id)
@@ -469,14 +470,14 @@ namespace MilkMatrix.Api.Controllers.v1
             try
             {
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await vehicleTypeService.Delete(id, Convert.ToInt32(userId));
-                logger.LogInfo($"Vehicle Type with id {id} deleted successfully.");
-                return Ok(new { message = "Vehicle Type deleted successfully." });
+                await vehicleService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"Vehicle with id {id} deleted successfully.");
+                return Ok(new { message = "Vehicle deleted successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error deleting Vehicle Type with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Vehicle Type.");
+                logger.LogError($"Error deleting Vehicle with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Vehicle");
             }
         }
 
