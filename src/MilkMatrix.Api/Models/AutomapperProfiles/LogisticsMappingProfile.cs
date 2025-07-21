@@ -1,7 +1,9 @@
 using AutoMapper;
+using Azure.Core;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
@@ -58,6 +60,59 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+
+            CreateMap<VehicleInsertRequestModel, VehicleInsertRequest>()
+             .ForMember(dest => dest.VehicleTypeId, opt => opt.MapFrom(src => src.VehicleTypeId))
+             .ForMember(dest => dest.CapacityCode, opt => opt.MapFrom(src => src.CapacityCode))
+             .ForMember(dest => dest.RegistrationNo, opt => opt.MapFrom(src => src.RegistrationNo))
+             .ForMember(dest => dest.ApplicableRTO, opt => opt.MapFrom(src => src.ApplicableRTO))
+             .ForMember(dest => dest.DriverName, opt => opt.MapFrom(src => src.DriverName))
+             .ForMember(dest => dest.DriverContactNo, opt => opt.MapFrom(src => src.DriverContactNo))
+             .ForMember(dest => dest.WEFDate, opt => opt.MapFrom(src => src.WEFDate))
+             .ForMember(dest => dest.DrivingLicenseNumber, opt => opt.MapFrom(src => src.DrivingLicenseNumber))
+             .ForMember(dest => dest.LicenceExpiryDate, opt => opt.MapFrom(src => src.LicenceExpiryDate))
+             .ForMember(dest => dest.TransporterCode, opt => opt.MapFrom(src => src.TransporterCode))
+             .ForMember(dest => dest.MappedRoute, opt => opt.MapFrom(src => src.MappedRoute))
+             .ForMember(dest => dest.PollutionCertificate, opt => opt.MapFrom(src => src.PollutionCertificate))
+             .ForMember(dest => dest.Insurance, opt => opt.MapFrom(src => src.Insurance))
+             .ForMember(dest => dest.RCBookNo, opt => opt.MapFrom(src => src.RCBookNo))
+             .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => src.ExpiryDate))
+             .ForMember(dest => dest.Rent, opt => opt.MapFrom(src => src.Rent))
+             .ForMember(dest => dest.Average, opt => opt.MapFrom(src => src.Average))
+             .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
+             .ForMember(dest => dest.FuelTypeCode, opt => opt.MapFrom(src => src.FuelTypeCode))
+             .ForMember(dest => dest.PassingNo, opt => opt.MapFrom(src => src.PassingNo))
+             .ForMember(dest => dest.BMCCode, opt => opt.MapFrom(src => src.BMCCode))
+             .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+             .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
+            CreateMap<VehicleUpdateRequestModel, VehicleUpdateRequest>()
+             .ForMember(dest => dest.VehicleTypeId, opt => opt.MapFrom(src => src.VehicleTypeId))
+             .ForMember(dest => dest.CapacityCode, opt => opt.MapFrom(src => src.CapacityCode))
+             .ForMember(dest => dest.RegistrationNo, opt => opt.MapFrom(src => src.RegistrationNo))
+             .ForMember(dest => dest.ApplicableRTO, opt => opt.MapFrom(src => src.ApplicableRTO))
+             .ForMember(dest => dest.DriverName, opt => opt.MapFrom(src => src.DriverName))
+             .ForMember(dest => dest.DriverContactNo, opt => opt.MapFrom(src => src.DriverContactNo))
+             .ForMember(dest => dest.WEFDate, opt => opt.MapFrom(src => src.WEFDate))
+             .ForMember(dest => dest.DrivingLicenseNumber, opt => opt.MapFrom(src => src.DrivingLicenseNumber))
+             .ForMember(dest => dest.LicenceExpiryDate, opt => opt.MapFrom(src => src.LicenceExpiryDate))
+             .ForMember(dest => dest.TransporterCode, opt => opt.MapFrom(src => src.TransporterCode))
+             .ForMember(dest => dest.MappedRoute, opt => opt.MapFrom(src => src.MappedRoute))
+             .ForMember(dest => dest.PollutionCertificate, opt => opt.MapFrom(src => src.PollutionCertificate))
+             .ForMember(dest => dest.Insurance, opt => opt.MapFrom(src => src.Insurance))
+             .ForMember(dest => dest.RCBookNo, opt => opt.MapFrom(src => src.RCBookNo))
+             .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => src.ExpiryDate))
+             .ForMember(dest => dest.Rent, opt => opt.MapFrom(src => src.Rent))
+             .ForMember(dest => dest.Average, opt => opt.MapFrom(src => src.Average))
+             .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
+             .ForMember(dest => dest.FuelTypeCode, opt => opt.MapFrom(src => src.FuelTypeCode))
+             .ForMember(dest => dest.PassingNo, opt => opt.MapFrom(src => src.PassingNo))
+             .ForMember(dest => dest.BMCCode, opt => opt.MapFrom(src => src.BMCCode))
+             .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+             .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
 
             CreateMap<TransporterInsertRequestModel, TransporterInsertRequest>()
                 .ForMember(dest => dest.TransporterName, opt => opt.MapFrom(src => src.TransporterName))
