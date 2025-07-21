@@ -18,7 +18,7 @@ using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using static MilkMatrix.Milk.Models.Queries.VehicleQueries;
 
-namespace MilkMatrix.Milk.Implementations.Logistics.Route
+namespace MilkMatrix.Milk.Implementations.Logistics.VehicleType
 {
     public class VehicleTypeService : IVehicleTypeService
     {
@@ -124,7 +124,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "CreatedBy", request.CreatedBy }
                 };
 
-                await repository.AddAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.AddAsync(VehicleTypeQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle '{request.VehicleType}' added successfully.");
             }
             catch (Exception ex)

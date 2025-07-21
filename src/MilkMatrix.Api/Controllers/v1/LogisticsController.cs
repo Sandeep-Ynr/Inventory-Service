@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
+using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -14,11 +15,13 @@ using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
+using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
+using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
@@ -38,14 +41,17 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly ITransporterService transporterService;
         private readonly IRouteService routeService;
         private readonly IVehicleTypeService vehicleTypeService;
+        private readonly IVehicleService vehicleService;
         public LogisticsController(IHttpContextAccessor httpContextAccessor, ILogging logger,
-            ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService, IMapper mapper)
+            ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService
+            , IVehicleService vehicleService, IMapper mapper)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(LogisticsController)) ?? throw new ArgumentNullException(nameof(logger));
             this.transporterService = transporterService ?? throw new ArgumentNullException(nameof(transporterService));
             this.routeService = routeService ?? throw new ArgumentNullException(nameof(routeService));
             this.vehicleTypeService = vehicleTypeService ?? throw new ArgumentNullException(nameof(vehicleTypeService));
+            this.vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
             this.mapper = mapper;
         }
         #region Transport
@@ -368,5 +374,113 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         #endregion
+
+        #region Vehicle
+
+        [HttpPost("vehicle-list")]
+        public async Task<IActionResult> VehicleList([FromBody] ListsRequest request)
+        {
+            var result = await vehicleService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("vehicleID{id}")]
+        public async Task<ActionResult<VehicleTypeResponse?>> GetVehicleById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Vehicle by id called for id: {id}");
+                var result = await vehicleService.GetById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"Vehicle with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Vehicle with id {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Vehicle with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Vehicle");
+            }
+        }
+
+        [HttpPost("add-vehicle")]
+        public async Task<IActionResult> AddVehicle([FromBody] VehicleInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Vehicle Type: {request.RegistrationNo}");
+
+                var requestParams = mapper.MapWithOptions<VehicleInsertRequest, VehicleInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                     { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await vehicleService.AddVehicle(requestParams);
+
+                logger.LogInfo($"Vehicle Type {request.RegistrationNo} added successfully.");
+                return Ok(new { message = "Vehicl added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in AddVehicle", ex);
+                return StatusCode(500, "An error occurred while adding the Vehicle");
+            }
+        }
+
+        [HttpPut("update-vehicle")]
+        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleTypeUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || request.VehicleID <= 0)
+                return BadRequest("Invalid request.");
+
+            var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var requestParams = mapper.MapWithOptions<VehicleTypeUpdateRequest, VehicleTypeUpdateRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                 { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
+                });
+
+            await vehicleTypeService.UpdateVehicleType(requestParams);
+
+            logger.LogInfo($"Vehicle Type with id {request.VehicleID} updated successfully.");
+            return Ok(new { message = "Vehicle Type updated successfully." });
+        }
+
+        [HttpDelete("vehicle-delete/{id}")]
+        public async Task<IActionResult> DeleteVehicle(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await vehicleTypeService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"Vehicle Type with id {id} deleted successfully.");
+                return Ok(new { message = "Vehicle Type deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Vehicle Type with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Vehicle Type.");
+            }
+        }
+
+        #endregion
+
     }
 }

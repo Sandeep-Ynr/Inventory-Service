@@ -9,15 +9,15 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Vehicle
     public class VehicleInsertRequest
     {
         public int VehicleTypeId { get; set; }
-        public string CapacityCode { get; set; } = string.Empty;
-        public string RegistrationNo { get; set; } = string.Empty;
+        public string? CapacityCode { get; set; }
+        public string? RegistrationNo { get; set; }
         public string? ApplicableRTO { get; set; }
-        public string DriverName { get; set; } = string.Empty;
+        public string? DriverName { get; set; }
         public string? DriverContactNo { get; set; }
         public DateTime WEFDate { get; set; }
         public string? DrivingLicenseNumber { get; set; }
         public DateTime? LicenceExpiryDate { get; set; }
-        public string TransporterCode { get; set; } = string.Empty;
+        public string? TransporterCode { get; set; }
         public string? MappedRoute { get; set; }
         public string? PollutionCertificate { get; set; }
         public string? Insurance { get; set; }
@@ -25,14 +25,14 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Vehicle
         public DateTime? ExpiryDate { get; set; }
         public decimal? Rent { get; set; }
         public decimal? Average { get; set; }
-        public string CompanyCode { get; set; } = string.Empty;
-        public string FuelTypeCode { get; set; } = string.Empty;
-        public string PassingNo { get; set; } = string.Empty;
+        public string? CompanyCode { get; set; }
+        public string? FuelTypeCode { get; set; }
+        public string? PassingNo { get; set; }
         public string? BMCCode { get; set; }
-        public bool IsActive { get; set; } = true;
-        public DateTime? CreatedOn { get; set; }
-        public int CreatedBy { get; set; }
-        public DateTime? ModifiedOn { get; set; }
-        public int? ModifiedBy { get; set; }
+        public bool IsStatus { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public long CreatedBy { get; set; }
+        public DateTime? ModifyOn { get; set; }
+        public long? ModifyBy { get; set; }
     }
 }

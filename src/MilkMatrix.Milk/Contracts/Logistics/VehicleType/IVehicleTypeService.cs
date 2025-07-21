@@ -8,8 +8,7 @@ using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Response.Logistics.Vehicle;
 
-
-namespace MilkMatrix.Milk.Contracts.Logistics.Vehicle
+namespace MilkMatrix.Milk.Contracts.Logistics.VehicleType
 {
     public interface IVehicleService
     {

@@ -31,7 +31,7 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMapper mapper;
         private readonly ISahayakVSPService sahayakvpsservice;
         public SahayakVSPController(IHttpContextAccessor httpContextAccessor, ILogging logging, IRouteService routeService, 
-            IVehicleTypeService vehicleTypeService, ISahayakVSPService sahayakvpsservice, IMapper mapper)
+             ISahayakVSPService sahayakvpsservice, IMapper mapper)
         {
             // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
