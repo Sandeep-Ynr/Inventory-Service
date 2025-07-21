@@ -5,21 +5,17 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Api.Models.Request.Route;
 using MilkMatrix.Api.Models.Request.SahayakVSP;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Milk.Contracts.Route;
+using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
-using MilkMatrix.Milk.Contracts.Vehicle;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
-using MilkMatrix.Milk.Models.Request.Route;
 using MilkMatrix.Milk.Models.Request.SahayakVSP;
-using MilkMatrix.Milk.Models.Response.Route;
 using MilkMatrix.Milk.Models.Response.SahayakVSP;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
@@ -35,7 +31,7 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMapper mapper;
         private readonly ISahayakVSPService sahayakvpsservice;
         public SahayakVSPController(IHttpContextAccessor httpContextAccessor, ILogging logging, IRouteService routeService, 
-            IVehicleTypeService vehicleTypeService, ISahayakVSPService sahayakvpsservice, IMapper mapper)
+             ISahayakVSPService sahayakvpsservice, IMapper mapper)
         {
             // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));

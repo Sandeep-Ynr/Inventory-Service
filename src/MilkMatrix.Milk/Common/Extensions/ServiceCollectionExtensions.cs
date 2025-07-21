@@ -4,17 +4,21 @@ using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Contracts.Logistics.Route;
+using MilkMatrix.Milk.Contracts.Logistics.Transporter;
+using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
+using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Contracts.Mcc;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
-using MilkMatrix.Milk.Contracts.Route;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
-using MilkMatrix.Milk.Contracts.Vehicle;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
+using MilkMatrix.Milk.Implementations.Logistics.Route;
+using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
 using MilkMatrix.Milk.Implementations.Mcc;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Plant;
@@ -44,6 +48,9 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IAnimalService, AnimalService>()
                     .AddScoped<IPartyGroupService, PartyGroupService>()
                     .AddScoped<IPartyService, PartyService>()
-                    .AddScoped<IMilkService, MilkService>();
+                    .AddScoped<IMilkService, MilkService>()
+                    .AddScoped<ITransporterService, TransporterService>()
+                    .AddScoped<IVehicleService, VehicleService>()
+                    .AddScoped<IVendorService, IVendorService>();
     }
 }

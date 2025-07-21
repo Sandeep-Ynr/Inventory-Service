@@ -21,6 +21,19 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+                    
+            CreateMap<RateTypeUpdateRequestModel, RateTypeUpdateRequest>()
+                        .ForMember(x => x.RateTypeId, opt => opt.MapFrom(src => src.RateTypeId))
+                        .ForMember(x => x.RateTypeName, opt => opt.MapFrom(src => src.RateTypeName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+            CreateMap<RateTypeInsertRequestModel, RateTypeInsertRequest>()
+                        .ForMember(x => x.RateTypeName, opt => opt.MapFrom(src => src.RateTypeName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         }
     }
 }
