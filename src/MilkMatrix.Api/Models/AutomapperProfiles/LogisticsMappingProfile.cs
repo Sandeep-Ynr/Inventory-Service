@@ -3,11 +3,13 @@ using Azure.Core;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Api.Models.Request.Logistics.Vendor;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
     public class LogisticsMappingProfile : Profile
@@ -183,6 +185,31 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
-           }
+            CreateMap<VendorInsertRequestModel, VendorInsertRequest>()
+                .ForMember(dest => dest.VendorCode, opt => opt.MapFrom(src => src.VendorCode))
+                .ForMember(dest => dest.VendorName, opt => opt.MapFrom(src => src.VendorName))
+                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+                .ForMember(dest => dest.MobileNo, opt => opt.MapFrom(src => src.MobileNo))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.GSTIN, opt => opt.MapFrom(src => src.GSTIN))
+                .ForMember(dest => dest.PanNo, opt => opt.MapFrom(src => src.PanNo))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.CreatedBy,opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+          
+            CreateMap<VendorUpdateRequestModel, VendorUpdateRequest>()
+                 .ForMember(dest => dest.VendorId, opt => opt.MapFrom(src => src.VendorId))
+                .ForMember(dest => dest.VendorCode, opt => opt.MapFrom(src => src.VendorCode))
+                .ForMember(dest => dest.VendorName, opt => opt.MapFrom(src => src.VendorName))
+                .ForMember(dest => dest.ContactPerson, opt => opt.MapFrom(src => src.ContactPerson))
+                .ForMember(dest => dest.MobileNo, opt => opt.MapFrom(src => src.MobileNo))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.GSTIN, opt => opt.MapFrom(src => src.GSTIN))
+                .ForMember(dest => dest.PanNo, opt => opt.MapFrom(src => src.PanNo))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.ModifyBy,opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+        }
     }
 }
