@@ -26,5 +26,10 @@ namespace MilkMatrix.Milk.Models.Queries
         public const string AddVehicle = "usp_vehicle_insupd";
         public const string GetVehicleList = "usp_vehicle_list";
     }
+    public static class VendorQueries
+    {
+        public const string AddVendor = "usp_vendor_insupd";
+        public const string GetVendorList = "usp_vendor_list";
+    }
 
 }

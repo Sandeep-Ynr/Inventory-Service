@@ -165,9 +165,54 @@ namespace MilkMatrix.Milk.Implementations
             throw new NotImplementedException();
         }
 
-        public Task UpdateVehicle(VehicleUpdateRequest request)
+        public async Task UpdateVehicle(VehicleUpdateRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "VehicleID", request.VehicleId },
+                    { "VehicleTypeId", request.VehicleTypeId },
+                    { "CapacityCode", request.CapacityCode ?? (object)DBNull.Value },
+                    { "RegistrationNo", request.RegistrationNo ?? (object)DBNull.Value },
+                    { "ApplicableRTO", request.ApplicableRTO ?? (object)DBNull.Value },
+                    { "DriverName", request.DriverName ?? (object)DBNull.Value },
+                    { "DriverContactNo", request.DriverContactNo ?? (object)DBNull.Value },
+                    { "WEFDate", request.WEFDate },
+                    { "DrivingLicenseNumber", request.DrivingLicenseNumber ?? (object)DBNull.Value },
+                    { "LicenceExpiryDate", request.LicenceExpiryDate ?? (object)DBNull.Value },
+                    { "TransporterCode", request.TransporterCode ?? (object)DBNull.Value },
+                    { "MappedRoute", request.MappedRoute ?? (object)DBNull.Value },
+                    { "PollutionCertificate", request.PollutionCertificate ?? (object)DBNull.Value },
+                    { "Insurance", request.Insurance ?? (object)DBNull.Value },
+                    { "RCBookNo", request.RCBookNo ?? (object)DBNull.Value },
+                    { "ExpiryDate", request.ExpiryDate ?? (object)DBNull.Value },
+                    { "Rent", request.Rent ?? (object)DBNull.Value },
+                    { "Average", request.Average ?? (object)DBNull.Value },
+                    { "CompanyCode", request.CompanyCode ?? (object)DBNull.Value },
+                    { "FuelTypeCode", request.FuelTypeCode ?? (object)DBNull.Value },
+                    { "PassingNo", request.PassingNo ?? (object)DBNull.Value },
+                    { "BMCCode", request.BMCCode ?? (object)DBNull.Value },
+                    { "IsStatus", request.IsStatus },
+                    { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
+                };
+
+                var message = await repository.UpdateAsync(VehicleQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+
+                logging.LogInfo($"Vehicle '{request.RegistrationNo}' updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in UpdateVehicle: {request.RegistrationNo}", ex);
+                throw;
+            }
         }
+
     }
 }

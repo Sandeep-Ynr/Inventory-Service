@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Api.Models.Request.Logistics.Vendor;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -16,15 +17,18 @@ using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
+using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
+using MilkMatrix.Milk.Models.Response.Logistics.Vendor;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -42,9 +46,10 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IRouteService routeService;
         private readonly IVehicleTypeService vehicleTypeService;
         private readonly IVehicleService vehicleService;
+        private readonly IVendorService vendorService;
         public LogisticsController(IHttpContextAccessor httpContextAccessor, ILogging logger,
             ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService
-            , IVehicleService vehicleService, IMapper mapper)
+            , IVehicleService vehicleService, IVendorService vendorService, IMapper mapper)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(LogisticsController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -52,6 +57,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.routeService = routeService ?? throw new ArgumentNullException(nameof(routeService));
             this.vehicleTypeService = vehicleTypeService ?? throw new ArgumentNullException(nameof(vehicleTypeService));
             this.vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
+            this.vendorService = vendorService ?? throw new ArgumentNullException(nameof(vendorService));
             this.mapper = mapper;
         }
         #region Transport
@@ -374,7 +380,6 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         #endregion
-
         #region Vehicle
 
         [HttpPost("vehicle-list")]
@@ -443,25 +448,26 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPut("update-vehicle")]
-        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleTypeUpdateRequestModel request)
+        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || request.VehicleID <= 0)
+            if (!ModelState.IsValid || request.VehicleId <= 0)
                 return BadRequest("Invalid request.");
 
             var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-            var requestParams = mapper.MapWithOptions<VehicleTypeUpdateRequest, VehicleTypeUpdateRequestModel>(
+            var requestParams = mapper.MapWithOptions<VehicleUpdateRequest, VehicleUpdateRequestModel>(
                 request,
                 new Dictionary<string, object>
                 {
                  { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
                 });
 
-            await vehicleTypeService.UpdateVehicleType(requestParams);
+            await vehicleService.UpdateVehicle(requestParams);
 
-            logger.LogInfo($"Vehicle Type with id {request.VehicleID} updated successfully.");
-            return Ok(new { message = "Vehicle Type updated successfully." });
+            logger.LogInfo($"Vehicle Type with id {request.VehicleId} updated successfully.");
+            return Ok(new { message = "Vehicle updated successfully." });
         }
+
 
         [HttpDelete("vehicle-delete/{id}")]
         public async Task<IActionResult> DeleteVehicle(int id)
@@ -469,18 +475,136 @@ namespace MilkMatrix.Api.Controllers.v1
             try
             {
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await vehicleTypeService.Delete(id, Convert.ToInt32(userId));
-                logger.LogInfo($"Vehicle Type with id {id} deleted successfully.");
-                return Ok(new { message = "Vehicle Type deleted successfully." });
+                await vehicleService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"Vehicle with id {id} deleted successfully.");
+                return Ok(new { message = "Vehicle deleted successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error deleting Vehicle Type with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Vehicle Type.");
+                logger.LogError($"Error deleting Vehicle with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Vehicle");
             }
         }
 
         #endregion
+        #region Vendor
 
+        [HttpPost("list-vendor")]
+        public async Task<IActionResult> GetVendorList([FromBody] ListsRequest request)
+        {
+            var result = await vendorService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("vendor/{vendorId}")]
+        public async Task<ActionResult<VendorResponse?>> GetByVendorId(int vendorId)
+        {
+            try
+            {
+                logger.LogInfo($"Get Vendor by Id called: {vendorId}");
+                var result = await vendorService.GetByVendorId(vendorId);
+                if (result == null)
+                {
+                    logger.LogInfo($"Vendor with Id {vendorId} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Vendor with Id {vendorId} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Vendor with Id: {vendorId}", ex);
+                return StatusCode(500, "An error occurred while retrieving the vendor.");
+            }
+        }
+
+        [HttpPost("add-vendor")]
+        public async Task<IActionResult> AddVendor([FromBody] VendorInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add Vendor called: {request.VendorName}");
+
+                var mappedRequest = mapper.MapWithOptions<VendorInsertRequest, VendorInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await vendorService.AddVendor(mappedRequest);
+                logger.LogInfo($"Vendor {request.VendorName} added successfully.");
+                return Ok(new { message = "Vendor added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding vendor", ex);
+                return StatusCode(500, "An error occurred while adding the vendor.");
+            }
+        }
+
+        [HttpPut("update-Id")]
+        public async Task<IActionResult> UpdateVendor([FromBody] VendorUpdateRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Update Vendor called: {request.VendorId}");
+
+                var mappedRequest = mapper.MapWithOptions<VendorUpdateRequest, VendorUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+
+                await vendorService.UpdateVendor(mappedRequest);
+                logger.LogInfo($"Vendor {request.VendorId} updated successfully.");
+                return Ok(new { message = "Vendor updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error updating vendor", ex);
+                return StatusCode(500, "An error occurred while updating the vendor.");
+            }
+        }
+
+        [HttpDelete("vendor-delete/{vendorId}")]
+        public async Task<IActionResult> DeleteVendor(int vendorId)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await vendorService.DeleteVendor(vendorId, Convert.ToInt64(userId));
+                logger.LogInfo($"Vendor with Id {vendorId} deleted successfully.");
+                return Ok(new { message = "Vendor deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Vendor with Id: {vendorId}", ex);
+                return StatusCode(500, "An error occurred while deleting the vendor.");
+            }
+        }
+
+        #endregion
     }
 }

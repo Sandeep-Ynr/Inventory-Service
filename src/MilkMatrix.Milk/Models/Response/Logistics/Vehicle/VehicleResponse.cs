@@ -29,7 +29,6 @@ namespace MilkMatrix.Milk.Models.Response.Logistics.Vehicle
         public string? FuelTypeCode { get; set; }
         public string? PassingNo { get; set; }
         public string? BMCCode { get; set; }
-        public bool IsStatus { get; set; }
         public DateTime CreatedOn { get; set; }
         public long CreatedBy { get; set; }
         public DateTime? ModifyOn { get; set; }
