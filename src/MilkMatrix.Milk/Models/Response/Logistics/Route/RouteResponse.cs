@@ -18,6 +18,6 @@ namespace MilkMatrix.Milk.Models.Response.Logistics.Route
         public long? CreatedBy { get; set; }
         public DateTime? ModifyOn { get; set; }
         public long? ModifyBy { get; set; }
-        public bool is_status { get; set; }
+        
     }
 }
