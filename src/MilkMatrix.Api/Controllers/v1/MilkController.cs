@@ -137,5 +137,102 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
+        [HttpPost]
+        [Route("rateypelist")]
+        public async Task<IActionResult> RateList([FromBody] ListsRequest request)
+        {
+            var result = await milkService.GetAllRateTypeAsync(request);
+            return Ok(result);
+        }
+
+        [HttpGet("ratetype{id}")]
+        public async Task<ActionResult<RateTypeInsertResponse?>> GetRatetypeById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Milk Type by id called for id: {id}");
+                var mcc = await milkService.GetRateTypeByIdAsync(id);
+                if (mcc == null)
+                {
+                    logger.LogInfo($"Milk Type with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Milk Type with id {id} retrieved successfully.");
+                return Ok(mcc);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Milk Type with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Milk Type.");
+            }
+        }
+
+        [HttpPost]
+        [Route("addratetype")]
+        public async Task<IActionResult> AddRateAsync([FromBody] RateTypeInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Animal Type: {request.RateTypeName}");
+                var requestParams = mapper.MapWithOptions<RateTypeInsertRequest, RateTypeInsertRequestModel>(request
+                    , new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await milkService.AddRateTypeAsync(requestParams);
+                logger.LogInfo($"Rate Type {request.RateTypeName} added successfully.");
+                return Ok(new { message = "Rate Type added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add Rate Type", ex);
+                return StatusCode(500, "An error occurred while adding the Rate Type.");
+            }
+        }
+
+        [HttpPut]
+        [Route("updateratetype/{id}")]
+        public async Task<IActionResult> UpdateRateTypAsync(int id, [FromBody] RateTypeUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<RateTypeUpdateRequest, RateTypeUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await milkService.UpdateRateTypeAsync(requestParams);
+            logger.LogInfo($"Rate Type with id {request.RateTypeId} updated successfully.");
+            return Ok(new { message = "Rate Type updated successfully." });
+        }
+
+        [HttpDelete("deleteratetype/{id}")]
+        public async Task<IActionResult> DeleteRateType(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await milkService.DeleteRateTypeAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Rate Type with id {id} deleted successfully.");
+                return Ok(new { message = "Rate Type deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Rate Type with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Rate Type.");
+            }
+        }
+
     }
 }
