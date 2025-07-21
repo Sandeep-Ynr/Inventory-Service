@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -15,7 +16,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 return await conn.QueryAsync<T>("SELECT Id, Name FROM Users");
             }
             catch (Exception ex)
@@ -29,7 +30,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -57,7 +58,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                var connection = new SqlConnection(_connectionString);
+                var connection = new SqlConnection(connString);
                 await connection.OpenAsync();
 
                 var dynamicParams = new DynamicParameters();
@@ -87,7 +88,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -115,7 +116,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -144,7 +145,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -173,7 +174,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -202,7 +203,7 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
         {
             try
             {
-                using var conn = new SqlConnection(_connectionString);
+                using var conn = new SqlConnection(connString);
                 var dynamicParams = new DynamicParameters();
                 if (parameters != null)
                 {
@@ -222,6 +223,60 @@ namespace MilkMatrix.DataAccess.Dapper.Implementations
             catch (Exception ex)
             {
                 logger.LogError("Error in ExecuteScalarAsync", ex);
+                throw;
+            }
+        }
+
+        public override async Task<int> BulkInsertAsync<T>(
+            string tableName,
+            IEnumerable<T> items,
+            Dictionary<string, string> propertyToColumnMap,
+            int batchSize = 1000)
+        {
+            using var connection = new SqlConnection(connString);
+            await connection.OpenAsync();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                int totalInserted = 0;
+                var props = typeof(T).GetProperties();
+                var colList = propertyToColumnMap.Values.ToList();
+                var itemList = items.ToList();
+
+                for (int i = 0; i < itemList.Count; i += batchSize)
+                {
+                    var batch = itemList.Skip(i).Take(batchSize).ToList();
+                    var sb = new StringBuilder();
+                    var parameters = new DynamicParameters();
+
+                    sb.Append($"INSERT INTO {tableName} ({string.Join(", ", colList)}) VALUES ");
+
+                    var valueRows = new List<string>();
+                    for (int colindex = 0; colindex < batch.Count; colindex++)
+                    {
+                        var valueParams = new List<string>();
+                        foreach (var column in propertyToColumnMap)
+                        {
+                            var paramName = $"@{column.Value}_{colindex}";
+                            valueParams.Add(paramName);
+
+                            var prop = props.FirstOrDefault(p => p.Name.Equals(column.Key, StringComparison.OrdinalIgnoreCase));
+                            parameters.Add(paramName, prop?.GetValue(batch[colindex], null));
+                        }
+                        valueRows.Add($"({string.Join(", ", valueParams)})");
+                    }
+                    sb.Append(string.Join(", ", valueRows));
+
+                    totalInserted += await connection.ExecuteAsync(sb.ToString(), parameters, transaction);
+                }
+
+                transaction.Commit();
+                return totalInserted;
+            }
+            catch
+            {
+                transaction.Rollback();
                 throw;
             }
         }

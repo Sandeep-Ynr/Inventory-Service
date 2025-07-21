@@ -5,15 +5,18 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Uploader;
+using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
+using Constants = MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1;
 
@@ -28,13 +31,14 @@ public class UserController : ControllerBase
     private ILogging logger;
     private readonly IHttpContextAccessor httpContextAccessor;
     private readonly IMapper mapper;
-
-    public UserController(IUserService userService, ILogging logger, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+    private readonly IFileUploader fileUploader;
+    public UserController(IUserService userService, ILogging logger, IHttpContextAccessor httpContextAccessor, IMapper mapper, IFileUploader fileUploader)
     {
         this.userService = userService;
         this.logger = logger.ForContext("ServiceName", nameof(UserController));
         this.httpContextAccessor = httpContextAccessor;
         this.mapper = mapper;
+        this.fileUploader = fileUploader;
     }
 
     #region User management
@@ -169,5 +173,58 @@ public class UserController : ControllerBase
         }
     }
 
+    #endregion
+
+    #region Bulk User Upload
+
+    [HttpGet("bulk-user-template")]
+    public IActionResult DownloadBulkUserTemplate()
+    {
+        var csvBytes = CsvTemplateHelper.GenerateCsvTemplate<UserUploadModel>();
+        var fileName = "BulkUserUploadTemplate.csv";
+        return File(csvBytes, "text/csv", fileName);
+    }
+
+    [HttpPost("bulk-user")]
+    public async Task<IActionResult> BulkUpload(IFormFile request)
+    {
+        if (request == null)
+        {
+            logger.LogWarning(ErrorMessage.NothingSelectedToUpload);
+            return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ErrorMessage.NothingSelectedToUpload });
+        }
+
+        try
+        {
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            // Modify the line to create a list of UploadRequest objects instead of passing IFormFile directly
+            var uploadRequests = new List<UploadRequest>
+            {
+                new UploadRequest
+                {
+                    FolderType = FolderType.BulkUserUploadPath, // Replace with the appropriate FolderType
+                    FormFile = new List<IFormFile> { request }
+                }
+            };
+
+            var fileResponse = await fileUploader.UploadFile<UploadRequest, UploadResponse>(uploadRequests, UserId, true);
+
+            if (!fileResponse.Any())
+            {
+                return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ErrorMessage.NoFileError });
+            }
+            else
+            {
+                await userService.AddBulkUsersAsync(fileResponse.FirstOrDefault()!.FileBytes, Convert.ToInt32(UserId));
+                return Ok("Bulk user upload started.");
+            }
+        }
+
+        catch (Exception ex)
+        {
+            logger.LogError(ex.Message, ex);
+            return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ex.Message });
+        }
+    }
     #endregion
 }

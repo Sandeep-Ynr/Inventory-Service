@@ -28,6 +28,9 @@ public static partial class Constants
         public const string UserUpsert = "usp_user_registration_insupd"; //For User Insert/Update
         public const string GetUsers = "usp_get_user_details"; //For getting users
         public const string UserProfileUpdate = "usp_user_profile_upd"; //For User profile Update
+        public const string UserStagingTable = "tbl_staging_bulk_users"; //for bulk user staging table
+        public const string ProcessStagedUsers = "usp_process_bulk_users"; //For processing staged users
+        public const string GetFailedBulkProcessingUsers = "SELECT * FROM tbl_staging_bulk_users WHERE ProcessStatus = 'Failed'"; //For getting failed processing users
     }
 
     public static class BusinessSpName
@@ -111,5 +114,6 @@ public static partial class Constants
         public const string CreatedBy = "CreatedBy";
         public const string ModifiedBy = "ModifiedBy";
         public const string ApprovedOn = "ApprovedOn";
+        public const string TempPassword = "TempPassword";
     }
 }

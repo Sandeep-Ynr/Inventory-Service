@@ -36,7 +36,7 @@ public class UploadService : IUploadService
 
     public async Task<IEnumerable<TResponse>> UploadFile<TRequest, TResponse>(IEnumerable<TRequest> files, string UID, bool isCsv = false)
     {
-        if (files == null || !files.Any())
+        if (files is not IEnumerable<FileRequest> fileRequests || !fileRequests.Any())
         {
             logger.LogError(ErrorMessage.NoFileError);
             throw new Exception(ErrorMessage.NoFileError);
@@ -45,13 +45,20 @@ public class UploadService : IUploadService
         var tasks = new List<Task>();
         var fileToUploadToDb = new List<FileResponse>();
 
-        foreach (var file in files)
+        foreach (var fileRequest in fileRequests)
         {
-            if (file is IFormFile formFile && FileHelpers.ValidateFile(formFile, fileConfig, isCsv))
+            if (fileRequest.FormFile == null || !fileRequest.FormFile.Any())
+                continue;
+
+            foreach (var formFile in fileRequest.FormFile)
             {
-                tasks.Add(formFile.ProcessFile(fileToUploadToDb, fileConfig, UID));
+                if (FileHelpers.ValidateFile(formFile, fileConfig, isCsv))
+                {
+                    tasks.Add(formFile.ProcessFile(fileToUploadToDb, fileConfig, UID, fileRequest.FolderType));
+                }
             }
         }
+
         await Task.WhenAll(tasks);
 
         if (typeof(TResponse) == typeof(FileResponse))

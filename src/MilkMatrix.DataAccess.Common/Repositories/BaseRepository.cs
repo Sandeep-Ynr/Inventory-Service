@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Reflection;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository;
@@ -10,7 +11,7 @@ namespace MilkMatrix.DataAccess.Common.Repositories;
 
 public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
 {
-    protected readonly string _connectionString;
+    protected readonly string connString;
 
     protected readonly ILogging logger;
 
@@ -19,7 +20,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public BaseRepository(string connectionString, ILogging logger)
     {
-        _connectionString = connectionString;
+        connString = connectionString;
         this.logger = logger.ForContext("Repository", nameof(BaseRepository<T>));
     }
 
@@ -28,7 +29,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         try
         {
             var result = new List<T>();
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand("SELECT Id, Name FROM Users", conn);
             await conn.OpenAsync();
             using var reader = await cmd.ExecuteReaderAsync();
@@ -49,7 +50,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         try
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn)
             {
                 CommandType = commandType
@@ -90,7 +91,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         try
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn)
             {
                 CommandType = commandType
@@ -122,7 +123,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         try
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn)
             {
                 CommandType = commandType
@@ -154,7 +155,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         try
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn)
             {
                 CommandType = commandType
@@ -187,7 +188,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         try
         {
             var result = new List<T>();
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn)
             {
                 CommandType = commandType,
@@ -242,7 +243,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         try
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(connString);
             using var cmd = new SqlCommand(query, conn);
             cmd.CommandText = query;
             cmd.CommandType = commandType;
@@ -264,6 +265,68 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
         catch (Exception ex)
         {
             logger.LogError("Error in ExecuteScalarAsync", ex);
+            throw;
+        }
+    }
+
+    public virtual async Task<int> BulkInsertAsync<TDomain>(
+    string tableName,
+    IEnumerable<TDomain> items,
+    Dictionary<string, string> properties,
+    int batchSize = 1000)
+    {
+        if (items == null) throw new ArgumentNullException(nameof(items));
+        if (properties == null || properties.Count == 0)
+            throw new ArgumentException("Property to column map is required.", nameof(properties));
+
+        var props = typeof(TDomain).GetProperties();
+        var colList = properties.Values.ToList();
+        var itemList = items.ToList();
+        int totalInserted = 0;
+
+        using var conn = new SqlConnection(connString);
+        await conn.OpenAsync();
+        using var transaction = conn.BeginTransaction();
+
+        try
+        {
+            for (int i = 0; i < itemList.Count; i += batchSize)
+            {
+                var batch = itemList.Skip(i).Take(batchSize).ToList();
+                var sb = new StringBuilder();
+                var parameters = new List<SqlParameter>();
+
+                sb.Append($"INSERT INTO {tableName} ({string.Join(", ", colList)}) VALUES ");
+
+                var valueRows = new List<string>();
+                for (int j = 0; j < batch.Count; j++)
+                {
+                    var valueParams = new List<string>();
+                    foreach (var map in properties)
+                    {
+                        var paramName = $"@{map.Value}_{j}";
+                        valueParams.Add(paramName);
+
+                        var prop = props.FirstOrDefault(p => p.Name.Equals(map.Key, StringComparison.OrdinalIgnoreCase));
+                        var value = prop?.GetValue(batch[j], null) ?? DBNull.Value;
+                        parameters.Add(new SqlParameter(paramName, value ?? DBNull.Value));
+                    }
+                    valueRows.Add($"({string.Join(", ", valueParams)})");
+                }
+                sb.Append(string.Join(", ", valueRows));
+
+                using var cmd = new SqlCommand(sb.ToString(), conn, transaction);
+                cmd.Parameters.AddRange(parameters.ToArray());
+                totalInserted += await cmd.ExecuteNonQueryAsync();
+            }
+
+            transaction.Commit();
+            return totalInserted;
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            logger.LogError("Error in BulkInsertAsync", ex);
             throw;
         }
     }

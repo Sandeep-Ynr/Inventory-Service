@@ -12,4 +12,5 @@ public enum FolderType
     PurchasePath = 8,
     SalesPath = 9,
     DownloadPdfPath = 10,
+    BulkUserUploadPath = 11,
 }

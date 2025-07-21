@@ -23,5 +23,6 @@ public static partial class Constants
         public const string MissingParameter = "Any of following required parameters not passed {0}";
         public const string InvalidRequest = "Invalid request";
         public const string GetError = "An error occurred in a GET for {0}";
+        public const string NothingSelectedToUpload = "Please select atleast one file to upload";
     }
 }

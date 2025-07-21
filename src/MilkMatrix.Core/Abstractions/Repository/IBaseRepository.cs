@@ -30,4 +30,6 @@ public interface IBaseRepository<T> where T : class
     /// <param name="commandType">The command type (Text or StoredProcedure).</param>
     /// <returns>The first column of the first row in the result set.</returns>
     Task<int> ExecuteScalarAsync(string query, Dictionary<string, object> parameters, CommandType commandType = CommandType.StoredProcedure);
+
+    Task<int> BulkInsertAsync<TDomain>(string tableName, IEnumerable<TDomain> items, Dictionary<string, string> properties, int batchSize = 1000);
 }

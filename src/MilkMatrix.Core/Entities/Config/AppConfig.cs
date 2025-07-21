@@ -49,4 +49,8 @@ public sealed record AppConfig
     /// UI Domain
     /// </summary>
     public string ApplicationDomain { get; set; } = string.Empty;
+
+    public int UserBulkUploadBatchSize { get; set; } = 1000;
+
+    public string DefaultPassword { get; set; } = string.Empty;
 }

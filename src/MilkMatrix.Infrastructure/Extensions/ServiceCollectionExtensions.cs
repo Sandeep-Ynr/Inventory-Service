@@ -1,14 +1,19 @@
+using CsvHelper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MilkMatrix.Core.Abstractions.Csv;
 using MilkMatrix.Core.Abstractions.DataProvider;
+using MilkMatrix.Core.Abstractions.HostedServices;
 using MilkMatrix.Core.Abstractions.HttpClient;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Notification;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Abstractions.Uploader;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Infrastructure.Common.Csv;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
+using MilkMatrix.Infrastructure.Common.HostedServices;
 using MilkMatrix.Infrastructure.Common.Logger.Implementation;
 using MilkMatrix.Infrastructure.Common.Notifications;
 using MilkMatrix.Infrastructure.Common.Uploader;
@@ -44,11 +49,13 @@ namespace MilkMatrix.Infrastructure.Extensions
                 .AddSingleton<ILogging, LoggingAdapter>()
                 .AddHttpClient()
                 .AddScoped<IClientFactory, ClientFactory>()
+                .AddScoped<ICsvReader, CsvFileReader>()
                 .AddScoped<INotificationService, NotificationAdapter>()
                 .AddScoped<IFileUploader, UploadProvider>()
                 .AddNotificationServices(configuration)
                 .AddDataAccess()
-                .AddScoped<IQueryMultipleData, QueryMultipleData>();
+                .AddScoped<IQueryMultipleData, QueryMultipleData>()
+                .AddBackgroundProcessing();
 
         public static IServiceCollection AddConfigs(this IServiceCollection services, IConfiguration configuration) =>
             services
@@ -60,5 +67,13 @@ namespace MilkMatrix.Infrastructure.Extensions
 
         public static IServiceCollection AddDataAccess(this IServiceCollection services) =>
             services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
+
+        public static IServiceCollection AddBackgroundProcessing(this IServiceCollection services)
+        {
+            services.AddSingleton<IBulkProcessingTasks, BulkProcessingTasks>();
+            services.AddSingleton<IBulkHostedService, BulkHostedService>();
+            services.AddHostedService(provider => (BulkHostedService)provider.GetRequiredService<IBulkHostedService>());
+            return services;
+        }
     }
 }

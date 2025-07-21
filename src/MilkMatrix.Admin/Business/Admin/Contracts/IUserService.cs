@@ -53,4 +53,11 @@ public interface IUserService
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<IListsResponse<Users>> GetAllAsync(IListsRequest request, int userId);
+
+    /// <summary>
+    /// Adds users based on the request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddBulkUsersAsync(byte[] bytes, int userId);
 }
