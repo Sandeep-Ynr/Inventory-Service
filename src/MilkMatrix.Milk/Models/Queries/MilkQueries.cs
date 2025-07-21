@@ -13,5 +13,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetMilkTypeList = "usp_milk_type_list";
             public const string InsupdMilkType = "usp_milk_type_insupd";
         }
+
+        public static class RateTypeQueries
+        {
+            public const string GetRateTypeList = "usp_rate_type_list";
+            public const string InsupdRateType = "usp_rate_type_insupd";
+        }
     }
 }

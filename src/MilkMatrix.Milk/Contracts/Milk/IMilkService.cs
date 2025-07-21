@@ -12,5 +12,11 @@ namespace MilkMatrix.Milk.Contracts.Milk
         Task AddAsync(MilkTypeInsertRequest request);
         Task UpdateAsync(MilkTypeUpdateRequest request);
         Task DeleteAsync(int id, int userId);
+
+        Task<IListsResponse<RateTypeInsertResponse>> GetAllRateTypeAsync(IListsRequest request);
+        Task<RateTypeInsertResponse?> GetRateTypeByIdAsync(int id);
+        Task AddRateTypeAsync(RateTypeInsertRequest request);
+        Task UpdateRateTypeAsync(RateTypeUpdateRequest request);
+        Task DeleteRateTypeAsync(int id, int userId);
     }
 }
