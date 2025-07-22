@@ -13,8 +13,8 @@ namespace MilkMatrix.Milk.Models.Queries
     }
     public static class VehicleTypeQueries
     {
-        public const string AddVehicle = "usp_vehicle_insupd";
-        public const string GetVehicleList = "usp_vehicle_list";
+        public const string AddVehicle = "usp_vehicletype_insupd";
+        public const string GetVehicleList = "usp_vehicletype_list";
     }
     public static class TransporterQueries
     {
