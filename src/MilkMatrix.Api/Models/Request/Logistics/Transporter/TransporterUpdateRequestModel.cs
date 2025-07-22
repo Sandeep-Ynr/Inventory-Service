@@ -35,6 +35,5 @@ namespace MilkMatrix.Api.Models.Request.Logistics.Transporter
         public int? VendorID { get; set; }
         public bool? IsDeleted { get; set; }
         public bool IsStatus { get; set; }
-        public long? ModifiedBy { get; set; }
     }
 }
