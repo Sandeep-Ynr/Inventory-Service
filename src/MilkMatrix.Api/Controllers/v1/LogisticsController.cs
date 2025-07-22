@@ -438,7 +438,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 await vehicleService.AddVehicle(requestParams);
 
                 logger.LogInfo($"Vehicle Type {request.RegistrationNo} added successfully.");
-                return Ok(new { message = "Vehicl added successfully." });
+                return Ok(new { message = "Vehicle added successfully." });
             }
             catch (Exception ex)
             {
