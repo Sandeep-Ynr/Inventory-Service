@@ -1,7 +1,11 @@
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Core.Abstractions.DataProvider;
@@ -602,6 +606,151 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             // 5. Return result
             return new ListsResponse<SmsControlDetails>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+        #endregion
+
+        #region Common Status
+
+        public async Task<CommonStatusDetails?> GetByStatusIdAsync(int id)
+        {
+            try
+            {
+                var repo = repositoryFactory
+                           .ConnectDapper<CommonStatusDetails>(DbConstants.Main);
+                var data = await repo.QueryAsync<CommonStatusDetails>(ConfigurationSettingSpName.StatusList, new Dictionary<string, object> { { "Id", id },
+                                                                                { "ActionType", (int)ReadActionType.Individual } }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : default;
+                logger.LogInfo(result != null
+                    ? $"Status with id {id} retrieved successfully."
+                    : $"Status with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetByStatusIdAsync for id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task AddStatusAsync(CommonStatusInsert request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<CommonStatusInsert>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["status_Name"] = request.StatusName,
+                    ["status_Type"] = request.StatusType,
+                    ["status_parentId"] = request.ParentId,
+                    ["status_Show_To_User"] = request.ShowToUser,
+                    ["Abbreviation"] = request.Abbreviation,
+                    ["BusinessId"] = request.BusinessId,
+                    ["IsStatus"] = true,
+                    ["CreatedBy"] = request.CreatedBy,
+                    ["ActionType"] = (int)CrudActionType.Create
+                };
+
+                await repo.AddAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
+                logger.LogInfo($"Status {request.StatusName} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateStatusAsync(CommonStatusUpdate request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+
+            try
+            {
+                var repo = repositoryFactory.ConnectDapper<CommonStatusUpdate>(DbConstants.Main);
+
+                var parameters = new Dictionary<string, object>
+                {
+                    ["id"] = request.Id,
+                    ["status_Name"] = request.StatusName,
+                    ["status_Type"] = request.StatusType,
+                    ["status_parentId"] = request.ParentId,
+                    ["status_Show_To_User"] = request.ShowToUser,
+                    ["Abbreviation"] = request.Abbreviation,
+                    ["BusinessId"] = request.BusinessId,
+                    ["IsStatus"] = request.IsActive,
+                    ["ModifyBy"] = request.ModifyBy,
+                    ["ActionType"] = (int)CrudActionType.Update
+                };
+
+                await repo.UpdateAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
+                logger.LogInfo($"Status {request.StatusName} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteStatusAsync(int id, int userId)
+        {
+            try
+            {
+                logger.LogInfo($"DeleteStatusAsync called for status id: {id}");
+                var repo = repositoryFactory.ConnectDapper<CommonStatusUpdate>(DbConstants.Main);
+                var parameters = new Dictionary<string, object>
+            {
+                {"Id", id },
+                {"IsStatus", false },
+                {"ModifyBy", userId },
+                {"ActionType" , (int)CrudActionType.Delete }
+            };
+                await repo.DeleteAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
+                logger.LogInfo($"DeleteStatusAsync with id {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in DeleteStatusAsync for status id: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<IListsResponse<CommonStatusDetails>> GetAllStatusAsync(IListsRequest request, int userId)
+        {
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<CommonStatusDetails, int, FiltersMeta>(ConfigurationSettingSpName.StatusList,
+                DbConstants.Main,
+                new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.All }},
+                null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<CommonStatusDetails>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),

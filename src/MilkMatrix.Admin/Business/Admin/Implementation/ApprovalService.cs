@@ -73,6 +73,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                             ["PageId"] = request.PageId,
                             ["UserId"] = request.UserId,
                             ["Sno"] = request.Level,
+                            ["amount"] = request.Amount,
                             ["Status"] = true,
                             ["CreatedBy"] = request.CreatedBy,
                             ["ActionType"] = (int)CrudActionType.Create
@@ -90,6 +91,8 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 scope.Complete();
             }
         }
+
+        //zHkUpwduHnj4l2msLiwChFRWxA0I7QHpM9YMoCu3i8rNYfB/WtLZudTe/K2Cl2oH`038ec990-8ef8-4c61-abb9-0bc25b0980bc
 
         ///<inheritdoc />
         public async Task AddDetailsAsync(IEnumerable<InsertDetails> requests)

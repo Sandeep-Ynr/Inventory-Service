@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 
 /// <summary>
 /// Represents the model for inserting new SMS control settings in the administration panel.

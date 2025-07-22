@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
 
 public class BlockedMobilesInsert
 {

@@ -81,6 +81,8 @@ public static partial class Constants
         public const string BlockedMobilesUpsert = "usp_blocked_mobile_insupd"; //For blocked mobiles insert/update
         public const string SmsSettingsUpsert = "usp_sms_control_insupd"; //For Sms settings Insert update
         public const string GetSmsSettings = "usp_sms_control_list"; //For getting sms settings
+        public const string StatusUpsert = "usp_status_insupd"; //For status Insert
+        public const string StatusList = "usp_status_details"; //For getting statuses
     }
 
     public static class ApprovalSpName

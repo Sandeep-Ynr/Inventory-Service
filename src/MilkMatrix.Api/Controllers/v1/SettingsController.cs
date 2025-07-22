@@ -7,7 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
+using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
@@ -581,6 +587,143 @@ public class SettingsController : ControllerBase
         {
             logging.LogError($"Error deleting sms control with id: {id}", ex);
             return StatusCode(500, "An error occurred while deleting the Sms control.");
+        }
+    }
+    #endregion
+
+    #region Common Status
+
+    /// <summary>
+    /// Retrieves the details of a status by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("status/{id}")]
+    public async Task<ActionResult> GetByStatusId(int id)
+    {
+        try
+        {
+            var statusDetails = await configService.GetByStatusIdAsync(id);
+            if (statusDetails == null)
+            {
+                logging.LogInfo($"status with id {id} not found.");
+                return NoContent();
+            }
+            logging.LogInfo($"Status with id {id} retrieved successfully.");
+            return Ok(statusDetails);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving statusDetails with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the statusDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Inserts a new configuration setting or tag into the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("status-insert")]
+    public async Task<IActionResult> InsertStatusDetails([FromBody] StatusInsertModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            logging.LogInfo($"Upsert: Add called for statusDetails: {request.Name}");
+            var requestParams = mapper.MapWithOptions<CommonStatusInsert, StatusInsertModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.AddStatusAsync(requestParams);
+            logging.LogInfo($"statusDetails {request.Name} added successfully.");
+            return Ok(new { message = "statusDetails added successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Upsert statusDetails", ex);
+            return StatusCode(500, "An error occurred while processing the statusDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing configuration setting or tag in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut("status-update")]
+    public async Task<IActionResult> UpdateStatusDetails([FromBody] StatusUpdateModel request)
+    {
+        try
+        {
+            if (request == null)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            logging.LogInfo($"Upsert: Update called for statusDetails: {request.Id}");
+            var requestParams = mapper.MapWithOptions<CommonStatusUpdate, StatusUpdateModel>(request
+                , new Dictionary<string, object> {
+            { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+            });
+            await configService.UpdateStatusAsync(requestParams);
+            logging.LogInfo($"statusDetails with {request.Id} updated successfully.");
+            return Ok(new { message = "statusDetails updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Upsert statusDetails", ex);
+            return StatusCode(500, "An error occurred while processing the statusDetails.");
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a list of configuration settings or tags from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("status-list")]
+    public async Task<IActionResult> StatusList([FromBody] ListsRequest request)
+    {
+        var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        var result = await configService.GetAllStatusAsync(request, Convert.ToInt32(UserId));
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Deletes a configuration setting or tag from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpDelete("status-delete/{id}")]
+    public async Task<IActionResult> StatusDelete(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Delete statusDetails called for id: {id}");
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configService.DeleteStatusAsync(id, Convert.ToInt32(UserId));
+            logging.LogInfo($"statusDetails with id {id} deleted successfully.");
+            return Ok(new { message = "statusDetails deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error deleting statusDetails with id: {id}", ex);
+            return StatusCode(500, "An error occurred while deleting the statusDetails.");
         }
     }
     #endregion

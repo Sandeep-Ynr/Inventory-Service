@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
 
 /// <summary>
 /// Represents a request to insert a new configuration setting or tag.

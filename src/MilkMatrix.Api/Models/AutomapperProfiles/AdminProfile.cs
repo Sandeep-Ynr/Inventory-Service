@@ -18,6 +18,12 @@ using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.
 using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
 using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
+using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles;
 
@@ -111,5 +117,15 @@ public class AdminProfile : Profile
 
         CreateMap<RejectionModel, InsertRejection>()
            .ForMember(x => x.RejectedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<StatusInsertModel, CommonStatusInsert>()
+            .ForMember(x=>x.StatusName , opt=> opt.MapFrom(src=> src.Name))
+                        .ForMember(x => x.StatusType, opt => opt.MapFrom(src => src.Type))
+           .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        CreateMap<StatusUpdateModel, CommonStatusUpdate>()
+           .ForMember(x => x.StatusName, opt => opt.MapFrom(src => src.Name))
+           .ForMember(x => x.StatusType, opt => opt.MapFrom(src => src.Type))
+           .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
     }
 }

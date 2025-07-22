@@ -153,7 +153,7 @@ public class UserController : ControllerBase
                     ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
                 });
             }
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value ?? "0";
 
             logger.LogInfo($"Upsert: Update called for user: {request.UserName}");
             var requestParams = mapper.MapWithOptions<UserProfileUpdate, UserProfileUpdateModel>(request
@@ -196,7 +196,7 @@ public class UserController : ControllerBase
 
         try
         {
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value ?? "0"; 
             // Modify the line to create a list of UploadRequest objects instead of passing IFormFile directly
             var uploadRequests = new List<UploadRequest>
             {

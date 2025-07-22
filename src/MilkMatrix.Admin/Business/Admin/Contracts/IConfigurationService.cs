@@ -1,4 +1,8 @@
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
@@ -160,5 +164,43 @@ public interface IConfigurationService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IListsResponse<SmsControlDetails>> GetAllSmsDetaisAsync(IListsRequest request);
+    #endregion
+
+    #region Common Status
+    /// <summary>
+    /// Retrieves the details of a status by its unique identifier.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<CommonStatusDetails?> GetByStatusIdAsync(int id);
+
+    /// <summary>
+    /// Adds a new status to the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddStatusAsync(CommonStatusInsert request);
+
+    /// <summary>
+    /// Updates an existing status in the system based on the provided request.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task UpdateStatusAsync(CommonStatusUpdate request);
+
+    /// <summary>
+    /// Deletes a status from the system based on its unique identifier and the user who requested the deletion.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task DeleteStatusAsync(int id, int userId);
+
+    /// <summary>
+    /// Retrieves a list of statuses from the system based on the provided request parameters.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task<IListsResponse<CommonStatusDetails>> GetAllStatusAsync(IListsRequest request, int userId);
     #endregion
 }

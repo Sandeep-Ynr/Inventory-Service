@@ -5,6 +5,7 @@ namespace MilkMatrix.Api.Models.Request.Admin.User
     public class UserUploadModel
     {
         public string UserName { get; set; }
+
         public string EmailId { get; set; }
 
         public string? HrmsCode { get; set; }

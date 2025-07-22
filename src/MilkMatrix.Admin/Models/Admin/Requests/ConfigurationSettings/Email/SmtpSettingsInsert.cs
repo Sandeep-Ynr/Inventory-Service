@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
+namespace MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
 
 /// <summary>
 /// Represents a request to insert new SMTP settings into the system.
