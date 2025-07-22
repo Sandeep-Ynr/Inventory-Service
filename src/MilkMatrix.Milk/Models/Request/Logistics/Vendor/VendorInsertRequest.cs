@@ -17,7 +17,6 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Vendor
         public string? PanNo { get; set; }
         public string? Address { get; set; }
         public bool? IsStatus { get; set; }
-        public bool? IsDeleted { get; set; }  
         public DateTime? CreatedOn { get; set; }
         public long? CreatedBy { get; set; }
         public DateTime? ModifyOn { get; set; }

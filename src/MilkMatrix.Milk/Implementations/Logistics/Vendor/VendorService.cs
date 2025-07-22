@@ -107,10 +107,7 @@ namespace MilkMatrix.Milk.Implementations
                 logging.LogError($"Error in UpdateVendor: {request.VendorName}", ex);
                 throw;
             }
-        }
-   
-
-    
+        }   
 
       public async Task<IListsResponse<VendorResponse>> GetAll(IListsRequest request)
         {

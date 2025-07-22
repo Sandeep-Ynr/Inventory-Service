@@ -87,7 +87,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.VehicleType
 
             var (allResults, countResult, filterMetas) = await queryMultipleData
                 .GetMultiDetailsAsync<VehicleTypeResponse, int, FiltersMeta>(
-                    GetVehicleList,
+                    VehicleTypeQueries.GetVehicleList,
                     DbConstants.Main,
                     parameters,
                     null);
@@ -150,7 +150,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.VehicleType
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
                 };
 
-                await repository.UpdateAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.UpdateAsync(VehicleTypeQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle '{request.VehicleType}' updated successfully.");
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.VehicleType
                     { "ModifyBy", userId }
                 };
 
-                await repository.DeleteAsync(AddVehicle, requestParams, CommandType.StoredProcedure);
+                await repository.DeleteAsync(VehicleTypeQueries.AddVehicle, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"Vehicle with ID {vehicleId} deleted successfully.");
             }
             catch (Exception ex)
