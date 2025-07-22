@@ -149,7 +149,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var repo = repositoryFactory.ConnectDapper<ApprovalResponse>(DbConstants.Main);
                 var parameters = new Dictionary<string, object>
             {
-                {"Id", pageId },
+                {"pageid", pageId },
                 {"Status", false },
                 {"ModifyBy", userId },
                 {"ActionType" , (int)CrudActionType.Delete }
