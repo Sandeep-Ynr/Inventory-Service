@@ -51,6 +51,6 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMilkService, MilkService>()
                     .AddScoped<ITransporterService, TransporterService>()
                     .AddScoped<IVehicleService, VehicleService>()
-                    .AddScoped<IVendorService, IVendorService>();
+                    .AddScoped<IVendorService, VendorService>();
     }
 }
