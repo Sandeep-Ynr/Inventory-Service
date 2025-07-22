@@ -136,7 +136,7 @@ public class PageController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("page-approval-list")]
-    public async Task<IActionResult> GetActions([FromQuery] int? id = null)
+    public async Task<IActionResult> GetPageApprovalList([FromQuery] int? id = null)
     {
         var response = await pageService.GetPagesForApprovalAsync(id);
         return response != null && response.Any()

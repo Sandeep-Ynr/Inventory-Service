@@ -5,7 +5,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
+using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -224,6 +226,36 @@ public class UserController : ControllerBase
         {
             logger.LogError(ex.Message, ex);
             return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ex.Message });
+        }
+    }
+    #endregion
+
+    #region User Approval Notification
+
+
+    [HttpGet("notification/{id}")]
+    public async Task<ActionResult<Pages?>> GetNotificationByUserId(int id)
+    {
+        try
+        {
+            logger.LogInfo($"Get notification by id called for id: {id}");
+
+            var UserId = Convert.ToInt32(httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value ?? "0")!;
+            
+            var uid = id > 0 ? id : UserId;
+            var page = await userService.GetNotificationsByIdAsync(uid);
+            if (page == null)
+            {
+                logger.LogInfo($"notification with id {id} not found.");
+                return NoContent();
+            }
+            logger.LogInfo($"notification with id {id} retrieved successfully.");
+            return Ok(page);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Error retrieving page with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the page.");
         }
     }
     #endregion

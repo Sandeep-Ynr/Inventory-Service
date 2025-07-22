@@ -23,4 +23,6 @@ public class ApprovalResponse
     public string HrmsCode { get; set; }
 
     public bool IsActive { get; set; }
+
+    public decimal? Amount { get; set; }
 }

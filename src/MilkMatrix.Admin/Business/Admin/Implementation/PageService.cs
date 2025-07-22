@@ -181,7 +181,7 @@ public class PageService : IPageService
 
             var requestParams = new Dictionary<string, object>
             {
-                { "PageId", id },
+                { "BusinessId", id },
                 { "ActionType", id != null && id > 0 ? ReadActionType.Individual : ReadActionType.All }
             };
             var data = await repo.QueryAsync<CommonLists>(PageSpName.GetPagesForApproval, requestParams, null);

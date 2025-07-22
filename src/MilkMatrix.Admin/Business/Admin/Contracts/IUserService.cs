@@ -60,4 +60,11 @@ public interface IUserService
     /// <param name="request"></param>
     /// <returns></returns>
     Task AddBulkUsersAsync(byte[] bytes, int userId);
+
+    /// <summary>
+    /// Retrieves user notifications by user ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<IEnumerable<UserApprovalNotification>> GetNotificationsByIdAsync(int id);
 }

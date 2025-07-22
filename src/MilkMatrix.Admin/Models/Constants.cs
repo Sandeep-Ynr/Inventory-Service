@@ -21,6 +21,7 @@ public static partial class Constants
         public const string GetFinancialYear = "usp_financial_year"; //To get financial year details
         public const string GetActions = "usp_action_manager"; //For Actions List
         public const string VerifyOldPassword = "usp_verify_old_password";
+        public const string UserApprovalNotification = "usp_Get_User_Approval_Notifications"; //For User approval notifications
     }
 
     public static class UserSpName

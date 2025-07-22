@@ -331,4 +331,23 @@ public class UserService : IUserService
             throw;
         }
     }
+
+    public async Task<IEnumerable<UserApprovalNotification>> GetNotificationsByIdAsync(int id)
+    {
+        try
+        {
+            logger.LogInfo($"GetByIdAsync called for user id: {id}");
+            var repo = repositoryFactory
+                       .ConnectDapper<UserApprovalNotification>(DbConstants.Main);
+            var data = await repo.QueryAsync<UserApprovalNotification>(AuthSpName.UserApprovalNotification, new Dictionary<string, object> { { "UserId", id } }, null);
+
+            var result = data.Any() ? data : Enumerable.Empty<UserApprovalNotification>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Error in GetByIdAsync for user id: {id}", ex);
+            throw;
+        }
+    }
 }
