@@ -1,5 +1,4 @@
 using System.Transactions;
-using Azure.Core;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
@@ -91,8 +90,6 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 scope.Complete();
             }
         }
-
-        //zHkUpwduHnj4l2msLiwChFRWxA0I7QHpM9YMoCu3i8rNYfB/WtLZudTe/K2Cl2oH`038ec990-8ef8-4c61-abb9-0bc25b0980bc
 
         ///<inheritdoc />
         public async Task AddDetailsAsync(IEnumerable<InsertDetails> requests)
@@ -197,7 +194,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         ///<inheritdoc />
-        public async Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId)
+        public async Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId, int businessId)
         {
             try
             {
@@ -205,6 +202,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var repo = repositoryFactory
                            .ConnectDapper<ApprovalResponse>(DbConstants.Main);
                 var data = await repo.QueryAsync<ApprovalResponse>(ApprovalSpName.GetApprovalLevels, new Dictionary<string, object> { { "pageId", pageId },
+                    {"businessId", businessId },
                     { "ActionType", (int)ReadActionType.Individual } }, null);
 
                 var result = data.Any() ? data : default;

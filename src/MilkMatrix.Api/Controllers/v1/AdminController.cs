@@ -137,22 +137,22 @@ public class AdminController : ControllerBase
 
     #region Approval level
 
-    [HttpGet("approval-level/{pageId}")]
-    public async Task<ActionResult> GetById(int pageId)
+    [HttpGet("approval-level/{pageId}/{businessId}")]
+    public async Task<ActionResult> GetById(int pageId, int businessId)
     {
         try
         {
-            var response = await approvalService.GetByIdAsync(pageId);
+            var response = await approvalService.GetByIdAsync(pageId, businessId);
             if (response == null)
             {
-                logging.LogInfo($"details with page {pageId} not found.");
+                logging.LogInfo($"details with page {pageId} and businessid {businessId} not found.");
                 return NoContent();
             }
             return Ok(response);
         }
         catch (Exception ex)
         {
-            logging.LogError($"Error retrieving details with id: {pageId}", ex);
+            logging.LogError($"Error retrieving details with id: {pageId} and businessId {businessId}", ex);
             return StatusCode(500, "An error occurred while retrieving the details.");
         }
     }

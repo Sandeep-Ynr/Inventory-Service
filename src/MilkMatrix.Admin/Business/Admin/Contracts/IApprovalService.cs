@@ -18,7 +18,7 @@ public interface IApprovalService
     /// </summary>
     /// <param name="pageId"></param>
     /// <returns></returns>
-    Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId);
+    Task<IEnumerable<ApprovalResponse>?> GetByIdAsync(int pageId, int businessId);
 
     /// <summary>
     /// Adds a new approval level to the system based on the provided request.
