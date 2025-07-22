@@ -83,6 +83,7 @@ namespace MilkMatrix.Milk.Implementations
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
+                    { "VendorId", request.VendorId ?? (object)DBNull.Value  },
                     { "VendorCode", request.VendorCode ?? (object)DBNull.Value  },
                     { "VendorName", request.VendorName  ?? (object)DBNull.Value },
                     { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
