@@ -100,6 +100,13 @@ public static partial class Constants
         public const string GetRejectioDetails = "usp_get_rejection_details"; //For getting rejection details
     }
 
+    public static class ReportingSpName
+    {
+        public const string GetAuditLogs = "usp_audit_logs"; //For getting audit logs
+        public const string GetEventLogs = "usp_event_logs"; //For getting event logs
+        public const string GetLoginDetails = "usp_login_logs"; //For getting login details
+    }
+
     public static class AutoMapper
     {
         public const string HostName = "HostName";

@@ -55,7 +55,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             requests.ForEach(async x =>
             {
-                await DeleteAsync(x.PageId, x.UserId , x.BusinessId);
+                await DeleteAsync(x.PageId , x.BusinessId);
             });
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -133,7 +133,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         ///<inheritdoc />
-        public async Task DeleteAsync(int pageId, int userId, int businessId)
+        public async Task DeleteAsync(int pageId, int businessId)
         {
             try
             {
@@ -144,7 +144,6 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 {"businessId", businessId },
                 {"pageid", pageId },
                 {"Status", false },
-                {"ModifyBy", userId },
                 {"ActionType" , (int)CrudActionType.Delete }
             };
                 await repo.DeleteAsync(ApprovalSpName.ApprovalUpsert, parameters);

@@ -10,10 +10,10 @@ namespace MilkMatrix.Core.Extensions;
 public static class PagingExtensions
 {
     public static IQueryable<T> ApplyFilters<T>(
-    this IQueryable<T> query,
-    IEnumerable<FilterCriteria>? filters,
-    Action<string>? logWarning = null
-)
+     this IQueryable<T> query,
+     IEnumerable<FilterCriteria>? filters,
+     Action<string>? logWarning = null
+ )
     {
         if (filters == null) return query;
 
@@ -63,42 +63,59 @@ public static class PagingExtensions
                 var memberNormal = filter.Property.Split('.')
                     .Aggregate((Expression)paramNormal, Expression.PropertyOrField);
 
-                var targetType = Nullable.GetUnderlyingType(memberNormal.Type) ?? memberNormal.Type;
-                var convertedValue = ConvertFilterValue(filter.Value, targetType);
-
-                var constantNormal = Expression.Constant(convertedValue, memberNormal.Type);
-
                 Expression? bodyNormal = null;
+
                 switch (filter.Operator.ToLowerInvariant())
                 {
                     case "eq":
-                        // Null-safe equality
-                        bodyNormal = Expression.Equal(memberNormal, constantNormal);
-                        break;
                     case "neq":
-                        bodyNormal = Expression.NotEqual(memberNormal, constantNormal);
-                        break;
                     case "gt":
-                        bodyNormal = Expression.GreaterThan(memberNormal, constantNormal);
-                        break;
                     case "gte":
-                        bodyNormal = Expression.GreaterThanOrEqual(memberNormal, constantNormal);
-                        break;
                     case "lt":
-                        bodyNormal = Expression.LessThan(memberNormal, constantNormal);
-                        break;
                     case "lte":
-                        bodyNormal = Expression.LessThanOrEqual(memberNormal, constantNormal);
-                        break;
                     case "contains":
                     case "startswith":
                     case "endswith":
-                        // Null check for string operations
-                        var notNull = Expression.NotEqual(memberNormal, Expression.Constant(null, typeof(string)));
-                        var stringExpr = BuildStringExpression(memberNormal, constantNormal, filter.Operator.Equals("contains") ? "Contains" :
-                            filter.Operator.Equals("startswith") ? "StartsWith" : "EndsWith");
-                        bodyNormal = stringExpr != null ? Expression.AndAlso(notNull, stringExpr) : null;
-                        break;
+                        {
+                            var targetType = Nullable.GetUnderlyingType(memberNormal.Type) ?? memberNormal.Type;
+                            var convertedValue = ConvertFilterValue(filter.Value, targetType);
+                            var constantNormal = Expression.Constant(convertedValue, memberNormal.Type);
+
+                            switch (filter.Operator.ToLowerInvariant())
+                            {
+                                case "eq":
+                                    bodyNormal = Expression.Equal(memberNormal, constantNormal);
+                                    break;
+                                case "neq":
+                                    bodyNormal = Expression.NotEqual(memberNormal, constantNormal);
+                                    break;
+                                case "gt":
+                                    bodyNormal = Expression.GreaterThan(memberNormal, constantNormal);
+                                    break;
+                                case "gte":
+                                    bodyNormal = Expression.GreaterThanOrEqual(memberNormal, constantNormal);
+                                    break;
+                                case "lt":
+                                    bodyNormal = Expression.LessThan(memberNormal, constantNormal);
+                                    break;
+                                case "lte":
+                                    bodyNormal = Expression.LessThanOrEqual(memberNormal, constantNormal);
+                                    break;
+                                case "contains":
+                                case "startswith":
+                                case "endswith":
+                                    var notNull = Expression.NotEqual(memberNormal, Expression.Constant(null, typeof(string)));
+                                    var stringExpr = BuildStringExpression(
+                                        memberNormal,
+                                        constantNormal,
+                                        filter.Operator.Equals("contains") ? "Contains" :
+                                        filter.Operator.Equals("startswith") ? "StartsWith" : "EndsWith"
+                                    );
+                                    bodyNormal = stringExpr != null ? Expression.AndAlso(notNull, stringExpr) : null;
+                                    break;
+                            }
+                            break;
+                        }
                     case "between":
                         bodyNormal = BuildBetweenExpression(memberNormal, filter.Value);
                         break;
@@ -119,6 +136,40 @@ public static class PagingExtensions
             }
         }
         return query;
+    }
+
+    // Update BuildBetweenExpression to split on " - "
+    private static Expression? BuildBetweenExpression(Expression member, object? value)
+    {
+        string? dateRange = null;
+
+        if (value is JsonElement jsonElement)
+        {
+            if (jsonElement.ValueKind == JsonValueKind.String)
+            {
+                dateRange = jsonElement.GetString();
+            }
+        }
+        else if (value is string str)
+        {
+            dateRange = str;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dateRange))
+        {
+            var dateParts = dateRange.Split(" - ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (dateParts.Length == 2 &&
+                DateTime.TryParse(dateParts[0], out var startDate) &&
+                DateTime.TryParse(dateParts[1], out var endDate))
+            {
+                var startConst = Expression.Constant(startDate, member.Type);
+                var endConst = Expression.Constant(endDate, member.Type);
+                var gte = Expression.GreaterThanOrEqual(member, startConst);
+                var lte = Expression.LessThanOrEqual(member, endConst);
+                return Expression.AndAlso(gte, lte);
+            }
+        }
+        return null;
     }
 
     private static object? ConvertFilterValue(object? value, Type targetType)
@@ -151,25 +202,6 @@ public static class PagingExtensions
         return stringMethod != null
             ? Expression.Call(memberToLower, stringMethod, constantToLower)
             : null;
-    }
-
-    private static Expression? BuildBetweenExpression(Expression member, object? value)
-    {
-        if (value is string dateRange && !string.IsNullOrWhiteSpace(dateRange))
-        {
-            var dateParts = dateRange.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (dateParts.Length == 2 &&
-                DateTime.TryParse(dateParts[0], out var startDate) &&
-                DateTime.TryParse(dateParts[1], out var endDate))
-            {
-                var startConst = Expression.Constant(startDate, member.Type);
-                var endConst = Expression.Constant(endDate, member.Type);
-                var gte = Expression.GreaterThanOrEqual(member, startConst);
-                var lte = Expression.LessThanOrEqual(member, endConst);
-                return Expression.AndAlso(gte, lte);
-            }
-        }
-        return null;
     }
 
     private static Expression? LogAndReturnNull(Action<string>? logWarning, string message)

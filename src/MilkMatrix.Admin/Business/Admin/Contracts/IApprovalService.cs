@@ -40,7 +40,7 @@ public interface IApprovalService
     /// <param name="pageId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task DeleteAsync(int pageId, int userId, int businessId);
+    Task DeleteAsync(int pageId, int businessId);
 
     /// <summary>
     /// Retrieves a list of approval levels from the system based on the provided request parameters.

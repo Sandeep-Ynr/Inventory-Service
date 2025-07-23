@@ -23,5 +23,6 @@ public static class ServiceCollectionExtensions
             .AddScoped<ICommonModules, CommonModules>()
             .AddScoped<IApprovalService, ApprovalService>()
             .AddScoped<IRejectionService, RejectionService>()
-            .AddScoped<ITokenProcess, TokenProcess>();
+            .AddScoped<ITokenProcess, TokenProcess>()
+            .AddScoped<IReportService, ReportingService>();
 }
