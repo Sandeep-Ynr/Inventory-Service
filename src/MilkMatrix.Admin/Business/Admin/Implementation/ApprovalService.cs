@@ -55,7 +55,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
             requests.ForEach(async x =>
             {
-                await DeleteAsync(x.PageId, x.UserId);
+                await DeleteAsync(x.PageId, x.UserId , x.BusinessId);
             });
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -97,11 +97,6 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             if (requests == null || !requests.Any())
                 throw new ArgumentNullException(nameof(requests), "Request cannot be null");
 
-            requests.ForEach(async x =>
-            {
-                await DeleteAsync(x.PageId, x.UserId);
-            });
-
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 foreach (var request in requests)
@@ -138,7 +133,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         ///<inheritdoc />
-        public async Task DeleteAsync(int pageId, int userId)
+        public async Task DeleteAsync(int pageId, int userId, int businessId)
         {
             try
             {
@@ -146,6 +141,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 var repo = repositoryFactory.ConnectDapper<ApprovalResponse>(DbConstants.Main);
                 var parameters = new Dictionary<string, object>
             {
+                {"businessId", businessId },
                 {"pageid", pageId },
                 {"Status", false },
                 {"ModifyBy", userId },
