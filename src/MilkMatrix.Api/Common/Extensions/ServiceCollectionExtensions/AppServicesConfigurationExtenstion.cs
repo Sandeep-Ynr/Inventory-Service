@@ -33,6 +33,7 @@ internal static class AppServicesConfigurationExtenstion
                 o.AddProfile<MilkMappingProfile>();
                 o.AddProfile<LogisticsMappingProfile>();
                 o.AddProfile<MemberMappingProfile>();
+                o.AddProfile<ShiftMappingProfile>();
             })
             .AddMilkServicesDependencies(configuration)
             .AddConfiguration(configuration)
