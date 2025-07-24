@@ -26,14 +26,17 @@ public class ReportingService : IReportService
 
     public async Task<IListsResponse<AuditLogs>> GetAuditLogsAsync(IListsRequest request)
     {
+        var allowedFilterKeys = new[] { "UpdatedOn", "UserId" };
+        var parameters = request.PrepareRequestParams(allowedFilterKeys, (int)ReadActionType.All);
+
         var (allResults, countResult, filterMetas) = await queryMultipleData
             .GetMultiDetailsAsync<AuditLogs, int, FiltersMeta>(
                 ReportingSpName.GetAuditLogs, // Replace with your actual stored procedure name
                 DbConstants.Main,
-                new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
+                parameters,
                 null);
 
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search, allowedFilterKeys);
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
@@ -53,14 +56,17 @@ public class ReportingService : IReportService
 
     public async Task<IListsResponse<EventLogs>> GetEventLogsAsync(IListsRequest request)
     {
+        var allowedFilterKeys = new[] { "ActionDate", "UserId" };
+        var parameters = request.PrepareRequestParams(allowedFilterKeys, (int)ReadActionType.All);
+
         var (allResults, countResult, filterMetas) = await queryMultipleData
             .GetMultiDetailsAsync<EventLogs, int, FiltersMeta>(
                 ReportingSpName.GetEventLogs, // Replace with your actual stored procedure name
                 DbConstants.Main,
-                new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
+                parameters,
                 null);
 
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search, allowedFilterKeys);
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
@@ -80,14 +86,17 @@ public class ReportingService : IReportService
 
     public async Task<IListsResponse<LoginDetails>> GetLoginDetailsAsync(IListsRequest request)
     {
+        var allowedFilterKeys = new[] { "LoginDate", "LogOutDate", "UserId" };
+        var parameters = request.PrepareRequestParams(allowedFilterKeys, (int)ReadActionType.All);
+
         var (allResults, countResult, filterMetas) = await queryMultipleData
             .GetMultiDetailsAsync<LoginDetails, int, FiltersMeta>(
                 ReportingSpName.GetLoginDetails, // Replace with your actual stored procedure name
                 DbConstants.Main,
-                new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
+                parameters,
                 null);
 
-        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+        var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search, allowedFilterKeys);
         var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
         var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 

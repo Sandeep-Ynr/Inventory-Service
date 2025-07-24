@@ -1,3 +1,4 @@
+using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
@@ -7,37 +8,39 @@ namespace MilkMatrix.Core.Extensions;
 public static class FilterExtensions
 {
     public static List<FilterCriteria> BuildFilterCriteriaFromRequest(
-     this IEnumerable<FiltersMeta> filterMetas,
-     Dictionary<string, object>? filters, string? search)
+    this IEnumerable<FiltersMeta> filterMetas,
+    Dictionary<string, object>? filters,
+    string? search,
+    IEnumerable<string>? ignoreKeys = null)
     {
         var criteria = new List<FilterCriteria>();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            // Build a FilterCriteria for global search
             var globalFilter = new FilterCriteria
             {
                 Property = Constants.SearchString,
                 Operator = "contains",
                 Value = search
             };
-
-            // Insert globalFilter at the start of filters
-            criteria = criteria?.ToList() ?? new List<FilterCriteria>();
             criteria.Insert(0, globalFilter);
         }
 
         if (filters == null) return criteria;
 
-        // Create a case-insensitive dictionary for search keys
         var searchCI = new Dictionary<string, object>(filters, StringComparer.OrdinalIgnoreCase);
+        var ignoreSet = ignoreKeys != null
+            ? new HashSet<string>(ignoreKeys, StringComparer.OrdinalIgnoreCase)
+            : new HashSet<string>();
 
         foreach (var meta in filterMetas)
         {
-            // Try to get the value using the original key (case-insensitive)
+            // Skip ignored keys
+            if (ignoreSet.Contains(meta.Key))
+                continue;
+
             if (searchCI.TryGetValue(meta.Key, out var value) && value != null)
             {
-                // Restrict to allowed values if specified
                 if (meta.ValuesAllowed != null && meta.ValuesAllowed.Any())
                 {
                     if (!meta.ValuesAllowed.Contains(value.ToString(), StringComparer.OrdinalIgnoreCase))
@@ -76,5 +79,33 @@ public static class FilterExtensions
             }
         }
         return criteria;
+    }
+
+    /// <summary>
+    /// Builds a parameter dictionary from the Filters dictionary of an IListsRequest,
+    /// including only allowed keys (case-insensitive).
+    /// </summary>
+    public static Dictionary<string, object> PrepareRequestParams(
+        this IListsRequest request,
+        IEnumerable<string> allowedKeys,
+       int actionType = 1)
+    {
+        var parameters = new Dictionary<string, object>
+    {
+        { "ActionType", actionType }
+    };
+
+        if (request.Filters == null)
+            return parameters;
+
+        var allowed = new HashSet<string>(allowedKeys, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kvp in request.Filters)
+        {
+            if (kvp.Value != null && allowed.Contains(kvp.Key))
+                parameters[kvp.Key] = kvp.Value;
+        }
+
+        return parameters;
     }
 }
