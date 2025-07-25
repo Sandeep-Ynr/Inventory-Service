@@ -5,7 +5,6 @@ using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MilkMatrix.Api.Models.Request.Animal;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -13,13 +12,9 @@ using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Milk;
-using MilkMatrix.Milk.Implementations.Animal;
-
 //using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Models;
-using MilkMatrix.Milk.Models.Request.Animal;
 using MilkMatrix.Milk.Models.Request.Milk;
-using MilkMatrix.Milk.Models.Response.Animal;
 using MilkMatrix.Milk.Models.Response.Milk;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
