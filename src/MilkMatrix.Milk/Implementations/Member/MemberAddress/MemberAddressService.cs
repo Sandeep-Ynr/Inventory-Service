@@ -1,22 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
-using MilkMatrix.Milk.Contracts.Member.MemberAddress;
-using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
-using MilkMatrix.Milk.Models.Response.Member.MemberAddress;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MilkMatrix.Core.Abstractions.DataProvider;
-using System.Data;
-using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Core.Entities.Enums;
-using MilkMatrix.Core.Extensions;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Extensions;
+using MilkMatrix.Milk.Contracts.Member.MemberAddress;
+using MilkMatrix.Milk.Models.Queries;
+using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
+using MilkMatrix.Milk.Models.Response.Geographical;
+using MilkMatrix.Milk.Models.Response.Member.MemberAddress;
+using static MilkMatrix.Milk.Models.Queries.GeographicalQueries;
 
 namespace MilkMatrix.Milk.Implementations.Member.Address
 {
@@ -44,20 +46,18 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
                 {
                     {"ActionType", (int)CrudActionType.Create},
                     {"MemberID", request.MemberID},
+                    {"FullAddress", request.FullAddress},
                     {"StateID", request.StateID},
                     {"DistrictID", request.DistrictID},
                     {"TehsilID", request.TehsilID},
                     {"VillageID", request.VillageID},
                     {"HamletID", request.HamletID ?? (object)DBNull.Value},
-                    {"FullAddress", request.FullAddress},
                     {"Pincode", request.Pincode},
-                     { "IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"created_on", request.CreatedOn ?? (object)DBNull.Value},
-                    {"created_by", request.CreatedBy ?? (object)DBNull.Value},
-                    { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
+                    { "IsStatus", request.IsStatus ?? (object)DBNull.Value},
+                    {"CreatedBy", request.CreatedBy ?? (object)DBNull.Value},
                 };
 
-            var message = await repository.AddAsync(MemberQueries.AddOrUpdateMemberAddress, requestParams, CommandType.StoredProcedure);
+            var message = await repository.AddAsync(MemberQueries.AddOrUpdateMemberAdress, requestParams, CommandType.StoredProcedure);
 
                 if (message.StartsWith("Error"))
                     throw new Exception($"Stored Procedure Error: {message}");
@@ -86,17 +86,15 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
                     {"TehsilID", request.TehsilID},
                     {"VillageID", request.VillageID},
                     {"HamletID", request.HamletID ?? (object)DBNull.Value},
-                    {"FullAddress", request.FullAddress},
-                    {"Pincode", request.Pincode},
+                    {"FullAddress", request.FullAddress ?? (object)DBNull.Value},
+                    {"Pincode", request.Pincode ?? (object)DBNull.Value},
                     {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"ModifyOn", request.ModifiedOn ?? (object)DBNull.Value},
-                    {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
-                    {"IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
+                    {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value}
                 };
 
 
 
-                var message = await repository.UpdateAsync(MemberQueries.AddOrUpdateMemberAddress, requestParams, CommandType.StoredProcedure);
+                var message = await repository.UpdateAsync(MemberQueries.AddOrUpdateMemberAdress, requestParams, CommandType.StoredProcedure);
 
                 if (message.StartsWith("Error"))
                     throw new Exception($"Stored Procedure Error: {message}");
@@ -119,10 +117,9 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
                 {
                     {"ActionType", (int)CrudActionType.Delete},
                     {"AddressID", addressId},
-                    {"modify_by", userId}
                 };
 
-                var response = await repository.DeleteAsync(MemberQueries.AddOrUpdateMemberAddress, requestParams, CommandType.StoredProcedure);
+                var response = await repository.DeleteAsync(MemberQueries.AddOrUpdateMemberAdress, requestParams, CommandType.StoredProcedure);
 
                 logging.LogInfo($"Member Address with ID {addressId} deleted successfully.");
             }
@@ -135,23 +132,30 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
 
         public async Task<MemberAddressResponse?> GetMemberAddressById(long id)
         {
-             try
+            try
             {
-                logging.LogInfo($"GetById called for MemberAddress ID: {id}");
-                var repo = repositoryFactory.ConnectDapper<MemberAddressResponse>(DbConstants.Main); // Assuming Dapper and MemberAddressResponse are appropriate
-                var data = await repo.QueryAsync<MemberAddressResponse>(MemberQueries.GetMemberAddressList, new Dictionary<string, object>
-                {
-                    {"ActionType", (int)ReadActionType.Individual},
-                    {"AddressID", id}
+                logging.LogInfo($"GetByIdAsync called for user id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<MemberAddressResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<MemberAddressResponse>(MemberQueries.AddOrUpdateMemberList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "AddressID", id }
                 }, null);
 
-                return data.FirstOrDefault();
+                var result = data.Any() ? data.FirstOrDefault() : new MemberAddressResponse();
+                logging.LogInfo(result != null
+                    ? $"District with id {id} retrieved successfully."
+                    : $"District with id {id} not found.");
+                return result;
             }
             catch (Exception ex)
             {
-                logging.LogError("Error in GetMemberAddressById", ex);
+                logging.LogError($"Error in GetByIdAsync for District id: {id}", ex);
                 throw;
             }
+
+
+
         }
 
         public async Task<IEnumerable<MemberAddressResponse>> GetMemberAddresses(MemberAddressRequestModel request)
@@ -172,7 +176,7 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
                     {"is_deleted", request.is_deleted ?? (object)DBNull.Value}
                 };
 
-                return await repo.QueryAsync<MemberAddressResponse>(MemberQueries.GetMemberAddressList, parameters, null);
+                return await repo.QueryAsync<MemberAddressResponse>(MemberQueries.AddOrUpdateMemberList, parameters, null);
             }
             catch (Exception ex)
             {
@@ -188,7 +192,7 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
             };
 
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<MemberAddressResponse, int, FiltersMeta>(MemberQueries.GetMemberAddressList,
+                .GetMultiDetailsAsync<MemberAddressResponse, int, FiltersMeta>(MemberQueries.AddOrUpdateMemberList,
                     DbConstants.Main, parameters, null);
             var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);

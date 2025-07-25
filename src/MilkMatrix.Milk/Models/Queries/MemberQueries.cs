@@ -13,21 +13,23 @@ namespace MilkMatrix.Milk.Models.Queries
 
 
         // Bank Details Queries
-        public const string AddOrUpdateMemberBankDetails = "usp_memberbankdetails_insupd"; // Placeholder
-        public const string GetMemberBankDetailsList = "usp_memberbankdetails_list"; // Placeholder
+        public const string AddOrUpdateMemberBankDetails = "usp_memberbankdetails_insupd";
+        public const string GetMemberBankDetailsList = "usp_memberbankdetails_list"; 
 
         // Milk Profile Queries
-        public const string AddOrUpdateMemberMilkProfile = "usp_membermilkprofile_insupd"; // Placeholder
-        public const string GetMemberMilkProfileList = "usp_membermilkprofile_list"; // Placeholder
+        public const string AddOrUpdateMemberMilkProfile = "usp_membermilkprofile_insupd"; 
+        public const string GetMemberMilkProfileList = "usp_membermilkprofile_list"; 
 
         // Member Documents Queries
-        public const string AddOrUpdateMemberDocuments = "usp_memberdocuments_insupd"; // Placeholder
-        public const string GetMemberDocumentsList = "usp_memberdocuments_list"; // Placeholder
-        public const string GetMemberDocumentsById = "usp_memberdocuments_getbyid"; // Placeholder
-        public const string DeleteMemberDocuments = "usp_memberdocuments_delete"; // Placeholder
+        public const string AddOrUpdateMemberDocuments = "usp_memberdocuments_insupd"; 
+        public const string GetMemberDocumentsList = "usp_memberdocuments_list"; 
+        public const string GetMemberDocumentsById = "usp_memberdocuments_getbyid";
+        public const string DeleteMemberDocuments = "usp_memberdocuments_delete"; 
 
         // Member Address Queries
-        public static string AddOrUpdateMemberAddress { get; internal set; }
-        public static string GetMemberAddressList { get; internal set; }
+
+        public const string AddOrUpdateMemberAdress = "usp_member_address_insupd";
+        public const string AddOrUpdateMemberList = "usp_member_address_list";
+
     }
 }

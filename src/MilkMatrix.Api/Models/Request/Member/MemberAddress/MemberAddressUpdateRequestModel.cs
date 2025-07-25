@@ -11,9 +11,8 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberAddress
         public int TehsilID { get; set; }
         public int VillageID { get; set; }
         public int? HamletID { get; set; }
-        public string FullAddress { get; set; }
-        public string Pincode { get; set; }
-        public bool? IsDeleted { get; set; }
+        public string? FullAddress { get; set; }
+        public string? Pincode { get; set; }
         public bool IsStatus { get; set; }
     }
 }

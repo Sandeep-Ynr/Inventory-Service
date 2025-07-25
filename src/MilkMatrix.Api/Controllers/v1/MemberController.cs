@@ -48,10 +48,12 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMemberAddressService memberAddressService;
         private readonly IMemberBankDetailsService memberBankDetailsService;
         private readonly IMemberMilkProfileService memberMilkProfileService;
-        public MemberController(IHttpContextAccessor httpContextAccessor, IMemberService memberService, IMemberAddressService memberAddressService, IMemberBankDetailsService memberBankDetailsService, IMemberMilkProfileService memberMilkProfileService, ILogging logging, IMapper mapper)
+        public MemberController(IHttpContextAccessor httpContextAccessor, IMemberService memberService,
+            IMemberAddressService memberAddressService, IMemberBankDetailsService memberBankDetailsService,
+            IMemberMilkProfileService memberMilkProfileService, ILogging logging, IMapper mapper)
         {
-            // Constructor logic if needed
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            this.logger = logging.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logging));
             this.memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             this.memberAddressService = memberAddressService ?? throw new ArgumentNullException(nameof(memberAddressService));
             this.memberBankDetailsService = memberBankDetailsService ?? throw new ArgumentNullException(nameof(memberBankDetailsService));
@@ -232,7 +234,7 @@ namespace MilkMatrix.Api.Controllers.v1
                    });
 
                 await memberAddressService.AddMemberAddress(mappedRequest);
-                logger.LogInfo($"Member Address for Member ID {request.MemberID} added successfully.");
+                logger.LogInfo($"Member Address for Member ID added successfully.");
                 return Ok(new { message = "Member Address added successfully." });
             }
             catch (Exception ex)
