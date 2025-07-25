@@ -1,9 +1,11 @@
 using AutoMapper;
+using Azure.Core;
 using MilkMatrix.Api.Models.Request.Member;
 using MilkMatrix.Api.Models.Request.Member.MemberAddress;
 using MilkMatrix.Api.Models.Request.Member.MemberBankDetails;
 using MilkMatrix.Api.Models.Request.Member.MemberDocuments;
 using MilkMatrix.Api.Models.Request.Member.MemberMilkProfile;
+using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models.Request.Member;
 using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
 using MilkMatrix.Milk.Models.Request.Member.MemberBankDetails;
@@ -55,9 +57,9 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IsJointAccount, opt => opt.MapFrom(src => src.IsJointAccount))
                 .ForMember(dest => dest.PassbookFilePath, opt => opt.MapFrom(src => src.PassbookFilePath))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
-                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
-                .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
 
             CreateMap<MemberBankDetailsUpdateRequestModel, MemberBankDetailsUpdateRequest>()
                 .ForMember(dest => dest.BankDetailID, opt => opt.MapFrom(src => src.BankDetailID))
@@ -70,32 +72,30 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IsJointAccount, opt => opt.MapFrom(src => src.IsJointAccount))
                 .ForMember(dest => dest.PassbookFilePath, opt => opt.MapFrom(src => src.PassbookFilePath))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => (bool?)src.IsStatus))
-                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
-                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
+          
             CreateMap<MemberMilkProfileInsertRequestModel, MemberMilkProfileInsertRequest>()
                 .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
-                .ForMember(dest => dest.AnimalType, opt => opt.MapFrom(src => src.AnimalType))
+                .ForMember(dest => dest.AnimalTypeID, opt => opt.MapFrom(src => src.AnimalTypeID))
                 .ForMember(dest => dest.NoOfMilchAnimals, opt => opt.MapFrom(src => src.NoOfMilchAnimals))
                 .ForMember(dest => dest.AvgMilkYield, opt => opt.MapFrom(src => src.AvgMilkYield))
                 .ForMember(dest => dest.PreferredShift, opt => opt.MapFrom(src => src.PreferredShift))
                 .ForMember(dest => dest.PouringStartDate, opt => opt.MapFrom(src => src.PouringStartDate))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => true))
-                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
-                .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
+
+           
             CreateMap<MemberMilkProfileUpdateRequestModel, MemberMilkProfileUpdateRequest>()
                 .ForMember(dest => dest.MilkProfileID, opt => opt.MapFrom(src => src.MilkProfileID))
                 .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
-                .ForMember(dest => dest.AnimalType, opt => opt.MapFrom(src => src.AnimalType))
+                .ForMember(dest => dest.AnimalTypeID, opt => opt.MapFrom(src => src.AnimalTypeID))
                 .ForMember(dest => dest.NoOfMilchAnimals, opt => opt.MapFrom(src => src.NoOfMilchAnimals))
                 .ForMember(dest => dest.AvgMilkYield, opt => opt.MapFrom(src => src.AvgMilkYield))
                 .ForMember(dest => dest.PreferredShift, opt => opt.MapFrom(src => src.PreferredShift))
                 .ForMember(dest => dest.PouringStartDate, opt => opt.MapFrom(src => src.PouringStartDate))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => (bool?)src.IsStatus))
-                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
             
             CreateMap<MemberDocumentsInsertRequestModel, MemberDocumentsInsertRequest>()
@@ -127,7 +127,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.HamletID, opt => opt.MapFrom(src => src.HamletID))
                 .ForMember(dest => dest.FullAddress, opt => opt.MapFrom(src => src.FullAddress))
                 .ForMember(dest => dest.Pincode, opt => opt.MapFrom(src => src.Pincode))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<MemberAddressUpdateRequestModel, MemberAddressUpdateRequest>()

@@ -45,15 +45,13 @@ namespace MilkMatrix.Milk.Implementations.Member.MilkProfile
                 {
                     {"ActionType", (int)CrudActionType.Create},
                     {"MemberID", request.MemberID},
-                    {"AnimalType", request.AnimalType},
+                    {"AnimalTypeID", request.AnimalTypeID ?? (object)DBNull.Value},
                     {"NoOfMilchAnimals", request.NoOfMilchAnimals},
                     {"AvgMilkYield", request.AvgMilkYield ?? (object)DBNull.Value},
-                    {"PreferredShift", request.PreferredShift},
+                    {"PreferredShift", request.PreferredShift ?? (object)DBNull.Value},
                     {"PouringStartDate", request.PouringStartDate},
                     {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"CreatedOn", request.CreatedOn ?? (object)DBNull.Value},
                     {"CreatedBy", request.CreatedBy ?? (object)DBNull.Value},
-                    {"IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
                 };
 
                 var message = await repository.AddAsync(MemberQueries.AddOrUpdateMemberMilkProfile, requestParams, CommandType.StoredProcedure);
@@ -79,15 +77,13 @@ namespace MilkMatrix.Milk.Implementations.Member.MilkProfile
                     {"ActionType", (int)CrudActionType.Update},
                     {"MilkProfileID", request.MilkProfileID},
                     {"MemberID", request.MemberID},
-                    {"AnimalType", request.AnimalType},
+                    {"AnimalTypeID", request.AnimalTypeID ?? (object)DBNull.Value},
                     {"NoOfMilchAnimals", request.NoOfMilchAnimals},
                     {"AvgMilkYield", request.AvgMilkYield ?? (object)DBNull.Value},
-                    {"PreferredShift", request.PreferredShift},
+                    {"PreferredShift", request.PreferredShift ?? (object)DBNull.Value},
                     {"PouringStartDate", request.PouringStartDate},
                     {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"ModifyOn", request.ModifiedOn ?? (object)DBNull.Value},
                     {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
-                    {"IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
                 };
 
                 var message = await repository.UpdateAsync(MemberQueries.AddOrUpdateMemberMilkProfile, requestParams, CommandType.StoredProcedure);
@@ -112,7 +108,6 @@ namespace MilkMatrix.Milk.Implementations.Member.MilkProfile
                 {
                     {"ActionType", (int)CrudActionType.Delete},
                     {"MilkProfileID", milkProfileId},
-                    {"modify_by", userId}
                 };
 
                 var response = await repository.DeleteAsync(MemberQueries.AddOrUpdateMemberMilkProfile, requestParams, CommandType.StoredProcedure);
@@ -156,7 +151,7 @@ namespace MilkMatrix.Milk.Implementations.Member.MilkProfile
                     {"ActionType", (int)(request.ActionType ?? ReadActionType.All)},
                     {"MilkProfileID", request.MilkProfileID ?? (object)DBNull.Value},
                     {"MemberID", request.MemberID ?? (object)DBNull.Value},
-                    {"AnimalType", request.AnimalType ?? (object)DBNull.Value},
+                    {"AnimalTypeID", request.AnimalTypeID ?? (object)DBNull.Value},
                     {"PreferredShift", request.PreferredShift ?? (object)DBNull.Value},
                     {"is_status", request.is_status ?? (object)DBNull.Value},
                     {"is_deleted", request.is_deleted ?? (object)DBNull.Value}

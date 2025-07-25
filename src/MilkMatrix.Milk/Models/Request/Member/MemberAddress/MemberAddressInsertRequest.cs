@@ -13,7 +13,7 @@ namespace MilkMatrix.Milk.Models.Request.Member.MemberAddress
         public string FullAddress { get; set; }
         public string Pincode { get; set; }
         public bool? IsDeleted { get; set; }
-        public bool? IsStatus { get; set; }
+        public bool? IsActive { get; set; }
         public DateTime? CreatedOn { get; set; }
         public long? CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }

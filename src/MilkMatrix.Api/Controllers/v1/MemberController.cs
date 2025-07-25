@@ -2,7 +2,6 @@ using System.Net;
 using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +21,7 @@ using MilkMatrix.Milk.Contracts.Member.MemberBankDetails;
 using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Member.Address;
-using MilkMatrix.Milk.Implementations.Member.BankDetails;
+using MilkMatrix.Milk.Implementations.Member.MemberBankDetails;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Member;
 using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
@@ -61,123 +60,121 @@ namespace MilkMatrix.Api.Controllers.v1
             this.mapper = mapper;
         }
 
-        #region Member
+        //#region Member
 
-        [HttpPost("list-member")]
-        public async Task<IActionResult> GetList([FromBody] ListsRequest request)
-        {
-            var result = await memberService.GetAll(request);
-            return Ok(result);
-        }
+        //[HttpPost("list-member")]
+        //public async Task<IActionResult> GetList([FromBody] ListsRequest request)
+        //{
+        //    var result = await memberService.GetAll(request);
+        //    return Ok(result);
+        //}
 
-        [HttpGet("member/{id}")]
-        public async Task<ActionResult<MemberResponse?>> GetById(int id)
-        {
-            try
-            {
-                logger.LogInfo($"GetById called for Member ID: {id}");
-                var result = await memberService.GetById(id);
-                if (result == null)
-                {
-                    logger.LogInfo($"Member with ID {id} not found.");
-                    return NotFound();
-                }
+        //[HttpGet("member/{id}")]
+        //public async Task<ActionResult<MemberResponse?>> GetById(int id)
+        //{
+        //    try
+        //    {
+        //        logger.LogInfo($"GetById called for Member ID: {id}");
+        //        var result = await memberService.GetById(id);
+        //        if (result == null)
+        //        {
+        //            logger.LogInfo($"Member with ID {id} not found.");
+        //            return NotFound();
+        //        }
 
-                logger.LogInfo($"Member with ID {id} retrieved successfully.");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving Member with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
-            }
-        }
+        //        logger.LogInfo($"Member with ID {id} retrieved successfully.");
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error retrieving Member with ID: {id}", ex);
+        //        return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpPost("add-member")]
-        public async Task<IActionResult> Add([FromBody] MemberInsertRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPost("add-member")]
+        //public async Task<IActionResult> Add([FromBody] MemberInsertRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberInsertRequest, MemberInsertRequestModel>(
-                    request,
-                    new Dictionary<string, object>
-                    {
-                 { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
-                    });
-
-                await memberService.AddMember(mappedRequest);
-                logger.LogInfo($"Member {request.FarmerName} added successfully.");
-                return Ok(new { message = "Member added successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error adding member", ex);
-                return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
-            }
-        }
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberInsertRequest, MemberInsertRequestModel>(
+        //            request,new Dictionary<string, object>
+        //            {
+        //                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+        //            });
+        //        await memberService.AddMember(mappedRequest);
+        //        logger.LogInfo($"Member {request.FarmerName} added successfully.");
+        //        return Ok(new { message = "Member added successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error adding member", ex);
+        //        return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
+        //    }
+        //}
 
 
-        [HttpPut("update-member")]
-        public async Task<IActionResult> Update([FromBody] MemberUpdateRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPut("update-member")]
+        //public async Task<IActionResult> Update([FromBody] MemberUpdateRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberUpdateRequest, MemberUpdateRequestModel>(
-                    request,
-                    new Dictionary<string, object>
-                    {
-                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
-                    });
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberUpdateRequest, MemberUpdateRequestModel>(
+        //            request,
+        //            new Dictionary<string, object>
+        //            {
+        //                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+        //            });
 
-                await memberService.UpdateMember(mappedRequest);
-                logger.LogInfo($"Member {request.MemberID} updated successfully.");
-                return Ok(new { message = "Member updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error updating member", ex);
-                return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
-            }
-        }
+        //        await memberService.UpdateMember(mappedRequest);
+        //        logger.LogInfo($"Member {request.MemberID} updated successfully.");
+        //        return Ok(new { message = "Member updated successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error updating member", ex);
+        //        return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpDelete("delete/{memberId}")]
-        public async Task<IActionResult> Delete(int memberId)
-        {
-            try
-            {
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await memberService.Delete(memberId, Convert.ToInt32(userId));
-                logger.LogInfo($"Member with ID {memberId} deleted successfully.");
-                return Ok(new { message = "Member deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Member with ID: {memberId}", ex);
-                return StatusCode(500, "An error occurred while deleting the member. " + ex.Message);
-            }
-        }
+        //[HttpDelete("delete/{memberId}")]
+        //public async Task<IActionResult> Delete(int memberId)
+        //{
+        //    try
+        //    {
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        await memberService.Delete(memberId, Convert.ToInt32(userId));
+        //        logger.LogInfo($"Member with ID {memberId} deleted successfully.");
+        //        return Ok(new { message = "Member deleted successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error deleting Member with ID: {memberId}", ex);
+        //        return StatusCode(500, "An error occurred while deleting the member. " + ex.Message);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
 
         #region Member Address
 
@@ -296,238 +293,238 @@ namespace MilkMatrix.Api.Controllers.v1
 
         #endregion
 
-        #region Member Bank Details
+        //#region Member Bank Details
 
-        [HttpPost("list-memberbankdetails")]
-        public async Task<IActionResult> GetListMemberBankDetails([FromBody] ListsRequest request)
-        {
-            var result = await memberBankDetailsService.GetAllMemberBankDetails(request);
-            return Ok(result);
-        }
+        //[HttpPost("list-memberbankdetails")]
+        //public async Task<IActionResult> GetListMemberBankDetails([FromBody] ListsRequest request)
+        //{
+        //    var result = await memberBankDetailsService.GetAllMemberBankDetails(request);
+        //    return Ok(result);
+        //}
 
-        [HttpGet("memberbankdetails/{id}")]
-        public async Task<ActionResult<MemberBankDetailsResponse?>> GetByIdBank(long id)
-        {
-            try
-            {
-                logger.LogInfo($"GetById called for MemberBankDetails ID: {id}");
-                var result = await memberBankDetailsService.GetMemberBankDetailsById(id);
-                if (result == null)
-                {
-                    logger.LogInfo($"MemberBankDetails with ID {id} not found.");
-                    return NotFound();
-                }
+        //[HttpGet("memberbankdetails/{id}")]
+        //public async Task<ActionResult<MemberBankDetailsResponse?>> GetByIdBank(long id)
+        //{
+        //    try
+        //    {
+        //        logger.LogInfo($"GetById called for MemberBankDetails ID: {id}");
+        //        var result = await memberBankDetailsService.GetMemberBankDetailsById(id);
+        //        if (result == null)
+        //        {
+        //            logger.LogInfo($"MemberBankDetails with ID {id} not found.");
+        //            return NotFound();
+        //        }
 
-                logger.LogInfo($"MemberBankDetails with ID {id} retrieved successfully.");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving MemberBankDetails with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
-            }
-        }
+        //        logger.LogInfo($"MemberBankDetails with ID {id} retrieved successfully.");
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error retrieving MemberBankDetails with ID: {id}", ex);
+        //        return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpPost("add-memberbankdetails")]
-        public async Task<IActionResult> Add([FromBody] MemberBankDetailsInsertRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPost("add-memberbankdetails")]
+        //public async Task<IActionResult> Add([FromBody] MemberBankDetailsInsertRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberBankDetailsInsertRequest, MemberBankDetailsInsertRequestModel>(
-                    request,
-                    new Dictionary<string, object>
-                    {
-                 { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
-                    });
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberBankDetailsInsertRequest, MemberBankDetailsInsertRequestModel>(
+        //            request,
+        //            new Dictionary<string, object>
+        //            {
+        //         { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+        //            });
 
-                await memberBankDetailsService.AddMemberBankDetails(mappedRequest);
-                logger.LogInfo($"Member Bank Details for Member ID {request.MemberID} added successfully.");
-                return Ok(new { message = "Member Bank Details added successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error adding member bank details", ex);
-                return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
-            }
-        }
+        //        await memberBankDetailsService.AddMemberBankDetails(mappedRequest);
+        //        logger.LogInfo($"Member Bank Details for Member ID {request.MemberID} added successfully.");
+        //        return Ok(new { message = "Member Bank Details added successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error adding member bank details", ex);
+        //        return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpPut("update-memberbankdetails")]
-        public async Task<IActionResult> Update([FromBody] MemberBankDetailsUpdateRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPut("update-memberbankdetails")]
+        //public async Task<IActionResult> Update([FromBody] MemberBankDetailsUpdateRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberBankDetailsUpdateRequest, MemberBankDetailsUpdateRequestModel>(
-                   request,
-                   new Dictionary<string, object>
-                   {
-                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
-                   });
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberBankDetailsUpdateRequest, MemberBankDetailsUpdateRequestModel>(
+        //           request,
+        //           new Dictionary<string, object>
+        //           {
+        //                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+        //           });
 
-                await memberBankDetailsService.UpdateMemberBankDetails(mappedRequest);
-                logger.LogInfo($"Member Bank Details with ID {request.BankDetailID} updated successfully.");
-                return Ok(new { message = "Member Bank Details updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error updating member bank details", ex);
-                return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
-            }
-        }
+        //        await memberBankDetailsService.UpdateMemberBankDetails(mappedRequest);
+        //        logger.LogInfo($"Member Bank Details with ID {request.BankDetailID} updated successfully.");
+        //        return Ok(new { message = "Member Bank Details updated successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error updating member bank details", ex);
+        //        return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpDelete("delete-memberbankdetails/{bankDetailId}")]
-        public async Task<IActionResult> Deletebankdetails(long bankDetailId)
-        {
-            try
-            {
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await memberBankDetailsService.DeleteMemberBankDetails(bankDetailId, Convert.ToInt64(userId));
-                logger.LogInfo($"Member Bank Details with ID {bankDetailId} deleted successfully.");
-                return Ok(new { message = "Member Bank Details deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Member Bank Details with ID: {bankDetailId}", ex);
-                return StatusCode(500, "An error occurred while deleting the member bank details. " + ex.Message);
-            }
-        }
+        //[HttpDelete("delete-memberbankdetails/{bankDetailId}")]
+        //public async Task<IActionResult> Deletebankdetails(long bankDetailId)
+        //{
+        //    try
+        //    {
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        await memberBankDetailsService.DeleteMemberBankDetails(bankDetailId, Convert.ToInt64(userId));
+        //        logger.LogInfo($"Member Bank Details with ID {bankDetailId} deleted successfully.");
+        //        return Ok(new { message = "Member Bank Details deleted successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error deleting Member Bank Details with ID: {bankDetailId}", ex);
+        //        return StatusCode(500, "An error occurred while deleting the member bank details. " + ex.Message);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
 
-        #region Member Milk Profile
+        //#region Member Milk Profile
 
-        [HttpPost("list-membermilkprofile")]
-        public async Task<IActionResult> GetListMilk([FromBody] ListsRequest request)
-        {
-            var result = await memberMilkProfileService.GetAllMemberMilkProfiles(request);
-            return Ok(result);
-        }
+        //[HttpPost("list-membermilkprofile")]
+        //public async Task<IActionResult> GetListMilk([FromBody] ListsRequest request)
+        //{
+        //    var result = await memberMilkProfileService.GetAllMemberMilkProfiles(request);
+        //    return Ok(result);
+        //}
 
-        [HttpGet("membermilkprofile/{id}")]
-        public async Task<ActionResult<MemberMilkProfileResponse?>> GetByIdMilkProfile(long id)
-        {
-            try
-            {
-                logger.LogInfo($"GetById called for MemberMilkProfile ID: {id}");
-                var result = await memberMilkProfileService.GetMemberMilkProfileById(id);
-                if (result == null)
-                {
-                    logger.LogInfo($"MemberMilkProfile with ID {id} not found.");
-                    return NotFound();
-                }
+        //[HttpGet("membermilkprofile/{id}")]
+        //public async Task<ActionResult<MemberMilkProfileResponse?>> GetByIdMilkProfile(long id)
+        //{
+        //    try
+        //    {
+        //        logger.LogInfo($"GetById called for MemberMilkProfile ID: {id}");
+        //        var result = await memberMilkProfileService.GetMemberMilkProfileById(id);
+        //        if (result == null)
+        //        {
+        //            logger.LogInfo($"MemberMilkProfile with ID {id} not found.");
+        //            return NotFound();
+        //        }
 
-                logger.LogInfo($"MemberMilkProfile with ID {id} retrieved successfully.");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving MemberMilkProfile with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
-            }
-        }
+        //        logger.LogInfo($"MemberMilkProfile with ID {id} retrieved successfully.");
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error retrieving MemberMilkProfile with ID: {id}", ex);
+        //        return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpPost("add-membermilkprofile")]
-        public async Task<IActionResult> Add([FromBody] MemberMilkProfileInsertRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPost("add-membermilkprofile")]
+        //public async Task<IActionResult> Add([FromBody] MemberMilkProfileInsertRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberMilkProfileInsertRequest, MemberMilkProfileInsertRequestModel>(
-                   request,
-                   new Dictionary<string, object>
-                   {
-                 { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
-                   });
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberMilkProfileInsertRequest, MemberMilkProfileInsertRequestModel>(
+        //           request,
+        //           new Dictionary<string, object>
+        //           {
+        //         { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+        //           });
 
-                await memberMilkProfileService.AddMemberMilkProfile(mappedRequest);
-                logger.LogInfo($"Member Milk Profile for Member ID {request.MemberID} added successfully.");
-                return Ok(new { message = "Member Milk Profile added successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error adding member milk profile", ex);
-                return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
-            }
-        }
+        //        await memberMilkProfileService.AddMemberMilkProfile(mappedRequest);
+        //        logger.LogInfo($"Member Milk Profile for Member ID {request.MemberID} added successfully.");
+        //        return Ok(new { message = "Member Milk Profile added successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error adding member milk profile", ex);
+        //        return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpPut("update-membermilkprofile")]
-        public async Task<IActionResult> Update([FromBody] MemberMilkProfileUpdateRequestModel request)
-        {
-            try
-            {
-                if (request == null || !ModelState.IsValid)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = ErrorMessage.InvalidRequest
-                    });
-                }
+        //[HttpPut("update-membermilkprofile")]
+        //public async Task<IActionResult> Update([FromBody] MemberMilkProfileUpdateRequestModel request)
+        //{
+        //    try
+        //    {
+        //        if (request == null || !ModelState.IsValid)
+        //        {
+        //            return BadRequest(new ErrorResponse
+        //            {
+        //                StatusCode = (int)HttpStatusCode.BadRequest,
+        //                ErrorMessage = ErrorMessage.InvalidRequest
+        //            });
+        //        }
 
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.MapWithOptions<MemberMilkProfileUpdateRequest, MemberMilkProfileUpdateRequestModel>(
-                   request,
-                   new Dictionary<string, object>
-                   {
-                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
-                   });
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        var mappedRequest = mapper.MapWithOptions<MemberMilkProfileUpdateRequest, MemberMilkProfileUpdateRequestModel>(
+        //           request,
+        //           new Dictionary<string, object>
+        //           {
+        //                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+        //           });
 
-                await memberMilkProfileService.UpdateMemberMilkProfile(mappedRequest);
-                logger.LogInfo($"Member Milk Profile with ID {request.MilkProfileID} updated successfully.");
-                return Ok(new { message = "Member Milk Profile updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error updating member milk profile", ex);
-                return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
-            }
-        }
+        //        await memberMilkProfileService.UpdateMemberMilkProfile(mappedRequest);
+        //        logger.LogInfo($"Member Milk Profile with ID {request.MilkProfileID} updated successfully.");
+        //        return Ok(new { message = "Member Milk Profile updated successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error updating member milk profile", ex);
+        //        return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
+        //    }
+        //}
 
-        [HttpDelete("delete-membermilkprofile/{milkProfileId}")]
-        public async Task<IActionResult> Deletemilkprofile(long milkProfileId)
-        {
-            try
-            {
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await memberMilkProfileService.DeleteMemberMilkProfile(milkProfileId, Convert.ToInt64(userId));
-                logger.LogInfo($"Member Milk Profile with ID {milkProfileId} deleted successfully.");
-                return Ok(new { message = "Member Milk Profile deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Member Milk Profile with ID: {milkProfileId}", ex);
-                return StatusCode(500, "An error occurred while deleting the member milk profile. " + ex.Message);
-            }
-        }
+        //[HttpDelete("delete-membermilkprofile/{milkProfileId}")]
+        //public async Task<IActionResult> Deletemilkprofile(long milkProfileId)
+        //{
+        //    try
+        //    {
+        //        var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+        //        await memberMilkProfileService.DeleteMemberMilkProfile(milkProfileId, Convert.ToInt64(userId));
+        //        logger.LogInfo($"Member Milk Profile with ID {milkProfileId} deleted successfully.");
+        //        return Ok(new { message = "Member Milk Profile deleted successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError($"Error deleting Member Milk Profile with ID: {milkProfileId}", ex);
+        //        return StatusCode(500, "An error occurred while deleting the member milk profile. " + ex.Message);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
     }
 }

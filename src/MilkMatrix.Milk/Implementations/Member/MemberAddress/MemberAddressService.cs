@@ -53,7 +53,7 @@ namespace MilkMatrix.Milk.Implementations.Member.Address
                     {"VillageID", request.VillageID},
                     {"HamletID", request.HamletID ?? (object)DBNull.Value},
                     {"Pincode", request.Pincode},
-                    { "IsStatus", request.IsStatus ?? (object)DBNull.Value},
+                    { "IsStatus", request.IsActive ?? (object)DBNull.Value},
                     {"CreatedBy", request.CreatedBy ?? (object)DBNull.Value},
                 };
 

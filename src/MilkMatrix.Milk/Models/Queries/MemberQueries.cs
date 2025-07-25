@@ -13,12 +13,12 @@ namespace MilkMatrix.Milk.Models.Queries
 
 
         // Bank Details Queries
-        public const string AddOrUpdateMemberBankDetails = "usp_memberbankdetails_insupd";
-        public const string GetMemberBankDetailsList = "usp_memberbankdetails_list"; 
+        public const string AddOrUpdateMemberBankDetails = "usp_member_bankdetails_insupd";
+        public const string GetMemberBankDetailsList = "usp_member_bankdetails_list"; 
 
-        // Milk Profile Queries
-        public const string AddOrUpdateMemberMilkProfile = "usp_membermilkprofile_insupd"; 
-        public const string GetMemberMilkProfileList = "usp_membermilkprofile_list"; 
+        // Milk Profile Queriesusp_member_bankdetails_list
+        public const string AddOrUpdateMemberMilkProfile = "usp_member_milkprofile_insupd"; 
+        public const string GetMemberMilkProfileList = "usp_member_milkprofile_list"; 
 
         // Member Documents Queries
         public const string AddOrUpdateMemberDocuments = "usp_memberdocuments_insupd"; 

@@ -18,7 +18,7 @@ using MilkMatrix.Core.Extensions;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Response;
 
-namespace MilkMatrix.Milk.Implementations.Member.BankDetails
+namespace MilkMatrix.Milk.Implementations.Member.MemberBankDetails
 {
     public class MemberBankDetailsService : IMemberBankDetailsService
     {
@@ -39,7 +39,7 @@ namespace MilkMatrix.Milk.Implementations.Member.BankDetails
         {
             try
             {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main); // Assuming CommonLists is appropriate
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
                     {"ActionType", (int)CrudActionType.Create},
@@ -52,9 +52,7 @@ namespace MilkMatrix.Milk.Implementations.Member.BankDetails
                     {"IsJointAccount", request.IsJointAccount},
                     {"PassbookFilePath", request.PassbookFilePath ?? (object)DBNull.Value},
                     { "IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"created_on", request.CreatedOn ?? (object)DBNull.Value},
-                    {"created_by", request.CreatedBy ?? (object)DBNull.Value},
-                     { "IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
+                    {"CreatedBy", request.CreatedBy ?? (object)DBNull.Value}
                 };
           
                 var message = await repository.AddAsync(MemberQueries.AddOrUpdateMemberBankDetails, requestParams, CommandType.StoredProcedure);
@@ -89,9 +87,7 @@ namespace MilkMatrix.Milk.Implementations.Member.BankDetails
                     {"IsJointAccount", request.IsJointAccount},
                     {"PassbookFilePath", request.PassbookFilePath ?? (object)DBNull.Value},
                     {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"ModifyOn", request.ModifiedOn ?? (object)DBNull.Value},
                     {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
-                    {"IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
                 };
 
 
@@ -118,7 +114,6 @@ namespace MilkMatrix.Milk.Implementations.Member.BankDetails
                 {
                     {"ActionType", (int)CrudActionType.Delete},
                     {"BankDetailID", bankDetailId},
-                    {"modify_by", userId}
                 };
 
                 var response = await repository.DeleteAsync(MemberQueries.AddOrUpdateMemberBankDetails, requestParams, CommandType.StoredProcedure);
