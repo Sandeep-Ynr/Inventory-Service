@@ -34,6 +34,21 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+            CreateMap<MeasurementUnitUpdateModel, MeasurementUnitUpdateRequest>()
+                        .ForMember(x => x.MeasurementUnitId, opt => opt.MapFrom(src => src.MeasurementUnitId))
+                        .ForMember(x => x.MeasurementUnitCode, opt => opt.MapFrom(src => src.MeasurementUnitCode))
+                        .ForMember(x => x.MeasurementUnitName, opt => opt.MapFrom(src => src.MeasurementUnitName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+            CreateMap<MeasurementUnitInsertModel, MeasurementUnitInsertRequest>()
+                        .ForMember(x => x.MeasurementUnitCode, opt => opt.MapFrom(src => src.MeasurementUnitCode))
+                        .ForMember(x => x.MeasurementUnitName, opt => opt.MapFrom(src => src.MeasurementUnitName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         }
     }
 }
