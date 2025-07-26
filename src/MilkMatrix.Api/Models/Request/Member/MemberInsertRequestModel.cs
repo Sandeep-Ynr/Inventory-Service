@@ -12,6 +12,5 @@ namespace MilkMatrix.Api.Models.Request.Member
         public string? EmailID { get; set; }
         public string? AadharNo { get; set; }
         public long SocietyID { get; set; }
-        public long CreatedBy { get; set; }
     }
 }
