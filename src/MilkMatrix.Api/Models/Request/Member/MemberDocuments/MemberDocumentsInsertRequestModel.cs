@@ -4,10 +4,11 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberDocuments
 {
     public class MemberDocumentsInsertRequestModel
     {
+        public int DocumentID { get; set; }
         public long MemberID { get; set; }
-        public string? AadharFile { get; set; }
-        public string? VoterOrRationCard { get; set; }
-        public string? OtherDocument { get; set; }
-
+        public string? AadharCardBase64 { get; set; }
+        public string? VoterIDBase64 { get; set; }
+        public string? OtherDocumentBase64 { get; set; }
+        public bool? IsStatus { get; set; }
     }
 }

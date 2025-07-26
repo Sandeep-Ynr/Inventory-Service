@@ -97,26 +97,23 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.PouringStartDate, opt => opt.MapFrom(src => src.PouringStartDate))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => (bool?)src.IsStatus))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
-            
-            CreateMap<MemberDocumentsInsertRequestModel, MemberDocumentsInsertRequest>()
+
+           CreateMap<MemberDocumentsInsertRequestModel, MemberDocumentsInsertRequest>()
              .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
-             .ForMember(dest => dest.AadharFile, opt => opt.MapFrom(src => src.AadharFile))
-             .ForMember(dest => dest.VoterOrRationCard, opt => opt.MapFrom(src => src.VoterOrRationCard))
-             .ForMember(dest => dest.OtherDocument, opt => opt.MapFrom(src => src.OtherDocument))
-             .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => true))
-             .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
-             .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
+             .ForMember(dest => dest.AadharCardBase64, opt => opt.MapFrom(src => src.AadharCardBase64))
+             .ForMember(dest => dest.VoterIDBase64, opt => opt.MapFrom(src => src.VoterIDBase64))
+             .ForMember(dest => dest.OtherDocumentBase64, opt => opt.MapFrom(src => src.OtherDocumentBase64))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => (bool?)src.IsStatus))
              .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<MemberDocumentsUpdateRequestModel, MemberDocumentsUpdateRequest>()
-                .ForMember(dest => dest.DocumentID, opt => opt.MapFrom(src => src.DocumentID))
-                .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
-                .ForMember(dest => dest.AadharFile, opt => opt.MapFrom(src => src.AadharFile))
-                .ForMember(dest => dest.VoterOrRationCard, opt => opt.MapFrom(src => src.VoterOrRationCard))
-                .ForMember(dest => dest.OtherDocument, opt => opt.MapFrom(src => src.OtherDocument))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => (bool?)src.IsStatus))
-                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom((src, dest, member, context) => DateTime.UtcNow))
-                .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+                 .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
+                 .ForMember(dest => dest.DocumentID, opt => opt.MapFrom(src => src.DocumentID))
+                 .ForMember(dest => dest.AadharCardBase64, opt => opt.MapFrom(src => src.AadharCardBase64))
+                 .ForMember(dest => dest.VoterIDBase64, opt => opt.MapFrom(src => src.VoterIDBase64))
+                 .ForMember(dest => dest.OtherDocumentBase64, opt => opt.MapFrom(src => src.OtherDocumentBase64))
+                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => (bool?)src.IsStatus))
+                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
             CreateMap<MemberAddressInsertRequestModel, MemberAddressInsertRequest>()
                  .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))

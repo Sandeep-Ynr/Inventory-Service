@@ -45,17 +45,13 @@ namespace MilkMatrix.Milk.Implementations.Member.MemberDocuments
                 {
                     {"ActionType", (int)CrudActionType.Create},
                     {"MemberID", request.MemberID},
-                    {"AadharFile", request.AadharFile ?? (object)DBNull.Value},
-                    {"VoterOrRationCard", request.VoterOrRationCard ?? (object)DBNull.Value},
-                    {"OtherDocument", request.OtherDocument ?? (object)DBNull.Value},
-                    {"is_status", request.IsStatus},
-                    {"created_on", DateTime.UtcNow}, // Using UtcNow for created_on
+                    {"AadharCard", request.AadharCardBase64 ?? (object)DBNull.Value},
+                    {"VoterID", request.VoterIDBase64 ?? (object)DBNull.Value},
+                    {"OtherDocument", request.OtherDocumentBase64 ?? (object)DBNull.Value},
+                    {"is_status", request.IsActive},
                     {"created_by", request.CreatedBy},
-                    {"is_deleted", false} // Assuming is_deleted is initially false on creation
                 };
-
                 var message = await repository.AddAsync(MemberQueries.AddOrUpdateMemberDocuments, requestParams, CommandType.StoredProcedure);
-
                 if (message.StartsWith("Error"))
                     throw new Exception($"Stored Procedure Error: {message}");
 
@@ -78,13 +74,11 @@ namespace MilkMatrix.Milk.Implementations.Member.MemberDocuments
                     {"ActionType", (int)CrudActionType.Update},
                     {"DocumentID", request.DocumentID},
                     {"MemberID", request.MemberID},
-                    {"AadharFile", request.AadharFile ?? (object)DBNull.Value},
-                    {"VoterOrRationCard", request.VoterOrRationCard ?? (object)DBNull.Value},
-                    {"OtherDocument", request.OtherDocument ?? (object)DBNull.Value},
-                    {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    {"ModifyOn", request.ModifiedOn ?? (object)DBNull.Value},
+                    {"AadharCard", request.AadharCardBase64 ?? (object)DBNull.Value},
+                    {"VoterID", request.VoterIDBase64 ?? (object)DBNull.Value},
+                    {"OtherDocument", request.OtherDocumentBase64 ?? (object)DBNull.Value},
+                    {"is_status", request.IsActive},
                     {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
-                    {"IsDeleted", request.IsDeleted ?? (object)DBNull.Value}
                 };
 
                 var message = await repository.UpdateAsync(MemberQueries.AddOrUpdateMemberDocuments, requestParams, CommandType.StoredProcedure);
