@@ -18,6 +18,7 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
+using MilkMatrix.Milk.Contracts.Price;
 using MilkMatrix.Milk.Contracts.PriceApplicability;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
 using MilkMatrix.Milk.Contracts.Shift;
@@ -33,6 +34,7 @@ using MilkMatrix.Milk.Implementations.Member.MemberDocuments;
 using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Plant;
+using MilkMatrix.Milk.Implementations.Price;
 using MilkMatrix.Milk.Implementations.PriceApplicability;
 using MilkMatrix.Milk.Implementations.Shift;
 
@@ -71,6 +73,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMemberAddressService, MemberAddressService>()
                     .AddScoped<IMemberDocumentsService, MemberDocumentsService>()
                     .AddScoped<IMemberMilkProfileService, MemberMilkProfileService>()
-                    .AddScoped<IMemberBankDetailsService, MemberBankDetailsService>();
+                    .AddScoped<IMemberBankDetailsService, MemberBankDetailsService>()
+                    .AddScoped<IPriceService, PriceService>();
     }
 }

@@ -1,0 +1,14 @@
+namespace MilkMatrix.Api.Models.Request.Price
+{
+    public class MilkPriceInsertRequestModel
+    {
+        public int? BusinessEntityId { get; set; }
+        public DateTime? WithEffectDate { get; set; }
+        public string? ShiftId { get; set; }
+        public string? MilkTypeId { get; set; }
+        public string? RateTypeId { get; set; }
+        public string? Description { get; set; }
+        public string? RateGenType { get; set; }
+        public bool? IsStatus { get; set; }
+    }
+}
