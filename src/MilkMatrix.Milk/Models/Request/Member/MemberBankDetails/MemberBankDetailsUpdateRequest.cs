@@ -14,7 +14,7 @@ namespace MilkMatrix.Milk.Models.Request.Member.MemberBankDetails
         public bool IsJointAccount { get; set; }
         public string? PassbookFilePath { get; set; }
         public bool? IsDeleted { get; set; }
-        public bool? IsStatus { get; set; }
+        public bool? IsActive { get; set; }
         public DateTime? CreatedOn { get; set; }
         public long? CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }

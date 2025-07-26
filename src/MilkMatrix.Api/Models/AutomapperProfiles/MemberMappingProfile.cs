@@ -71,7 +71,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IFSCCode, opt => opt.MapFrom(src => src.IFSCCode))
                 .ForMember(dest => dest.IsJointAccount, opt => opt.MapFrom(src => src.IsJointAccount))
                 .ForMember(dest => dest.PassbookFilePath, opt => opt.MapFrom(src => src.PassbookFilePath))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => (bool?)src.IsStatus))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => (bool?)src.IsStatus))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
           

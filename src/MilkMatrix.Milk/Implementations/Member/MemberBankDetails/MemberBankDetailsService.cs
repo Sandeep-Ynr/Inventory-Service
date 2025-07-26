@@ -86,7 +86,7 @@ namespace MilkMatrix.Milk.Implementations.Member.MemberBankDetails
                     {"IFSCCode", request.IFSCCode},
                     {"IsJointAccount", request.IsJointAccount},
                     {"PassbookFilePath", request.PassbookFilePath ?? (object)DBNull.Value},
-                    {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
+                    {"IsStatus", request.IsActive ?? (object)DBNull.Value},
                     {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
                 };
 
