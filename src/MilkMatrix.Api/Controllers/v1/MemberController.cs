@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Member;
 using MilkMatrix.Api.Models.Request.Member.MemberAddress;
 using MilkMatrix.Api.Models.Request.Member.MemberBankDetails;
+using MilkMatrix.Api.Models.Request.Member.MemberDocuments;
 using MilkMatrix.Api.Models.Request.Member.MemberMilkProfile;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -18,6 +19,7 @@ using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Member;
 using MilkMatrix.Milk.Contracts.Member.MemberAddress;
 using MilkMatrix.Milk.Contracts.Member.MemberBankDetails;
+using MilkMatrix.Milk.Contracts.Member.MemberDocuments;
 using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Member.Address;
@@ -26,10 +28,12 @@ using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Member;
 using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
 using MilkMatrix.Milk.Models.Request.Member.MemberBankDetails;
+using MilkMatrix.Milk.Models.Request.Member.MemberDocuments;
 using MilkMatrix.Milk.Models.Request.Member.MemberMilkProfile;
 using MilkMatrix.Milk.Models.Response.Member;
 using MilkMatrix.Milk.Models.Response.Member.MemberAddress;
 using MilkMatrix.Milk.Models.Response.Member.MemberBankDetails;
+using MilkMatrix.Milk.Models.Response.Member.MemberDocuments;
 using MilkMatrix.Milk.Models.Response.Member.MemberMilkProfile;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
@@ -47,6 +51,7 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMemberAddressService memberAddressService;
         private readonly IMemberBankDetailsService memberBankDetailsService;
         private readonly IMemberMilkProfileService memberMilkProfileService;
+        private readonly IMemberDocumentsService memberDocumentsService;
         public MemberController(IHttpContextAccessor httpContextAccessor, IMemberService memberService,
             IMemberAddressService memberAddressService, IMemberBankDetailsService memberBankDetailsService,
             IMemberMilkProfileService memberMilkProfileService, ILogging logging, IMapper mapper)
@@ -57,6 +62,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.memberAddressService = memberAddressService ?? throw new ArgumentNullException(nameof(memberAddressService));
             this.memberBankDetailsService = memberBankDetailsService ?? throw new ArgumentNullException(nameof(memberBankDetailsService));
             this.memberMilkProfileService = memberMilkProfileService ?? throw new ArgumentNullException(nameof(memberMilkProfileService));
+            this.memberDocumentsService = memberDocumentsService ?? throw new ArgumentNullException(nameof(memberDocumentsService));
             this.mapper = mapper;
         }
 
@@ -524,6 +530,105 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the member milk profile. " + ex.Message);
             }
         }
+
+        #endregion
+
+
+        #region Member Documents
+        [HttpPost("list-memberdocuments")]
+        public async Task<IActionResult> GetMemberDocumentsList([FromBody] ListsRequest request)
+        {
+            var result = await memberDocumentsService.GetAllMemberDocuments(request);
+            return Ok(result);
+        }
+        [HttpGet("memberdocuments/{id}")]
+        public async Task<ActionResult<MemberDocumentsResponse?>> GetMemberDocumentById(long id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for MemberDocument ID: {id}");
+
+                var result = await memberDocumentsService.GetMemberDocumentsById(id);
+
+                if (result == null)
+                {
+                    logger.LogInfo($"MemberDocument with ID {id} not found.");
+                    return NotFound(new { message = $"Member document with ID {id} not found." });
+                }
+
+                logger.LogInfo($"MemberDocument with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving MemberDocument with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
+            }
+        }
+
+
+
+        [HttpPost("add-memberdocuments")]
+        public async Task<IActionResult> AddMemberDocuments([FromBody] MemberDocumentsInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = ErrorMessage.InvalidRequest
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                // Map request model to service request (with CreatedBy)
+                var mappedRequest = mapper.MapWithOptions<MemberDocumentsInsertRequest, MemberDocumentsInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await memberDocumentsService.AddMemberDocuments(mappedRequest);
+
+                logger.LogInfo($"Member Documents for Member ID {request.MemberID} added successfully.");
+
+                return Ok(new
+                {
+                    message = $"Member documents for Member ID {request.MemberID} added successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding member documents", ex);
+                return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
+            }
+        }
+
+
+        [HttpDelete("delete-memberdocuments/{documentId}")]
+        public async Task<IActionResult> DeleteMemberDocuments(long documentId)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                await memberDocumentsService.DeleteMemberDocuments(documentId, Convert.ToInt64(userId));
+
+                logger.LogInfo($"Member Document with ID {documentId} deleted successfully.");
+
+                return Ok(new { message = $"Member Document with ID {documentId} deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Member Document with ID: {documentId}", ex);
+                return StatusCode(500, "An error occurred while deleting the member document. " + ex.Message);
+            }
+        }
+
 
         #endregion
     }

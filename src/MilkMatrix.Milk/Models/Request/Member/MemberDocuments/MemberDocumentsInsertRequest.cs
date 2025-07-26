@@ -2,12 +2,13 @@ namespace MilkMatrix.Milk.Models.Request.Member.MemberDocuments
 {
     public class MemberDocumentsInsertRequest
     {
+        public int DocumentID { get; set; }
         public long MemberID { get; set; }
-        public string? AadharFile { get; set; }
-        public string? VoterOrRationCard { get; set; }
-        public string? OtherDocument { get; set; }
-        public bool? IsDeleted { get; set; }
-        public bool? IsStatus { get; set; }
+        public string? AadharCardBase64 { get; set; }
+        public string? VoterIDBase64 { get; set; }
+        public string? OtherDocumentBase64 { get; set; }
+        
+        public bool? IsActive { get; set; }
         public DateTime? CreatedOn { get; set; }
         public long? CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
