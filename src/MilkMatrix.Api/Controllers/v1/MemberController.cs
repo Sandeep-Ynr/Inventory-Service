@@ -54,7 +54,7 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMemberDocumentsService memberDocumentsService;
         public MemberController(IHttpContextAccessor httpContextAccessor, IMemberService memberService,
             IMemberAddressService memberAddressService, IMemberBankDetailsService memberBankDetailsService,
-            IMemberMilkProfileService memberMilkProfileService, ILogging logging, IMapper mapper)
+            IMemberMilkProfileService memberMilkProfileService, IMemberDocumentsService memberDocumentsService, ILogging logging, IMapper mapper)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logging.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logging));
