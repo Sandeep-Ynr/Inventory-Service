@@ -19,5 +19,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetRateTypeList = "usp_rate_type_list";
             public const string InsupdRateType = "usp_rate_type_insupd";
         }
+
+        public static class MeasurementUnitQueries
+        {
+            public const string GetMeasurementUnitList = "usp_measurement_unit_list";
+            public const string InsupdMeasurementUnit = "usp_measurement_unit_insupd";
+        }
     }
 }

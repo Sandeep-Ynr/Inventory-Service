@@ -16,11 +16,7 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Models.Request.Milk;
-using MilkMatrix.Milk.Models.Response.Animal;
-
-//using MilkMatrix.Milk.Models.Response.Animal;
 using MilkMatrix.Milk.Models.Response.Milk;
-using static MilkMatrix.Milk.Models.Queries.AnimalQueries;
 using static MilkMatrix.Milk.Models.Queries.MilkQueries;
 
 namespace MilkMatrix.Milk.Implementations.Milk
@@ -315,6 +311,148 @@ namespace MilkMatrix.Milk.Implementations.Milk
             catch (Exception ex)
             {
                 logging.LogError($"Error in GetByIdAsync for Rate Type id: {id}", ex);
+                throw;
+            }
+        }
+
+
+        public async Task AddAsync(MeasurementUnitInsertRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Create}, // 1 for insert
+                    { "MeasurementUnitCode", request.MeasurementUnitCode ?? (object)DBNull.Value },
+                    { "MeasurementUnitName",request.MeasurementUnitName ?? (object)DBNull.Value },
+                    { "Description", request. Description ?? (object)DBNull.Value },
+                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                };
+                var response = await repository.AddAsync(MeasurementUnitQueries.InsupdMeasurementUnit, requestParams, CommandType.StoredProcedure);
+                // Return the inserted StateId or Name, etc. depending on your SP response
+                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"Measurement Unit {request.MeasurementUnitName} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in AddAsync for Measurement Unit: {request.MeasurementUnitName}", ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateAsync(MeasurementUnitUpdateRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "MeasurementUnitId", request.MeasurementUnitId},
+                    { "MeasurementUnitCode", request.MeasurementUnitCode ?? (object)DBNull.Value },
+                    { "MeasurementUnitName",request.MeasurementUnitName ?? (object)DBNull.Value },
+                    { "Description", request. Description ?? (object)DBNull.Value },
+                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy }
+                };
+
+                await repository.UpdateAsync(MeasurementUnitQueries.InsupdMeasurementUnit, requestParams, CommandType.StoredProcedure);
+
+                logging.LogInfo($"Measurement Unit {request.MeasurementUnitName} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in UpdateAsync for Measurement Unit: {request.MeasurementUnitName}", ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteMeasureUnitAsync(int id, int userId)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    {"ActionType" , (int)CrudActionType.Delete },
+                    {"MeasurementUnitId", id },
+                    {"IsActive", false },
+                    {"ModifyBy", userId }
+
+                };
+
+                var response = await repository.DeleteAsync(MeasurementUnitQueries.InsupdMeasurementUnit, requestParams, CommandType.StoredProcedure);
+
+                logging.LogInfo($"Measurement Unit with id {id} deleted successfully.");
+
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in DeleteAsync for Measurement Unit id: {id}", ex);
+                throw;
+            }
+
+        }
+
+        public async Task<IListsResponse<MeasurementUnitInsertResponse>> GetAllMeasureUnitAsync(IListsRequest request)
+        {
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All },
+                { "Start", request.Limit },
+                { "End", request.Offset }
+            };
+
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<MeasurementUnitInsertResponse, int, FiltersMeta>(MeasurementUnitQueries.GetMeasurementUnitList,
+                    DbConstants.Main, parameters, null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<MeasurementUnitInsertResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+
+        public async Task<MeasurementUnitInsertResponse?> GetMeasureUnitByIdAsync(int id)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for Measurement Unit id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<MeasurementUnitInsertResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<MeasurementUnitInsertResponse>(MeasurementUnitQueries.GetMeasurementUnitList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "MeasurementUnitId", id }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new MeasurementUnitInsertResponse();
+                logging.LogInfo(result != null
+                    ? $"Animal Type with id {id} retrieved successfully."
+                    : $"Measurement Unit with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for Measurement Unit id: {id}", ex);
                 throw;
             }
         }

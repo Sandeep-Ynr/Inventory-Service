@@ -9,19 +9,34 @@ using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
 using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Contracts.Mcc;
+using MilkMatrix.Milk.Contracts.Member;
+using MilkMatrix.Milk.Contracts.Member.MemberAddress;
+using MilkMatrix.Milk.Contracts.Member.MemberBankDetails;
+using MilkMatrix.Milk.Contracts.Member.MemberDocuments;
+using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
+using MilkMatrix.Milk.Contracts.Price;
+using MilkMatrix.Milk.Contracts.PriceApplicability;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
+using MilkMatrix.Milk.Contracts.Shift;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
 using MilkMatrix.Milk.Implementations.Logistics.Route;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
 using MilkMatrix.Milk.Implementations.Mcc;
+using MilkMatrix.Milk.Implementations.Member.Address;
+using MilkMatrix.Milk.Implementations.Member.MemberBankDetails;
+using MilkMatrix.Milk.Implementations.Member.MemberDocuments;
+using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Plant;
+using MilkMatrix.Milk.Implementations.Price;
+using MilkMatrix.Milk.Implementations.PriceApplicability;
+using MilkMatrix.Milk.Implementations.Shift;
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -51,6 +66,14 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMilkService, MilkService>()
                     .AddScoped<ITransporterService, TransporterService>()
                     .AddScoped<IVehicleService, VehicleService>()
-                    .AddScoped<IVendorService, VendorService>();
+                    .AddScoped<IVendorService, VendorService>()
+                    .AddScoped<IMemberService, MemberService>()
+                    .AddScoped<IShiftService, ShiftService>()
+                    .AddScoped<IPriceApplicabilityService, PriceApplicabilityService>()
+                    .AddScoped<IMemberAddressService, MemberAddressService>()
+                    .AddScoped<IMemberDocumentsService, MemberDocumentsService>()
+                    .AddScoped<IMemberMilkProfileService, MemberMilkProfileService>()
+                    .AddScoped<IMemberBankDetailsService, MemberBankDetailsService>()
+                    .AddScoped<IPriceService, PriceService>();
     }
 }

@@ -86,19 +86,19 @@ namespace MilkMatrix.Api.Controllers.v1
                 }
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-                logger.LogInfo($"Add called for Animal Type: {request.MilkTypeName}");
+                logger.LogInfo($"Add called for Measurement Unit: {request.MilkTypeName}");
                 var requestParams = mapper.MapWithOptions<MilkTypeInsertRequest, MilkTypeInsertRequestModel>(request
                     , new Dictionary<string, object>
                     {
                         { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
                 });
                 await milkService.AddAsync(requestParams);
-                logger.LogInfo($"Animal Type {request.MilkTypeName} added successfully.");
+                logger.LogInfo($"Measurement Unit {request.MilkTypeName} added successfully.");
                 return Ok(new { message = "Milk Type added successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError("Error in Add Animal Type", ex);
+                logger.LogError("Error in Add Measurement Unit", ex);
                 return StatusCode(500, "An error occurred while adding the Milk Type.");
             }
         }
@@ -183,7 +183,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 }
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
-                logger.LogInfo($"Add called for Animal Type: {request.RateTypeName}");
+                logger.LogInfo($"Add called for Rate Type: {request.RateTypeName}");
                 var requestParams = mapper.MapWithOptions<RateTypeInsertRequest, RateTypeInsertRequestModel>(request
                     , new Dictionary<string, object>
                     {
@@ -231,6 +231,104 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 logger.LogError($"Error deleting Rate Type with id: {id}", ex);
                 return StatusCode(500, "An error occurred while deleting the Rate Type.");
+            }
+        }
+
+
+        [HttpPost]
+        [Route("measurement-unit-list")]
+        public async Task<IActionResult> MeasurementUnitList([FromBody] ListsRequest request)
+        {
+            var result = await milkService.GetAllMeasureUnitAsync(request);
+            return Ok(result);
+        }
+
+        [HttpGet("measurement-unit{id}")]
+        public async Task<ActionResult<MeasurementUnitInsertResponse?>> GetMeasurementUnitById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Measurement Unit by id called for id: {id}");
+                var mcc = await milkService.GetMeasureUnitByIdAsync(id);
+                if (mcc == null)
+                {
+                    logger.LogInfo($"Measurement Unit with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Measurement Unit with id {id} retrieved successfully.");
+                return Ok(mcc);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Measurement Unit with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Measurement Unit.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add")]
+        public async Task<IActionResult> AddAsync([FromBody] MeasurementUnitInsertModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Measurement Unit: {request.MeasurementUnitName}");
+                var requestParams = mapper.MapWithOptions<MeasurementUnitInsertRequest, MeasurementUnitInsertModel>(request
+                    , new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await milkService.AddAsync(requestParams);
+                logger.LogInfo($"Measurement Unit {request.MeasurementUnitName} added successfully.");
+                return Ok(new { message = "Measurement Unit added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add Measurement Unit", ex);
+                return StatusCode(500, "An error occurred while adding the Measurement Unit.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] MeasurementUnitUpdateModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<MeasurementUnitUpdateRequest, MeasurementUnitUpdateModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await milkService.UpdateAsync(requestParams);
+            logger.LogInfo($"Measurement Unit with id {request.MeasurementUnitId} updated successfully.");
+            return Ok(new { message = "Measurement Unit updated successfully." });
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteMeasureUnitAsync(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await milkService.DeleteMeasureUnitAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Measurement Unit with id {id} deleted successfully.");
+                return Ok(new { message = "Measurement Unit deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Measurement Unit with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Measurement Unit.");
             }
         }
 
