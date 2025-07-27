@@ -103,7 +103,43 @@ public static class FilterExtensions
         foreach (var kvp in request.Filters)
         {
             if (kvp.Value != null && allowed.Contains(kvp.Key))
-                parameters[kvp.Key] = kvp.Value;
+            {
+                object value = kvp.Value;
+
+                // Handle System.Text.Json.JsonElement
+                if (value is System.Text.Json.JsonElement jsonElement)
+                {
+                    switch (jsonElement.ValueKind)
+                    {
+                        case System.Text.Json.JsonValueKind.String:
+                            value = jsonElement.GetString();
+                            break;
+                        case System.Text.Json.JsonValueKind.Number:
+                            if (jsonElement.TryGetInt32(out int intVal))
+                                value = intVal;
+                            else if (jsonElement.TryGetInt64(out long longVal))
+                                value = longVal;
+                            else if (jsonElement.TryGetDouble(out double doubleVal))
+                                value = doubleVal;
+                            break;
+                        case System.Text.Json.JsonValueKind.True:
+                        case System.Text.Json.JsonValueKind.False:
+                            value = jsonElement.GetBoolean();
+                            break;
+                        case System.Text.Json.JsonValueKind.Null:
+                        case System.Text.Json.JsonValueKind.Undefined:
+                            value = null;
+                            break;
+                        default:
+                            // For objects/arrays, you may want to serialize to string or skip
+                            value = jsonElement.ToString();
+                            break;
+                    }
+                }
+
+                if (value != null)
+                    parameters[kvp.Key] = value;
+            }
         }
 
         return parameters;
