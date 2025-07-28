@@ -16,7 +16,6 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.PriceApplicability;
 using MilkMatrix.Milk.Models.Request.PriceApplicability;
 using MilkMatrix.Milk.Models.Response.PriceApplicability;
-using static MilkMatrix.Milk.Models.Queries.AnimalQueries;
 using static MilkMatrix.Milk.Models.Queries.PriceApplicabilityQueries;
 
 namespace MilkMatrix.Milk.Implementations.PriceApplicability
