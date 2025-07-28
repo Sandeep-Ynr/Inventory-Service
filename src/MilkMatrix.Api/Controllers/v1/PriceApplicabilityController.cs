@@ -145,7 +145,7 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("rate-for-list")]
         public async Task<IActionResult> RateForList([FromBody] ListsRequest request)
         {
-            var result = await priceApplicabilityService.GetAllAsync(request);
+            var result = await priceApplicabilityService.GetAllRateForAsync(request);
             return Ok(result);
         }
 
@@ -155,7 +155,7 @@ namespace MilkMatrix.Api.Controllers.v1
             try
             {
                 logger.LogInfo($"Get Rate For by id called for id: {id}");
-                var mcc = await priceApplicabilityService.GetByIdAsync(id);
+                var mcc = await priceApplicabilityService.GetRateForByIdAsync(id);
                 if (mcc == null)
                 {
                     logger.LogInfo($"Rate For with id {id} not found.");
@@ -172,7 +172,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost]
-        [Route("add")]
+        [Route("rate-for-add")]
         public async Task<IActionResult> AddAsync([FromBody] RateForInsertRequestModel request)
         {
             try
@@ -205,7 +205,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("rate-for-update/{id}")]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody] RateForUpdateRequestModel request)
         {
             if (!ModelState.IsValid || id <= 0)
@@ -221,13 +221,13 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(new { message = "Rate For updated successfully." });
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("rate-for-delete/{id}")]
         public async Task<IActionResult> DeleteRateForAsync(int id)
         {
             try
             {
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await priceApplicabilityService.DeleteAsync(id, Convert.ToInt32(UserId));
+                await priceApplicabilityService.DeleteRateForAsync(id, Convert.ToInt32(UserId));
                 logger.LogInfo($"Rate For with id {id} deleted successfully.");
                 return Ok(new { message = "Rate For deleted successfully." });
             }

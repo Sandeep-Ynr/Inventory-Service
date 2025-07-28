@@ -8,6 +8,7 @@ namespace MilkMatrix.Milk.Models.Response.PriceApplicability
 {
     public class PriceAppInsertResponse
     {
+        public int? Id { get; set; }
         public int? BusinessEntityId { get; set; }
         public string? RateCode { get; set; }
         public string? ModuleCode { get; set; }
