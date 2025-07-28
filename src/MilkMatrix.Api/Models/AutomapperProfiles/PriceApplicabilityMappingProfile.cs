@@ -31,6 +31,21 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.RateFor, opt => opt.MapFrom(src => src.RateFor))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+            CreateMap<RateForUpdateRequestModel, RateForUpdateRequest>()
+                        .ForMember(x => x.RateForId, opt => opt.MapFrom(src => src.RateForId))
+                        .ForMember(x => x.RateForCode, opt => opt.MapFrom(src => src.RateForCode))
+                        .ForMember(x => x.RateForName, opt => opt.MapFrom(src => src.RateForName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+            CreateMap<RateForInsertRequestModel, RateForInsertRequest>()
+                        .ForMember(x => x.RateForCode, opt => opt.MapFrom(src => src.RateForCode))
+                        .ForMember(x => x.RateForName, opt => opt.MapFrom(src => src.RateForName))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         }
     }
 }
