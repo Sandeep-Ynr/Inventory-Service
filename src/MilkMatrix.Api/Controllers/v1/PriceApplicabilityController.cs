@@ -5,6 +5,7 @@ using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Api.Models.Request.Animal;
 using MilkMatrix.Api.Models.Request.PriceApplicability;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -12,9 +13,11 @@ using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.PriceApplicability;
-using MilkMatrix.Milk.Implementations.Bmc;
+using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Models;
+using MilkMatrix.Milk.Models.Request.Animal;
 using MilkMatrix.Milk.Models.Request.PriceApplicability;
+using MilkMatrix.Milk.Models.Response.Animal;
 using MilkMatrix.Milk.Models.Response.PriceApplicability;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
@@ -121,7 +124,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeletePlant(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             try
             {
@@ -137,6 +140,103 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
+
+        [HttpPost]
+        [Route("rate-for-list")]
+        public async Task<IActionResult> RateForList([FromBody] ListsRequest request)
+        {
+            var result = await priceApplicabilityService.GetAllAsync(request);
+            return Ok(result);
+        }
+
+        [HttpGet("rate-for{id}")]
+        public async Task<ActionResult<RateForInsertResponse?>> GetRateForById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Rate For by id called for id: {id}");
+                var mcc = await priceApplicabilityService.GetByIdAsync(id);
+                if (mcc == null)
+                {
+                    logger.LogInfo($"Rate For with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Rate For with id {id} retrieved successfully.");
+                return Ok(mcc);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Rate For with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Rate For.");
+            }
+        }
+
+        [HttpPost]
+        [Route("add")]
+        public async Task<IActionResult> AddAsync([FromBody] RateForInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for Rate For: {request.RateForName}");
+                var requestParams = mapper.MapWithOptions<RateForInsertRequest, RateForInsertRequestModel>(request
+                    , new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await priceApplicabilityService.AddRateForAsync(requestParams);
+                logger.LogInfo($"Rate For {request.RateForName} added successfully.");
+                return Ok(new { message = "Rate For added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add Rate For", ex);
+                return StatusCode(500, "An error occurred while adding the Rate For.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] RateForUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest("Invalid request.");
+
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<RateForUpdateRequest, RateForUpdateRequestModel>(request
+                        , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                    });
+            await priceApplicabilityService.UpdateRateForAsync(requestParams);
+            logger.LogInfo($"Rate For with id {request.RateForId} updated successfully.");
+            return Ok(new { message = "Rate For updated successfully." });
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteRateForAsync(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await priceApplicabilityService.DeleteAsync(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Rate For with id {id} deleted successfully.");
+                return Ok(new { message = "Rate For deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Rate For with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Rate For.");
+            }
+        }
 
     }
 }

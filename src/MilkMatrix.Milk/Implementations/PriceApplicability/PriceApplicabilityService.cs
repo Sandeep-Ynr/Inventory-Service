@@ -16,6 +16,7 @@ using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.PriceApplicability;
 using MilkMatrix.Milk.Models.Request.PriceApplicability;
 using MilkMatrix.Milk.Models.Response.PriceApplicability;
+using static MilkMatrix.Milk.Models.Queries.AnimalQueries;
 using static MilkMatrix.Milk.Models.Queries.PriceApplicabilityQueries;
 
 namespace MilkMatrix.Milk.Implementations.PriceApplicability
@@ -180,6 +181,148 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
             catch (Exception ex)
             {
                 logging.LogError($"Error in GetByIdAsync for Price Applicability id: {id}", ex);
+                throw;
+            }
+        }
+
+
+        public async Task AddRateForAsync(RateForInsertRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Create}, // 1 for insert
+                    { "RateForCode", request.RateForCode ?? (object)DBNull.Value },
+                    { "RateForName",request.RateForName ?? (object)DBNull.Value },
+                    { "Description", request. Description ?? (object)DBNull.Value },
+                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                };
+                var response = await repository.AddAsync(RateForQuery.AddRateFor, requestParams, CommandType.StoredProcedure);
+                // Return the inserted StateId or Name, etc. depending on your SP response
+                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                logging.LogInfo($"Rate For {request.RateForName} added successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in AddAsync for Rate For: {request.RateForName}", ex);
+                throw;
+            }
+        }
+
+        public async Task UpdateRateForAsync(RateForUpdateRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "RateForId", request.RateForId},
+                    { "RateForCode", request.RateForCode ?? (object)DBNull.Value },
+                    { "RateForName",request.RateForName ?? (object)DBNull.Value },
+                    { "Description", request. Description ?? (object)DBNull.Value },
+                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy }
+                };
+
+                await repository.UpdateAsync(RateForQuery.AddRateFor, requestParams, CommandType.StoredProcedure);
+
+                logging.LogInfo($"Rate For {request.RateForName} updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in UpdateAsync for Rate For: {request.RateForName}", ex);
+                throw;
+            }
+        }
+
+        public async Task DeleteRateForAsync(int id, int userId)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                var requestParams = new Dictionary<string, object>
+                {
+                    {"ActionType" , (int)CrudActionType.Delete },
+                    {"RateForId", id },
+                    {"IsActive", false },
+                    {"ModifyBy", userId }
+
+                };
+
+                var response = await repository.DeleteAsync(RateForQuery.AddRateFor, requestParams, CommandType.StoredProcedure);
+
+                logging.LogInfo($"Rate For with id {id} deleted successfully.");
+
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in DeleteAsync for Rate For id: {id}", ex);
+                throw;
+            }
+
+        }
+
+        public async Task<IListsResponse<RateForInsertResponse>> GetAllRateForAsync(IListsRequest request)
+        {
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All },
+                { "Start", request.Limit },
+                { "End", request.Offset }
+            };
+
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<RateForInsertResponse, int, FiltersMeta>(RateForQuery.GetRateForList,
+                    DbConstants.Main, parameters, null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<RateForInsertResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+
+        public async Task<RateForInsertResponse?> GetRateForByIdAsync(int id)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for Rate For id: {id}");
+                var repo = repositoryFactory
+                           .ConnectDapper<RateForInsertResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<RateForInsertResponse>(RateForQuery.GetRateForList, new Dictionary<string, object> {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "RateForId", id }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new RateForInsertResponse();
+                logging.LogInfo(result != null
+                    ? $"Rate For with id {id} retrieved successfully."
+                    : $"Rate For with id {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for Rate For id: {id}", ex);
                 throw;
             }
         }
