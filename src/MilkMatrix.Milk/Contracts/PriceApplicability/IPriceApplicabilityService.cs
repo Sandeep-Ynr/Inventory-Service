@@ -12,5 +12,11 @@ namespace MilkMatrix.Milk.Contracts.PriceApplicability
         Task AddAsync(PriceAppInsertRequest request);
         Task UpdateAsync(PriceAppUpdateRequest request);
         Task DeleteAsync(int id, int userId);
+
+        Task<IListsResponse<RateForInsertResponse>> GetAllRateForAsync(IListsRequest request);
+        Task<RateForInsertResponse?> GetRateForByIdAsync(int id);
+        Task AddRateForAsync(RateForInsertRequest request);
+        Task UpdateRateForAsync(RateForUpdateRequest request);
+        Task DeleteRateForAsync(int id, int userId);
     }
 }

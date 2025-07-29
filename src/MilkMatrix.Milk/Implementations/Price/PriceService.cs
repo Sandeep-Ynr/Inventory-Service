@@ -72,10 +72,36 @@ namespace MilkMatrix.Milk.Implementations.Price
                     { "RateGenType", request.RateGenType ?? (object)DBNull.Value },
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                    //{"PriceDetail" , request.PriceDetails ?? (object)DBNull.Value }, 
                 };
                 var response = await repository.AddAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
                 // Return the inserted StateId or Name, etc. depending on your SP response
                 //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+
+
+                var milkPriceCode = Convert.ToInt32(response);
+
+                // 2. Loop through details and insert one-by-one
+                foreach (var detail in request.PriceDetails)
+                {
+                    var detailParams = new Dictionary<string, object>
+                    {
+                        { "ActionType", (int)CrudActionType.Create}, // 1 for insert
+                        { "RateCode", milkPriceCode },
+                        { "FAT", detail.Fat ?? (object)DBNull.Value },
+                        { "Price", detail.Price ?? (object)DBNull.Value },
+                        { "SNF", detail.SNF ?? (object)DBNull.Value },
+                        { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                        { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                    };
+                      await repository.AddAsync(PriceQuery.InsupdMilkPriceDetail, detailParams, CommandType.StoredProcedure);
+                    //await repository.AddAsync("InsertMilkPriceDetail", detailParams, CommandType.StoredProcedure);
+                }
+
+                logger.LogInfo($"Milk Price {request.WithEffectDate} added with {request.PriceDetails?.Count ?? 0} detail records.");
+
+
+
                 logger.LogInfo($"Milk Price {request.WithEffectDate} added successfully.");
             }
             catch (Exception ex)

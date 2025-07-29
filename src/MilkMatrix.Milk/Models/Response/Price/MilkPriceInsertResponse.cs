@@ -8,7 +8,7 @@ namespace MilkMatrix.Milk.Models.Response.Price
 {
     public class MilkPriceInsertResponse
     {
-        public string? RateCode { get; set; }
+        public string? Id { get; set; }
         public int? BusinessEntityId { get; set; }
         public DateTime? WithEffectDate { get; set; }
         public string? ShiftId { get; set; }

@@ -13,5 +13,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetPriceAppList = "usp_price_applicability_list";
             public const string AddPriceApp = "usp_price_applicability_insupd";
         }
+
+        public static class RateForQuery
+        {
+            public const string GetRateForList = "usp_rate_For_list";
+            public const string AddRateFor = "usp_rate_For_insupd";
+        }
     }
 }
