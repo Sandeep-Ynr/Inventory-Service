@@ -78,7 +78,7 @@ namespace MilkMatrix.Milk.Implementations.Member.MemberDocuments
                     {"VoterID", request.VoterIDBase64 ?? (object)DBNull.Value},
                     {"OtherDocument", request.OtherDocumentBase64 ?? (object)DBNull.Value},
                     {"is_status", request.IsActive},
-                    {"ModifyBy", request.ModifiedBy ?? (object)DBNull.Value},
+                    {"ModifiedBy", request.ModifiedBy ?? (object)DBNull.Value},
                 };
 
                 var message = await repository.UpdateAsync(MemberQueries.AddOrUpdateMemberDocuments, requestParams, CommandType.StoredProcedure);

@@ -166,7 +166,6 @@ namespace MilkMatrix.Api.Controllers.v1
                         await memberMilkProfileService.AddMemberMilkProfile(mappedMilkRequest);
                     }
                 }
-
                 if (request.MilkDocumentList != null && request.MilkDocumentList.Count > 0)
                 {
                     foreach (var item in request.MilkDocumentList)
@@ -215,8 +214,69 @@ namespace MilkMatrix.Api.Controllers.v1
                     {
                         { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
                     });
-
                 await memberService.UpdateMember(mappedRequest);
+                
+                if (request.addressList != null && request.addressList.Count > 0)
+                {
+                    foreach (var item in request.addressList)
+                    {
+                        var mappedAddressUpdRequest = mapper.MapWithOptions<MemberAddressUpdateRequest, MemberAddressUpdateRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedAddressUpdRequest.MemberID = Convert.ToInt64(request.MemberID);
+                        await memberAddressService.UpdateMemberAddress(mappedAddressUpdRequest);
+                    }
+                }
+
+                if (request.bankList != null && request.bankList.Count > 0)
+                {
+                    foreach (var item in request.bankList)
+                    {
+                        var mappedBankUpdRequest = mapper.MapWithOptions<MemberBankDetailsUpdateRequest, MemberBankDetailsUpdateRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedBankUpdRequest.MemberID = Convert.ToInt64(request.MemberID);
+                        await   memberBankDetailsService.UpdateMemberBankDetails(mappedBankUpdRequest);
+                    }
+                }
+
+
+                if (request.MilkProfileList != null && request.MilkProfileList.Count > 0)
+                {
+                    foreach (var item in request.MilkProfileList)
+                    {
+                        var mappedMilkUpdRequest = mapper.MapWithOptions<MemberMilkProfileUpdateRequest, MemberMilkProfileUpdateRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedMilkUpdRequest.MemberID = Convert.ToInt64(request.MemberID);
+                        await memberMilkProfileService.UpdateMemberMilkProfile(mappedMilkUpdRequest);
+                    }
+                }
+                if (request.MilkDocumentList != null && request.MilkDocumentList.Count > 0)
+                {
+                    foreach (var item in request.MilkDocumentList)
+                    {
+                        var mappedDocumentUpdRequest = mapper.MapWithOptions<MemberDocumentsUpdateRequest, MemberDocumentsUpdateRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedDocumentUpdRequest.MemberID = Convert.ToInt64(request.MemberID);
+                        await memberDocumentsService.UpdateMemberDocuments(mappedDocumentUpdRequest);
+                    }
+                }
+
+                
                 logger.LogInfo($"Member {request.MemberID} updated successfully.");
                 return Ok(new { message = "Member updated successfully." });
             }
