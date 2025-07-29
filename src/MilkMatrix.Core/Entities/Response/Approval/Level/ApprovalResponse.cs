@@ -1,6 +1,6 @@
 using MilkMatrix.Core.Attributes;
 
-namespace MilkMatrix.Admin.Models.Admin.Responses.Approval.Level;
+namespace MilkMatrix.Core.Entities.Response.Approval.Level;
 
 public class ApprovalResponse
 {
@@ -25,4 +25,7 @@ public class ApprovalResponse
     public bool IsActive { get; set; }
 
     public decimal? Amount { get; set; }
+
+    public bool IsApproved { get; set; }
+
 }

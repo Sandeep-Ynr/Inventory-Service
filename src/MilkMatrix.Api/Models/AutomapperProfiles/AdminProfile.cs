@@ -1,6 +1,5 @@
 using AutoMapper;
 using MilkMatrix.Admin.Models;
-using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
@@ -12,18 +11,19 @@ using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Api.Models.Request.Login;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Infrastructure.Common.Utils;
-using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
-using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
+using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
+using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
 using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
-using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Core.Entities.Request.Approval.Level;
+using MilkMatrix.Core.Entities.Request.Rejection;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles;
 

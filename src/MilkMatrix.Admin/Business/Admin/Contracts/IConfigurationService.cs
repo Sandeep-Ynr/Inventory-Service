@@ -6,6 +6,9 @@ using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
+using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Request.Approval.Details;
+using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Admin.Business.Admin.Contracts;
 
@@ -202,5 +205,13 @@ public interface IConfigurationService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IListsResponse<CommonStatusDetails>> GetAllStatusAsync(IListsRequest request, int userId);
+
+    /// <summary>
+    /// Approves the status of multiple requests in the system based on the provided request and user identifier.
+    /// </summary>
+    /// <param name="requests"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<StatusCode> ApproveStatusAsync(IEnumerable<Insert> requests, int userId);
     #endregion
 }

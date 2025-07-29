@@ -9,4 +9,6 @@ public class Audit
     public string? CreatedBy { get; set; }
 
     public string? ModifyBy { get; set; }
+
+    public bool? IsApproved { get; set; }
 }

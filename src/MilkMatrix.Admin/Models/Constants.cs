@@ -86,20 +86,6 @@ public static partial class Constants
         public const string StatusList = "usp_status_details"; //For getting statuses
     }
 
-    public static class ApprovalSpName
-    {
-        public const string ApprovalUpsert = "usp_approval_level_insupd"; //For Approval Level Insert/Update
-        public const string GetApprovalLevels = "usp_get_approval_level"; //For getting approval levels
-        public const string ApprovalDetailsUpsert = "usp_approval_details_insupd"; //For Approval details Insert/Update
-        public const string GetApprovalDetails = "usp_get_approval_details"; //For getting approval details
-    }
-
-    public static class RejectionSpName
-    {
-        public const string RejectionInsert = "usp_rejection_details_insupd"; //For rejction Insert
-        public const string GetRejectioDetails = "usp_get_rejection_details"; //For getting rejection details
-    }
-
     public static class ReportingSpName
     {
         public const string GetAuditLogs = "usp_audit_logs"; //For getting audit logs

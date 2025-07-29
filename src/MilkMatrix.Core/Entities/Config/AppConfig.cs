@@ -53,4 +53,6 @@ public sealed record AppConfig
     public int UserBulkUploadBatchSize { get; set; } = 1000;
 
     public string DefaultPassword { get; set; } = string.Empty;
+
+    public int DefaultTopLevelApprover { get; set; } = 1;
 }

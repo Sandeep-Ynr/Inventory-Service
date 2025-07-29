@@ -4,6 +4,8 @@ using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Business.Auth.Contracts;
 using MilkMatrix.Admin.Business.Auth.Contracts.Service;
 using MilkMatrix.Admin.Business.Auth.Services;
+using MilkMatrix.Admin.Common.Handlers.Approval;
+using MilkMatrix.Core.Abstractions.Approval.Handler;
 
 namespace MilkMatrix.Admin.Common.Extensions;
 
@@ -21,8 +23,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IBusinessService, BusinessService>()
             .AddScoped<IConfigurationService, ConfigurationService>()
             .AddScoped<ICommonModules, CommonModules>()
-            .AddScoped<IApprovalService, ApprovalService>()
-            .AddScoped<IRejectionService, RejectionService>()
             .AddScoped<ITokenProcess, TokenProcess>()
-            .AddScoped<IReportService, ReportingService>();
+            .AddScoped<IReportService, ReportingService>()
+            .AddTransient<IApprovalHandler, StatusPageHandler>();
 }

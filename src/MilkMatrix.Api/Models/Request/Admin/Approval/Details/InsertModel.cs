@@ -12,7 +12,7 @@ public class InsertModel
 
     public string DocNumber { get; set; }
 
-    public string SubCode { get; set; }
+    public string? SubCode { get; set; }
 
     public long LoginId { get; set; }
 }

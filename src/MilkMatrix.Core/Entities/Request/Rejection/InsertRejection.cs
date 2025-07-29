@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.Rejection;
+namespace MilkMatrix.Core.Entities.Request.Rejection;
 
 /// <summary>
 /// Represents a request to insert a rejection into the system.

@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
+namespace MilkMatrix.Core.Entities.Request.Approval.Level;
 
 public class Update
 {

@@ -1,20 +1,20 @@
 using System.Transactions;
-using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
-using MilkMatrix.Admin.Models.Admin.Responses.Rejection;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Rejection;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
+using MilkMatrix.Core.Entities.Request.Rejection;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Entities.Response.Rejection;
 using MilkMatrix.Core.Extensions;
-using static MilkMatrix.Admin.Models.Constants;
+using static MilkMatrix.Infrastructure.Common.Constants.Constants;
 
-namespace MilkMatrix.Admin.Business.Admin.Implementation;
+namespace MilkMatrix.Infrastructure.Common.Rejection;
 
 public class RejectionService : IRejectionService
 {

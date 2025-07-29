@@ -1,12 +1,14 @@
-using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
-using MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
-using MilkMatrix.Admin.Models.Admin.Responses.Approval.Level;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
-using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
-using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
+using MilkMatrix.Core.Entities.Common;
+using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Core.Entities.Request.Approval.Level;
+using MilkMatrix.Core.Entities.Response.Approval.Details;
+using MilkMatrix.Core.Entities.Response.Approval.Level;
+using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
+using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
 
-namespace MilkMatrix.Admin.Business.Admin.Contracts;
+namespace MilkMatrix.Core.Abstractions.Approval.Service;
 
 /// <summary>
 /// Defines the contract for approval service operations in the application.
@@ -62,4 +64,22 @@ public interface IApprovalService
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IListsResponse<ApprovalDetails>> GetAllDetailsAsync(IListsRequest request);
+
+    /// <summary>
+    /// Retrieves the approval details for a specific page, business, and record ID.
+    /// </summary>
+    /// <param name="pageId"></param>
+    /// <param name="businessId"></param>
+    /// <param name="recordId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<ApprovalResponse>?> GetPageApprovalDetailsAsync(int pageId, int businessId, string recordId);
+
+    /// <summary>
+    /// Approves a collection of requests based on the provided handler key and a function to convert each request to a parameter dictionary.
+    /// </summary>
+    /// <param name="requests"></param>
+    /// <param name="handlerKey"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    Task<StatusCode> ApproveAsync(IEnumerable<InsertDetails> requests, FactoryMapping handlerKey, Func<InsertDetails, Dictionary<string, object>> parameters);
 }

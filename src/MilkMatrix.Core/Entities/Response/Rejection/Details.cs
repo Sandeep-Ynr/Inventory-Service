@@ -1,6 +1,6 @@
 using MilkMatrix.Core.Attributes;
 
-namespace MilkMatrix.Admin.Models.Admin.Responses.Rejection;
+namespace MilkMatrix.Core.Entities.Response.Rejection;
 
 /// <summary>
 /// Represents the details of a rejection.

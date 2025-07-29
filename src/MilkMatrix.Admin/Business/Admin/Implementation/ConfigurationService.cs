@@ -1,5 +1,7 @@
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
+using MilkMatrix.Admin.Common.Handlers.Approval;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
@@ -8,14 +10,19 @@ using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
+using MilkMatrix.Core.Abstractions.Approval.Factory;
+using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Core.Entities.Dtos;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
+using MilkMatrix.Core.Entities.Request.Approval.Details;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Entities.Response.Business;
 using MilkMatrix.Core.Extensions;
@@ -34,12 +41,15 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
         private readonly AppConfig appConfig;
 
-        public ConfigurationService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
+        private readonly IApprovalService approvalService;
+        public ConfigurationService(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig,
+            IQueryMultipleData queryMultipleData, IApprovalService approvalService)
         {
             this.logger = logger.ForContext("ServiceName", nameof(ConfigurationService));
             this.repositoryFactory = repositoryFactory;
             this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
             this.queryMultipleData = queryMultipleData ?? throw new ArgumentNullException(nameof(queryMultipleData), "QueryMultipleData cannot be null");
+            this.approvalService = approvalService;
         }
 
         #region Configuration Settings
@@ -757,6 +767,19 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 Filters = filterMetas
             };
         }
+
+        public async Task<StatusCode> ApproveStatusAsync(IEnumerable<Insert> requests, int userId) =>
+            await approvalService.ApproveAsync(
+                requests,
+                FactoryMapping.Status,
+                item => new Dictionary<string, object>
+                {
+                    ["PageId"] = item.PageId,
+                    ["BusinessId"] = item.BusinessId,
+                    ["recordId"] = item.DocNumber,
+                    ["UserId"] = userId
+                });
+
         #endregion
     }
 }

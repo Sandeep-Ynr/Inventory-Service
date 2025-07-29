@@ -6,20 +6,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
-using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
-using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
-using MilkMatrix.Api.Models.Request.Admin.Approval.Level;
 using MilkMatrix.Api.Models.Request.Admin.Business;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
+using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.Logger;
+using MilkMatrix.Core.Abstractions.Rejection;
 using MilkMatrix.Core.Entities.Request;
+using MilkMatrix.Core.Entities.Request.Rejection;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
-using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
+using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
-using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
+using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
 using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 
 namespace MilkMatrix.Api.Controllers.v1;
@@ -229,6 +229,26 @@ public class AdminController : ControllerBase
     {
         var result = await approvalService.GetAllDetailsAsync(request);
         return Ok(result);
+    }
+
+    [HttpGet("page-approval-details")]
+    public async Task<IActionResult> GetPageApprovalDetails([FromQuery] int pageId, int businessId, string recordId)
+    {
+        try
+        {
+            var response = await approvalService.GetPageApprovalDetailsAsync(pageId, businessId, recordId);
+            if (response == null)
+            {
+                logging.LogInfo($"No approval details found for page {pageId}, business {businessId}, record {recordId}.");
+                return NoContent();
+            }
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving approval details for page {pageId}, business {businessId}, record {recordId}.", ex);
+            return StatusCode(500, "An error occurred while retrieving the approval details.");
+        }
     }
     #endregion
 

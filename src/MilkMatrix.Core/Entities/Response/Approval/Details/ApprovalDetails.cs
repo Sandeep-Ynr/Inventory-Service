@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
+namespace MilkMatrix.Core.Entities.Response.Approval.Details;
 
 public class ApprovalDetails
 {

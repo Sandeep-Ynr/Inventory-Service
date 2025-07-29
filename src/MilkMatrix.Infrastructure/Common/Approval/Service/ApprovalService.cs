@@ -1,24 +1,28 @@
+using System.Net;
 using System.Transactions;
-using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Models.Admin.Requests.Approval.Level;
-using MilkMatrix.Admin.Models.Admin.Responses.Approval.Details;
-using MilkMatrix.Admin.Models.Admin.Responses.Approval.Level;
+using CsvHelper;
+using Microsoft.Extensions.Options;
+using MilkMatrix.Core.Abstractions.Approval.Factory;
+using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
+using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
+using MilkMatrix.Core.Entities.Request.Approval.Level;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Entities.Response.Approval.Details;
+using MilkMatrix.Core.Entities.Response.Approval.Level;
 using MilkMatrix.Core.Extensions;
-using MilkMatrix.Infrastructure.Common.Utils;
-using static MilkMatrix.Admin.Models.Constants;
-using InsertDetails = MilkMatrix.Admin.Models.Admin.Requests.Approval.Details.Insert;
-using InsertLevel = MilkMatrix.Admin.Models.Admin.Requests.Approval.Level.Insert;
+using static MilkMatrix.Infrastructure.Common.Constants.Constants;
+using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
+using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
 
-namespace MilkMatrix.Admin.Business.Admin.Implementation
+namespace MilkMatrix.Infrastructure.Common.Approval.Service
 {
     /// <summary>
     /// Approval Service Implementation
@@ -31,6 +35,10 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
 
         private readonly IQueryMultipleData queryMultipleData;
 
+        private readonly IApprovalFactory factory;
+
+        private readonly AppConfig appConfig;
+
         /// <summary>
         /// Approval Service Constructor
         /// </summary>
@@ -40,11 +48,15 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         public ApprovalService(
             ILogging logger,
             IRepositoryFactory repositoryFactory,
-            IQueryMultipleData queryMultipleData)
+            IQueryMultipleData queryMultipleData,
+            IApprovalFactory factory,
+            IOptions<AppConfig> appConfig)
         {
             this.logger = logger.ForContext("ServiceName", nameof(ApprovalService));
             this.repositoryFactory = repositoryFactory;
             this.queryMultipleData = queryMultipleData;
+            this.factory = factory;
+            this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "appConfig cannot be null"); ;
         }
 
         ///<inheritdoc />
@@ -53,10 +65,14 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             if (requests == null || !requests.Any())
                 throw new ArgumentNullException(nameof(requests), "Request cannot be null");
 
-            requests.ForEach(async x =>
+            foreach (var x in requests)
             {
-                await DeleteAsync(x.PageId , x.BusinessId);
-            });
+                if (x.PageId <= 0 || x.BusinessId <= 0)
+                    throw new ArgumentException("PageId and BusinessId must be greater than zero.");
+                logger.LogInfo($"AddAsync called for approval: {x.PageId} with BusinessId: {x.BusinessId}");
+                await DeleteAsync(x.PageId, x.BusinessId);
+            }
+
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 foreach (var request in requests)
@@ -97,38 +113,34 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             if (requests == null || !requests.Any())
                 throw new ArgumentNullException(nameof(requests), "Request cannot be null");
 
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            foreach (var request in requests)
             {
-                foreach (var request in requests)
+                try
                 {
-                    try
+                    logger.LogInfo($"AddAsync called for approval details: {request.PageId}");
+
+                    var repo = repositoryFactory.ConnectDapper<InsertDetails>(DbConstants.Main);
+
+                    var parameters = new Dictionary<string, object>
                     {
-                        logger.LogInfo($"AddAsync called for approval details: {request.PageId}");
+                        ["BusinessId"] = request.BusinessId,
+                        ["PageId"] = request.PageId,
+                        ["UserId"] = request.UserId,
+                        ["Sno"] = request.Level,
+                        ["DocNumber"] = request.DocNumber,
+                        ["SubCode"] = request.SubCode,
+                        ["loginId"] = request.LoginId,
+                        ["ActionType"] = (int)CrudActionType.Create
+                    };
 
-                        var repo = repositoryFactory.ConnectDapper<InsertDetails>(DbConstants.Main);
-
-                        var parameters = new Dictionary<string, object>
-                        {
-                            ["BusinessId"] = request.BusinessId,
-                            ["PageId"] = request.PageId,
-                            ["UserId"] = request.UserId,
-                            ["Sno"] = request.Level,
-                            ["DocNumber"] = request.DocNumber,
-                            ["SubCode"] = request.SubCode,
-                            ["loginId"] = request.LoginId,
-                            ["ActionType"] = (int)CrudActionType.Create
-                        };
-
-                        await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
-                        logger.LogInfo($"Approval {request.PageId} added successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex.Message, ex);
-                        throw;
-                    }
+                    await repo.AddAsync(ApprovalSpName.ApprovalDetailsUpsert, parameters);
+                    logger.LogInfo($"Approval {request.PageId} added successfully.");
                 }
-                scope.Complete();
+                catch (Exception ex)
+                {
+                    logger.LogError(ex.Message, ex);
+                    throw;
+                }
             }
         }
 
@@ -278,6 +290,86 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 Results = paged.ToList(),
                 Filters = filterMetas
             };
+        }
+
+        ///<inheritdoc />
+        public async Task<IEnumerable<ApprovalResponse>?> GetPageApprovalDetailsAsync(int pageId, int businessId, string recordId)
+        {
+            try
+            {
+                logger.LogInfo($"GetByIdAsync called for Approval id: {pageId}");
+                var repo = repositoryFactory
+                           .ConnectDapper<ApprovalResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<ApprovalResponse>(ApprovalSpName.GetPageApprovalDetails, new Dictionary<string, object> { { "pageId", pageId },
+                    {"businessId", businessId },
+                    {"RecordId", recordId },
+                    { "ActionType", (int)ReadActionType.Individual } }, null);
+
+                var result = data.Any() ? data : default;
+                logger.LogInfo(result != null
+                    ? $"Approval with id {pageId} retrieved successfully."
+                    : $"Approval with id {pageId} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in GetByIdAsync for user id: {pageId}", ex);
+                throw;
+            }
+        }
+
+        public async Task<StatusCode> ApproveAsync(IEnumerable<InsertDetails> requests, FactoryMapping handlerKey, Func<InsertDetails, Dictionary<string, object>> requestParams)
+        {
+            if (!requests.Any())
+                throw new ArgumentNullException(nameof(requests), "Request cannot be null or empty");
+
+            var handler = factory.GetHandler(handlerKey);
+            var status = new StatusCode { Code = 0, Message = "No approvals processed." };
+
+            if (handler == null)
+            {
+                status = new StatusCode { Code = (int)HttpStatusCode.InternalServerError, Message = "Approval handler not found." };
+                return status;
+            }
+
+            foreach (var item in requests)
+            {
+                var parameters = requestParams(item);
+
+                if (!await handler.CheckConditionsAsync(parameters))
+                {
+                    status = new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = "Approval conditions not met." };
+                    continue;
+                }
+
+                requestParams(item).TryGetValue("UserId", out var userIdObj);
+                if (item.UserId != Convert.ToInt32(userIdObj))
+                {
+                    status = new StatusCode { Code = (int)HttpStatusCode.Unauthorized, Message = "User not authorized to approve this request." };
+                    continue;
+                }
+
+                await AddDetailsAsync(requests);
+
+                if (appConfig.DefaultTopLevelApprover == item.Level)
+                {
+                    var approved = await handler.ApproveAsync(parameters);
+                    if (approved)
+                    {
+                        status = new StatusCode { Code = (int)HttpStatusCode.OK, Message = "Approval successful." };
+                    }
+                    else
+                    {
+                        status = new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = "Approval failed." };
+                    }
+                }
+                else
+                {
+                    status = new StatusCode { Code = (int)HttpStatusCode.OK, Message = "Approval added to queue for further processing." };
+                }
+            }
+
+            return status;
         }
     }
 }

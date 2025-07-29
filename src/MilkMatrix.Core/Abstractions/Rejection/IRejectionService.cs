@@ -1,9 +1,9 @@
-using MilkMatrix.Admin.Models.Admin.Requests.Rejection;
-using MilkMatrix.Admin.Models.Admin.Responses.Rejection;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
+using MilkMatrix.Core.Entities.Request.Rejection;
+using MilkMatrix.Core.Entities.Response.Rejection;
 
-namespace MilkMatrix.Admin.Business.Admin.Contracts;
+namespace MilkMatrix.Core.Abstractions.Rejection;
 
 public interface IRejectionService
 {

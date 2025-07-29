@@ -12,10 +12,12 @@ using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
+using MilkMatrix.Api.Models.Request.Admin.Approval.Details;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Request;
+using MilkMatrix.Core.Entities.Request.Approval.Details;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -724,6 +726,38 @@ public class SettingsController : ControllerBase
         {
             logging.LogError($"Error deleting statusDetails with id: {id}", ex);
             return StatusCode(500, "An error occurred while deleting the statusDetails.");
+        }
+    }
+
+    [HttpPost("approve-status")]
+    public async Task<IActionResult> ApproveStatus([FromBody] IEnumerable<InsertModel> request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                });
+            }
+            var UserId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            logging.LogInfo($"Approve status called for id: {request.FirstOrDefault()?.PageId}");
+            var requestParams = mapper.Map<IEnumerable<InsertModel>, IEnumerable<Insert>>(request);
+            var response = await configService.ApproveStatusAsync(requestParams, Convert.ToInt32(UserId));
+
+            if (response == null || response.Code != (int)HttpStatusCode.OK)
+            {
+                logging.LogInfo($"No status found to approve for id: {request.FirstOrDefault()?.PageId}");
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Approve status", ex);
+            return StatusCode(500, "An error occurred while approving the status.");
         }
     }
     #endregion

@@ -2,20 +2,28 @@ using CsvHelper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MilkMatrix.Core.Abstractions.Approval.Factory;
+using MilkMatrix.Core.Abstractions.Approval.Handler;
+using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.Csv;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.HostedServices;
 using MilkMatrix.Core.Abstractions.HttpClient;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Notification;
+using MilkMatrix.Core.Abstractions.Rejection;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Abstractions.Uploader;
 using MilkMatrix.Core.Entities.Config;
+using MilkMatrix.Infrastructure.Common.Approval.Factory;
+using MilkMatrix.Infrastructure.Common.Approval.Handlers;
+using MilkMatrix.Infrastructure.Common.Approval.Service;
 using MilkMatrix.Infrastructure.Common.Csv;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Infrastructure.Common.HostedServices;
 using MilkMatrix.Infrastructure.Common.Logger.Implementation;
 using MilkMatrix.Infrastructure.Common.Notifications;
+using MilkMatrix.Infrastructure.Common.Rejection;
 using MilkMatrix.Infrastructure.Common.Uploader;
 using MilkMatrix.Infrastructure.Factories;
 using MilkMatrix.Logging.Config;
@@ -52,6 +60,8 @@ namespace MilkMatrix.Infrastructure.Extensions
                 .AddScoped<ICsvReader, CsvFileReader>()
                 .AddScoped<INotificationService, NotificationAdapter>()
                 .AddScoped<IFileUploader, UploadProvider>()
+                .AddApprovalHandlers()
+                .AddScoped<IRejectionService, RejectionService>()
                 .AddNotificationServices(configuration)
                 .AddDataAccess()
                 .AddScoped<IQueryMultipleData, QueryMultipleData>()
@@ -73,6 +83,16 @@ namespace MilkMatrix.Infrastructure.Extensions
             services.AddSingleton<IBulkProcessingTasks, BulkProcessingTasks>();
             services.AddSingleton<IBulkHostedService, BulkHostedService>();
             services.AddHostedService(provider => (BulkHostedService)provider.GetRequiredService<IBulkHostedService>());
+            return services;
+        }
+
+        public static IServiceCollection AddApprovalHandlers(this IServiceCollection services)
+        {
+            services.AddSingleton<IApprovalFactory, ApprovalFactory>();
+            services
+                .AddTransient<IApprovalHandler, DefaultHandler>()
+                .AddScoped<IApprovalService, ApprovalService>();
+
             return services;
         }
     }

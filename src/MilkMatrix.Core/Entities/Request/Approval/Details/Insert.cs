@@ -1,4 +1,4 @@
-namespace MilkMatrix.Admin.Models.Admin.Requests.Approval.Details;
+namespace MilkMatrix.Core.Entities.Request.Approval.Details;
 
 public class Insert
 {
@@ -12,7 +12,7 @@ public class Insert
 
     public string DocNumber { get; set; }
 
-    public string SubCode { get; set; }
+    public string SubCode { get; set; } = string.Empty;
 
     public long LoginId { get; set; }
 }
