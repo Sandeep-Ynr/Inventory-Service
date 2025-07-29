@@ -1,5 +1,7 @@
 using MilkMatrix.Api.Models.Request.Member.MemberAddress;
 using MilkMatrix.Api.Models.Request.Member.MemberBankDetails;
+using MilkMatrix.Api.Models.Request.Member.MemberDocuments;
+using MilkMatrix.Api.Models.Request.Member.MemberMilkProfile;
 
 namespace MilkMatrix.Api.Models.Request.Member
 {
@@ -18,5 +20,9 @@ namespace MilkMatrix.Api.Models.Request.Member
 
         public List<MemberAddressInsertRequestModel>? addressList { get; set; }
         public List<MemberBankDetailsInsertRequestModel>? bankList { get; set; }
+        public List<MemberMilkProfileInsertRequestModel>? MilkProfileList { get; set; }
+        public List<MemberDocumentsInsertRequestModel>? MilkDocumentList { get; set; }
+
+
     }
 }

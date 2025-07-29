@@ -76,7 +76,6 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
           
             CreateMap<MemberMilkProfileInsertRequestModel, MemberMilkProfileInsertRequest>()
-                .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
                 .ForMember(dest => dest.AnimalTypeID, opt => opt.MapFrom(src => src.AnimalTypeID))
                 .ForMember(dest => dest.NoOfMilchAnimals, opt => opt.MapFrom(src => src.NoOfMilchAnimals))
                 .ForMember(dest => dest.AvgMilkYield, opt => opt.MapFrom(src => src.AvgMilkYield))
@@ -99,11 +98,10 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
            CreateMap<MemberDocumentsInsertRequestModel, MemberDocumentsInsertRequest>()
-             .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
              .ForMember(dest => dest.AadharCardBase64, opt => opt.MapFrom(src => src.AadharCardBase64))
              .ForMember(dest => dest.VoterIDBase64, opt => opt.MapFrom(src => src.VoterIDBase64))
              .ForMember(dest => dest.OtherDocumentBase64, opt => opt.MapFrom(src => src.OtherDocumentBase64))
-             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => (bool?)src.IsStatus))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
              .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<MemberDocumentsUpdateRequestModel, MemberDocumentsUpdateRequest>()
@@ -112,7 +110,6 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                  .ForMember(dest => dest.AadharCardBase64, opt => opt.MapFrom(src => src.AadharCardBase64))
                  .ForMember(dest => dest.VoterIDBase64, opt => opt.MapFrom(src => src.VoterIDBase64))
                  .ForMember(dest => dest.OtherDocumentBase64, opt => opt.MapFrom(src => src.OtherDocumentBase64))
-                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => (bool?)src.IsStatus))
                  .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
             CreateMap<MemberAddressInsertRequestModel, MemberAddressInsertRequest>()

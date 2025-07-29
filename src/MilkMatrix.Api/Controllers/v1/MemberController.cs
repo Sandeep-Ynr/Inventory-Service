@@ -25,6 +25,8 @@ using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Member.Address;
 using MilkMatrix.Milk.Implementations.Member.MemberBankDetails;
+using MilkMatrix.Milk.Implementations.Member.MemberDocuments;
+using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Member;
 using MilkMatrix.Milk.Models.Request.Member.MemberAddress;
@@ -103,7 +105,7 @@ namespace MilkMatrix.Api.Controllers.v1
         public async Task<IActionResult> Add([FromBody] MemberInsertRequestModel request)
         {
             try
-            {
+           {
                 if (request == null || !ModelState.IsValid)
                 {
                     return BadRequest(new ErrorResponse
@@ -150,6 +152,36 @@ namespace MilkMatrix.Api.Controllers.v1
                         await memberBankDetailsService.AddMemberBankDetails(mappedBankRequest);
                     }
                 }
+                if (request.MilkProfileList != null && request.MilkProfileList.Count > 0)
+                {
+                    foreach (var item in request.MilkProfileList)
+                    {
+                        var mappedMilkRequest = mapper.MapWithOptions<MemberMilkProfileInsertRequest, MemberMilkProfileInsertRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedMilkRequest.MemberID = Convert.ToInt64(result.MemberID);
+                        await memberMilkProfileService.AddMemberMilkProfile(mappedMilkRequest);
+                    }
+                }
+
+                if (request.MilkDocumentList != null && request.MilkDocumentList.Count > 0)
+                {
+                    foreach (var item in request.MilkDocumentList)
+                    {
+                        var mappedDocumentRequest = mapper.MapWithOptions<MemberDocumentsInsertRequest, MemberDocumentsInsertRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedDocumentRequest.MemberID = Convert.ToInt64(result.MemberID);
+                        await memberDocumentsService.AddMemberDocuments(mappedDocumentRequest);
+                    }
+                }
+
 
                 logger.LogInfo($"Member {request.FarmerName} added successfully.");
                 return Ok(new { message = "Member added successfully." });
@@ -503,7 +535,7 @@ namespace MilkMatrix.Api.Controllers.v1
                    });
 
                 await memberMilkProfileService.AddMemberMilkProfile(mappedRequest);
-                logger.LogInfo($"Member Milk Profile for Member ID {request.MemberID} added successfully.");
+                logger.LogInfo($"Member Milk Profile for Member ID {request.AnimalTypeID} added successfully.");
                 return Ok(new { message = "Member Milk Profile added successfully." });
             }
             catch (Exception ex)
@@ -626,11 +658,11 @@ namespace MilkMatrix.Api.Controllers.v1
 
                 await memberDocumentsService.AddMemberDocuments(mappedRequest);
 
-                logger.LogInfo($"Member Documents for Member ID {request.MemberID} added successfully.");
+                logger.LogInfo($"Member Documents for Member ID  added successfully.");
 
                 return Ok(new
                 {
-                    message = $"Member documents for Member ID {request.MemberID} added successfully."
+                    message = $"Member documents for Member  added successfully."
                 });
             }
             catch (Exception ex)
