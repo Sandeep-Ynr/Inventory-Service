@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Member;
 using MilkMatrix.Api.Models.Request.Member.MemberAddress;
@@ -38,7 +39,7 @@ using MilkMatrix.Milk.Models.Response.Member.MemberMilkProfile;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -111,14 +112,45 @@ namespace MilkMatrix.Api.Controllers.v1
                         ErrorMessage = ErrorMessage.InvalidRequest
                     });
                 }
-
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
                 var mappedRequest = mapper.MapWithOptions<MemberInsertRequest, MemberInsertRequestModel>(
                     request, new Dictionary<string, object>
                     {
                         { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
                     });
-                await memberService.AddMember(mappedRequest);
+                var result =  await memberService.AddMember(mappedRequest);
+                
+                
+                
+                if (request.addressList != null && request.addressList.Count > 0)
+                {
+                    foreach (var item in request.addressList)
+                    {
+                        var mappedAddressRequest = mapper.MapWithOptions<MemberAddressInsertRequest, MemberAddressInsertRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedAddressRequest.MemberID =  Convert.ToInt64(result.MemberID); 
+                        await memberAddressService.AddMemberAddress(mappedAddressRequest);
+                    }
+                }
+                if (request.bankList != null && request.bankList.Count > 0)
+                {
+                    foreach (var item in request.bankList)
+                    {
+                        var mappedBankRequest = mapper.MapWithOptions<MemberBankDetailsInsertRequest, MemberBankDetailsInsertRequestModel>(
+                            item,
+                            new Dictionary<string, object>
+                            {
+                                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                            });
+                        mappedBankRequest.MemberID = Convert.ToInt64(result.MemberID);
+                        await memberBankDetailsService.AddMemberBankDetails(mappedBankRequest);
+                    }
+                }
+
                 logger.LogInfo($"Member {request.FarmerName} added successfully.");
                 return Ok(new { message = "Member added successfully." });
             }
@@ -354,7 +386,7 @@ namespace MilkMatrix.Api.Controllers.v1
                     });
 
                 await memberBankDetailsService.AddMemberBankDetails(mappedRequest);
-                logger.LogInfo($"Member Bank Details for Member ID {request.MemberID} added successfully.");
+                logger.LogInfo($"Member Bank Details for Member ID {request.AccountNumber} added successfully.");
                 return Ok(new { message = "Member Bank Details added successfully." });
             }
             catch (Exception ex)

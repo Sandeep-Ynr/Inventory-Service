@@ -1,3 +1,6 @@
+using MilkMatrix.Api.Models.Request.Member.MemberAddress;
+using MilkMatrix.Api.Models.Request.Member.MemberBankDetails;
+
 namespace MilkMatrix.Api.Models.Request.Member
 {
     public class MemberInsertRequestModel
@@ -12,5 +15,8 @@ namespace MilkMatrix.Api.Models.Request.Member
         public string? EmailID { get; set; }
         public string? AadharNo { get; set; }
         public long SocietyID { get; set; }
+
+        public List<MemberAddressInsertRequestModel>? addressList { get; set; }
+        public List<MemberBankDetailsInsertRequestModel>? bankList { get; set; }
     }
 }

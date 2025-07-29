@@ -18,6 +18,8 @@ namespace MilkMatrix.Milk.Models.Response.Member
         public string? EmailID { get; set; }
         public string? AadharNo { get; set; }
         public long SocietyID { get; set; }
-        public string? SocietyName { get; set; } 
+        public string? SocietyName { get; set; }
+
+        public long? MemberID { get; set; }
     }
 }

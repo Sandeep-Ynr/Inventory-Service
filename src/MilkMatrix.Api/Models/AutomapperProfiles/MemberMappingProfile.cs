@@ -48,7 +48,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
 
              CreateMap<MemberBankDetailsInsertRequestModel, MemberBankDetailsInsertRequest>()
-                .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
+                
                 .ForMember(dest => dest.BankID, opt => opt.MapFrom(src => src.BankID))
                 .ForMember(dest => dest.BranchID, opt => opt.MapFrom(src => src.BranchID))
                 .ForMember(dest => dest.AccountHolderName, opt => opt.MapFrom(src => src.AccountHolderName))
@@ -56,7 +56,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IFSCCode, opt => opt.MapFrom(src => src.IFSCCode))
                 .ForMember(dest => dest.IsJointAccount, opt => opt.MapFrom(src => src.IsJointAccount))
                 .ForMember(dest => dest.PassbookFilePath, opt => opt.MapFrom(src => src.PassbookFilePath))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
 
@@ -116,7 +116,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                  .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
             CreateMap<MemberAddressInsertRequestModel, MemberAddressInsertRequest>()
-                 .ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
+                 //.ForMember(dest => dest.MemberID, opt => opt.MapFrom(src => src.MemberID))
                 .ForMember(dest => dest.StateID, opt => opt.MapFrom(src => src.StateID))
                 .ForMember(dest => dest.DistrictID, opt => opt.MapFrom(src => src.DistrictID))
                 .ForMember(dest => dest.TehsilID, opt => opt.MapFrom(src => src.TehsilID))
@@ -124,7 +124,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.HamletID, opt => opt.MapFrom(src => src.HamletID))
                 .ForMember(dest => dest.FullAddress, opt => opt.MapFrom(src => src.FullAddress))
                 .ForMember(dest => dest.Pincode, opt => opt.MapFrom(src => src.Pincode))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
+                //.ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<MemberAddressUpdateRequestModel, MemberAddressUpdateRequest>()

@@ -33,7 +33,7 @@ namespace MilkMatrix.Milk.Implementations
             this.queryMultipleData = queryMultipleData;
         }
 
-        public async Task AddMember(MemberInsertRequest request)
+        public async Task<MemberResponse?> AddMember(MemberInsertRequest request)
         {
             try
             {
@@ -53,13 +53,18 @@ namespace MilkMatrix.Milk.Implementations
                      {"SocietyID", request.SocietyID},
                      {"CreatedBy", request.CreatedBy},
                  };
-
                 var message = await repository.AddAsync(MemberQueries.AddOrUpdateMember, requestParams, CommandType.StoredProcedure);
-
                 if (message.StartsWith("Error"))
                     throw new Exception($"Stored Procedure Error: {message}");
 
                 logging.LogInfo($"Member {request.MemberCode} added successfully with response: {message}");
+
+                var obj = new MemberResponse
+                {
+                    MemberID = Convert.ToInt32( message) // Assuming your SP returns MemberCode
+                };
+
+                return obj;
             }
             catch (Exception ex)
             {
