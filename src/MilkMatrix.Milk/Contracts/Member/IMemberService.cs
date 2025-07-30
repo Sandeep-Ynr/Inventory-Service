@@ -9,7 +9,7 @@ namespace MilkMatrix.Milk.Contracts.Member
 {
     public interface IMemberService
     {
-        Task AddMember(MemberInsertRequest request);
+        Task<MemberResponse?> AddMember(MemberInsertRequest request);
         Task UpdateMember(MemberUpdateRequest request);
         Task Delete(int memberId, int userId);
         Task<MemberResponse?> GetById(int id);
