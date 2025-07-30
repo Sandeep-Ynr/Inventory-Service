@@ -161,7 +161,7 @@ namespace MilkMatrix.Milk.Implementations
                     {"IsStatus", request.IsStatus ?? (object)DBNull.Value}
                 };
 
-                return await repo.QueryAsync<MemberResponse>("usp_member_list", parameters, null);
+                return await repo.QueryAsync<MemberResponse>(MemberQueries.GetMemberList, parameters, null);
             }
             catch (Exception ex)
             {
