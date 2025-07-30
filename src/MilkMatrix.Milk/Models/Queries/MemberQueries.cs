@@ -9,7 +9,7 @@ namespace MilkMatrix.Milk.Models.Queries
     public static class MemberQueries
     {
         public const string AddOrUpdateMember = "usp_member_insupd";
-        public const string GetMemberList = "usp_member_list";
+        public const string GetMemberList = "usp_member_list_new";
 
 
         // Bank Details Queries
