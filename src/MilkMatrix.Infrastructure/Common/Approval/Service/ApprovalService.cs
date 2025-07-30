@@ -332,6 +332,9 @@ namespace MilkMatrix.Infrastructure.Common.Approval.Service
                 return status;
             }
 
+
+            await AddDetailsAsync(requests);
+
             foreach (var item in requests)
             {
                 var parameters = requestParams(item);
@@ -348,8 +351,6 @@ namespace MilkMatrix.Infrastructure.Common.Approval.Service
                     status = new StatusCode { Code = (int)HttpStatusCode.Unauthorized, Message = "User not authorized to approve this request." };
                     continue;
                 }
-
-                await AddDetailsAsync(requests);
 
                 if (appConfig.DefaultTopLevelApprover == item.Level)
                 {
