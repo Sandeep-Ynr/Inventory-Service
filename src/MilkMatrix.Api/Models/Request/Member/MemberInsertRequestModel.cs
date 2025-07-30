@@ -18,6 +18,8 @@ namespace MilkMatrix.Api.Models.Request.Member
         public string? AadharNo { get; set; }
         public long SocietyID { get; set; }
 
+        public long BusinessID { get; set; }
+
         public List<MemberAddressInsertRequestModel>? addressList { get; set; }
         public List<MemberBankDetailsInsertRequestModel>? bankList { get; set; }
         public List<MemberMilkProfileInsertRequestModel>? MilkProfileList { get; set; }
