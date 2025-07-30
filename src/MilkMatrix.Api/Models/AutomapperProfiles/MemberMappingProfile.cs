@@ -29,6 +29,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.EmailID, opt => opt.MapFrom(src => src.EmailID))
                 .ForMember(dest => dest.AadharNo, opt => opt.MapFrom(src => src.AadharNo))
                 .ForMember(dest => dest.SocietyID, opt => opt.MapFrom(src => src.SocietyID))
+                .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<MemberUpdateRequestModel, MemberUpdateRequest>()

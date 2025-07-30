@@ -41,7 +41,7 @@ using MilkMatrix.Milk.Models.Response.Member.MemberMilkProfile;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]

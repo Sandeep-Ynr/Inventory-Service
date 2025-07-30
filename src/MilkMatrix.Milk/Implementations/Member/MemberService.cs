@@ -52,6 +52,7 @@ namespace MilkMatrix.Milk.Implementations
                      {"AadharNo", request.AadharNo ?? (object)DBNull.Value},
                      {"SocietyID", request.SocietyID},
                      {"CreatedBy", request.CreatedBy},
+                     {"BusinessID", request.BusinessID},
                  };
                 var message = await repository.AddAsync(MemberQueries.AddOrUpdateMember, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
