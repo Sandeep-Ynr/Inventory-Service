@@ -20,5 +20,7 @@ public class PageList
 
     public int? ParentId { get; set; }
 
+    public int? SubModuleParentId { get; set; }
+
     public List<PageList>? Children { get; set; } // Add this for tree building 
 }

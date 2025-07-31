@@ -62,12 +62,11 @@ public class CommonModules : ICommonModules
         // Group actions for each page before building the tree
         var flatPagesWithGroupedActions = GroupActionsForPages(flatPages);
 
-        // Build n-layer menu tree
-        var menuTree = BuildMenuTree(flatPagesWithGroupedActions);
-
-        // Build module/submodule structure using the same grouped pages
+        // Build n-level module/submodule/page tree
         response.ModuleList = BuildModuleList(flatPagesWithGroupedActions, isSuperAdmin);
-        response.PageList = menuTree;
+
+        // Optionally, you can also build a flat or tree structure for UI if needed
+        response.PageList = BuildPageTree(flatPagesWithGroupedActions);
 
         return response;
     }
@@ -289,6 +288,7 @@ public class CommonModules : ICommonModules
                 ActionId = first.ActionId,
                 RoleId = first.RoleId,
                 ParentId = first.ParentId,
+                SubModuleParentId = first.SubModuleParentId,
                 Children = first.Children,
                 ActionList = allActions
             });
@@ -297,10 +297,51 @@ public class CommonModules : ICommonModules
     }
 
     // n-layer menu tree builder
-    private List<PageList> BuildMenuTree(IEnumerable<PageList> flatList, int? parentId = 0)
+    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> flatList, bool isUserSuperAdmin)
     {
-        var nodes = flatList
-            .Where(x => x.ParentId == parentId)
+        // Group by ModuleId for root modules
+        var modules = flatList
+            .GroupBy(x => new { x.ModuleId, x.ModuleName, x.ModuleIcon, x.ModuleOrderNumber })
+            .Select(g => new Module
+            {
+                Id = g.Key.ModuleId,
+                Name = g.Key.ModuleName,
+                Icon = g.Key.ModuleIcon,
+                OrderNumber = g.Key.ModuleOrderNumber,
+                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key.ModuleId).ToList())
+            })
+            .OrderBy(m => m.OrderNumber)
+            .ToList();
+
+        return modules;
+    }
+
+    // Recursively build n-level submodule tree
+    private List<SubModule> BuildSubModuleTree(List<PageList> flatList, int? parentSubModuleId = 0)
+    {
+        var subModules = flatList
+            .Where(x => x.SubModuleId != 0 && x.SubModuleParentId == parentSubModuleId)
+            .GroupBy(x => new { x.SubModuleId, x.SubModuleName, x.SubModuleOrderNumber, x.SubModuleParentId })
+            .Select(g => new SubModule
+            {
+                Id = g.Key.SubModuleId,
+                Name = g.Key.SubModuleName,
+                OrderNumber = g.Key.SubModuleOrderNumber,
+                ParentId = g.Key.SubModuleParentId,
+                Children = BuildSubModuleTree(flatList, g.Key.SubModuleId),
+                PageList = BuildPageTree(flatList.Where(p => p.SubModuleId == g.Key.SubModuleId).ToList())
+            })
+            .OrderBy(sm => sm.OrderNumber)
+            .ToList();
+
+        return subModules;
+    }
+
+    // Recursively build n-level page tree
+    private List<PageList> BuildPageTree(List<PageList> flatList, int? parentPageId = 0)
+    {
+        var pages = flatList
+            .Where(x => x.ParentId == parentPageId)
             .OrderBy(x => x.PageOrder)
             .Select(x =>
             {
@@ -322,61 +363,14 @@ public class CommonModules : ICommonModules
                     RoleId = x.RoleId,
                     ActionList = x.ActionList,
                     ParentId = x.ParentId,
-                    Children = BuildMenuTree(flatList, x.PageId)
+                    SubModuleParentId = x.SubModuleParentId,
+                    Children = BuildPageTree(flatList, x.PageId)
                 };
                 return node;
             })
             .ToList();
 
-        return nodes;
-    }
-
-    // Build module/submodule structure using n-layer page tree
-    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> pList, bool isUserSuperAdmin) =>
-        GroupByModule(pList)
-            .Select(moduleGroup => CreateModule(moduleGroup, isUserSuperAdmin))
-            .ToList();
-
-    private IEnumerable<IGrouping<int, PageList>> GroupByModule(IEnumerable<PageList> pList) =>
-        pList.OrderBy(s => s.ModuleOrderNumber).GroupBy(s => s.ModuleId);
-
-    private Module CreateModule(IGrouping<int, PageList> moduleGroup, bool isUserSuperAdmin)
-    {
-        var first = moduleGroup.First();
-        var subModules = BuildSubModuleList(moduleGroup, isUserSuperAdmin);
-
-        return new Module
-        {
-            Id = first.ModuleId,
-            Name = first.ModuleName,
-            Icon = first.ModuleIcon,
-            OrderNumber = first.ModuleOrderNumber,
-            SubModuleList = subModules
-        };
-    }
-
-    private IEnumerable<SubModule> BuildSubModuleList(IEnumerable<PageList> moduleGroup, bool isUserSuperAdmin) =>
-        GroupBySubModule(moduleGroup)
-            .Select(CreateSubModule)
-            .ToList();
-
-    private IEnumerable<IGrouping<int, PageList>> GroupBySubModule(IEnumerable<PageList> moduleGroup) =>
-        moduleGroup.OrderBy(s => s.SubModuleOrderNumber).GroupBy(s => s.SubModuleId);
-
-    private SubModule CreateSubModule(IGrouping<int, PageList> subModuleGroup)
-    {
-        var first = subModuleGroup.First();
-        // Group actions for submodule's pages, then build tree
-        var groupedPages = GroupActionsForPages(subModuleGroup);
-        var pageTree = BuildMenuTree(groupedPages);
-
-        return new SubModule
-        {
-            Id = first.SubModuleId,
-            Name = first.SubModuleName,
-            OrderNumber = first.SubModuleOrderNumber,
-            PageList = pageTree
-        };
+        return pages;
     }
 
     // Optional: flatten tree if needed for UI

@@ -7,5 +7,6 @@ public class SubModuleUpsertModel
 
     public int? Order { get; set; } = 1;
 
+    public int? ParentId { get; set; }
     public bool? IsActive { get; set; }
 }
