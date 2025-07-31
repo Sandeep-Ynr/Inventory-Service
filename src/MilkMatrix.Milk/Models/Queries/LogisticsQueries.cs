@@ -32,4 +32,10 @@ namespace MilkMatrix.Milk.Models.Queries
         public const string GetVendorList = "usp_vendor_list";
     }
 
+    public static class VehicleBillingTypeQueries
+    {
+        public const string VehicleBilling = "usp_VehicleBillingType_InsUpd";
+        public const string VehicleBillingList = "usp_vehiclebillingtype_list";
+    }
+
 }
