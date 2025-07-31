@@ -49,6 +49,7 @@ public class PageService : IPageService
                 ["PageOrder"] = request.PageOrder,
                 ["IsMenu"] = request.IsMenu,
                 ["PageIcon"] = request.PageIcon,
+                ["ParentId"] = request.ParentId,
                 ["ActionDetails"] = request.ActionDetails,
                 ["Status"] = true,
                 ["ActionType"] = (int)CrudActionType.Create,
@@ -116,6 +117,20 @@ public class PageService : IPageService
         {
             logger.LogInfo($"UpdateAsync called for page: {request.PageName}");
             var repo = repositoryFactory.ConnectDapper<PageUpdateRequest>(DbConstants.Main);
+
+            if (request.PageId.HasValue && request.ParentId.HasValue)
+            {
+                // Fetch all pages (only PageId and ParentId are needed)
+                var repoPages = repositoryFactory.ConnectDapper<Pages>(DbConstants.Main);
+                var allPages = await repoPages.QueryAsync<Pages>(
+                    PageSpName.GetPages,
+                    new Dictionary<string, object> { { "ActionType", (int)ReadActionType.All } },
+                    null);
+
+                if (IsCircularHierarchy(request.PageId.Value, request.ParentId.Value, allPages))
+                    throw new InvalidOperationException("Circular parent-child relationship detected.");
+            }
+
             var parameters = new Dictionary<string, object>
             {
                 ["PageId"] = request.PageId,
@@ -124,6 +139,7 @@ public class PageService : IPageService
                 ["ModuleId"] = request.ModuleId,
                 ["SubModuleId"] = request.SubModuleId,
                 ["PageOrder"] = request.PageOrder,
+                ["ParentId"] = request.ParentId,
                 ["IsMenu"] = request.IsMenu,
                 ["PageIcon"] = request.PageIcon,
                 ["ActionDetails"] = request.ActionDetails,
@@ -193,5 +209,17 @@ public class PageService : IPageService
             logger.LogError(ex.Message, ex);
             return default;
         }
+    }
+
+    private bool IsCircularHierarchy(int pageId, int? parentId, IEnumerable<Pages> allPages)
+    {
+        var current = parentId;
+        while (current != null)
+        {
+            if (current == pageId)
+                return true; // Cycle detected
+            current = allPages.FirstOrDefault(p => p.PageId == current)?.ParentId;
+        }
+        return false;
     }
 }

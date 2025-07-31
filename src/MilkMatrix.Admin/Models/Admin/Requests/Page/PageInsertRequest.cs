@@ -18,5 +18,6 @@ public class PageInsertRequest
 
     public string ActionDetails { get; set; } = string.Empty;
 
+    public int? ParentId { get; set; }
     public int CreatedBy { get; set; }
 }

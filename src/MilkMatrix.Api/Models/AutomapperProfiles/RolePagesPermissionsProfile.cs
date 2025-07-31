@@ -27,6 +27,7 @@ public class RolePagesPermissionsProfile : Profile
 
         CreateMap<PageUpsertModel, PageUpdateRequest>()
                  .ForMember(x => x.PageId, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(x => x.ParentId, opt => opt.MapFrom(src => src.ParentId))
                  .ForMember(x => x.PageUrl, opt => opt.MapFrom(src => src.Url))
                  .ForMember(x => x.PageName, opt => opt.MapFrom(src => src.Name))
                  .ForMember(x => x.ModuleId, opt => opt.MapFrom(src => src.Module))
@@ -43,6 +44,7 @@ public class RolePagesPermissionsProfile : Profile
                  .ForMember(x => x.PageName, opt => opt.MapFrom(src => src.Name))
                  .ForMember(x => x.ModuleId, opt => opt.MapFrom(src => src.Module))
                  .ForMember(x => x.SubModuleId, opt => opt.MapFrom(src => src.SubModule))
+                 .ForMember(x => x.ParentId, opt => opt.MapFrom(src => src.ParentId))
                  .ForMember(x => x.PageOrder, opt => opt.MapFrom(src => src.Order))
                  .ForMember(x => x.PageIcon, opt => opt.MapFrom(src => src.Icon))
                  .ForMember(x => x.IsMenu, opt => opt.MapFrom(src => src.IsMenu))

@@ -1,5 +1,4 @@
 using System.Data;
-using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models.Admin;
@@ -19,27 +18,13 @@ using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation;
 
-/// <summary>
-/// Defines the implementations for common module operations in the application.
-/// </summary>
 public class CommonModules : ICommonModules
 {
     private ILogging logger;
-
     private readonly IRepositoryFactory repositoryFactory;
-
     private readonly IQueryMultipleData queryMultipleData;
-
     private readonly AppConfig appConfig;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CommonModules"/> class.
-    /// </summary>
-    /// <param name="logger"></param>
-    /// <param name="repositoryFactory"></param>
-    /// <param name="appConfig"></param>
-    /// <param name="queryMultipleData"></param>
-    /// <exception cref="ArgumentNullException"></exception>
     public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.repositoryFactory = repositoryFactory;
@@ -48,7 +33,6 @@ public class CommonModules : ICommonModules
         this.queryMultipleData = queryMultipleData;
     }
 
-    /// <inheritdoc />
     public async Task<CommonUserDetails> GetCommonDetails(string userId, string mobileNumber)
     {
         try
@@ -62,7 +46,6 @@ public class CommonModules : ICommonModules
         }
     }
 
-    /// <inheritdoc />
     public async Task<ModuleResponse> GetModulesAsync(string userId, string mobileNumber)
     {
         var response = new ModuleResponse();
@@ -74,16 +57,21 @@ public class CommonModules : ICommonModules
         }
 
         bool isSuperAdmin = userData.UserType == 0;
-        var pList = await GetPageListForUser(userData, isSuperAdmin);
+        var flatPages = await GetPageListForUser(userData, isSuperAdmin);
 
-        var mList = BuildModuleList(pList, isSuperAdmin);
-        response.ModuleList = mList;
-        response.PageList = ExtractAllPages(mList);
+        // Group actions for each page before building the tree
+        var flatPagesWithGroupedActions = GroupActionsForPages(flatPages);
+
+        // Build n-layer menu tree
+        var menuTree = BuildMenuTree(flatPagesWithGroupedActions);
+
+        // Build module/submodule structure using the same grouped pages
+        response.ModuleList = BuildModuleList(flatPagesWithGroupedActions, isSuperAdmin);
+        response.PageList = menuTree;
 
         return response;
     }
 
-    /// <inheritdoc />
     public async Task<IEnumerable<FinancialYearDetails>> GetFinancialYearAsync(FinancialYearRequest request)
     {
         try
@@ -122,7 +110,6 @@ public class CommonModules : ICommonModules
         }
     }
 
-
     public async Task<IEnumerable<Actions>?> GetActionDetailsAsync(int? id = null)
     {
         try
@@ -152,18 +139,18 @@ public class CommonModules : ICommonModules
 
         if (userData != null)
         {
-
             var requestParam = new Dictionary<string, object>
-                                        {
-                                            { "StatusType", "User" },
-                                            { "RoleIds", userData.UserType != 0 ? userData.RoleId : "" },
-                                            { "BusinessId", userData.BusinessId },
-                                            { "UserType", userData.UserType },
-                                            { "UserId", userData.UserId }
-                                        };
+            {
+                { "StatusType", "User" },
+                { "RoleIds", userData.UserType != 0 ? userData.RoleId : "" },
+                { "BusinessId", userData.BusinessId },
+                { "UserType", userData.UserType },
+                { "UserId", userData.UserId }
+            };
 
-
-            var (businessDetails, roles, reportingDetails, userTypes, siteDetails, financialYearDetails) = await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails, FinancialYearDetails>(AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
+            var (businessDetails, roles, reportingDetails, userTypes, siteDetails, financialYearDetails) =
+                await queryMultipleData.GetMultiDetailsAsync<BusinessData, Roles, ReportingDetails, CommonProps, SiteDetails, FinancialYearDetails>(
+                    AuthSpName.GetCommonDetails, DbConstants.Main, requestParam, null);
 
             commonList = new CommonUserDetails
             {
@@ -174,7 +161,6 @@ public class CommonModules : ICommonModules
                 SiteDetails = siteDetails,
                 FinancialYearDetails = financialYearDetails
             };
-
         }
         return commonList;
     }
@@ -208,206 +194,201 @@ public class CommonModules : ICommonModules
         var repo = repositoryFactory.ConnectDapper<Actions>(DbConstants.Main);
 
         var requestParam = new Dictionary<string, object>
-    {
-        { "UserType", userType },
-        { "ID", string.Join(",", actionIds) }
-    };
+        {
+            { "UserType", userType },
+            { "ID", string.Join(",", actionIds) }
+        };
 
         return await repo.QueryAsync<Actions>(
-            AuthSpName.ActionList, // Use your actual stored procedure name
+            AuthSpName.ActionList,
             requestParam,
             null,
             CommandType.StoredProcedure);
     }
 
-    private IEnumerable<SubModule> GetSubModuleList(IEnumerable<IGrouping<int, PageList>> groupbySubModuleId, bool isUserSuperAdmin)
+    private async Task<List<PageList>> GetPageListForUser(LoggedInUser userData, bool isSuperAdmin)
     {
-        List<SubModule> sList = new List<SubModule>();
-        int subModelid = 0; string subModelName = string.Empty;
-        foreach (var list in groupbySubModuleId)
-        {
-            foreach (PageList m in list)
-            {
-                subModelid = m.SubModuleId;
-                subModelName = m.SubModuleName;
-                break;
-            }
-            var groupbyPageId = list.GroupBy(s => s.PageId);
-            sList.Add(
-                new SubModule
-                {
-                    Id = subModelid,
-                    Name = subModelName,
-                    PageList = GetPageList(groupbyPageId, isUserSuperAdmin)
-                });
-        }
-        return sList;
-    }//retriving user sub-module list
-    private IEnumerable<PageList> GetPageList(IEnumerable<IGrouping<int, PageList>> groupbyPageId, bool isUserSuperAdmin)
-    {
-        List<PageList> pList = new List<PageList>();
-        int pageid = 0; string pageName = string.Empty;
-        int pageOrder = 0; string pageURL = string.Empty; string pageIcon = string.Empty;
-        foreach (var list in groupbyPageId)
-        {
-            List<Actions> aList = new List<Actions>();
-            pageid = 0;
-            foreach (PageList m in list)
-            {
-                if (pageid == 0)
-                {
-                    pageid = m.PageId;
-                    pageName = m.PageName;
-                    pageOrder = m.PageOrder;
-                    pageURL = m.PageURL;
-                    pageIcon = m.PageIcon;
-                }
-                foreach (var a in m.ActionList)
-                {
-                    aList.Add(
-                        new Actions
-                        {
-                            Id = a.Id,
-                            Name = a.Name
-                        });
-                }
-            }
-            var groupbyActionId = aList.GroupBy(s => s.Id);
-            pList.Add(
-                new PageList
-                {
-                    PageId = pageid,
-                    PageName = pageName,
-                    PageOrder = pageOrder,
-                    PageURL = pageURL,
-                    PageIcon = pageIcon,
-                    ActionList = GetActionList(groupbyActionId)
-                });
-        }
-        return pList;
-    }//retriving user page list
-    private IEnumerable<Actions> GetActionList(IEnumerable<IGrouping<int, Actions>> groupbyActionId)
-    {
-        List<Actions> aList = new List<Actions>();
-        int actionid = 0; string actionName = string.Empty;
-        foreach (var list in groupbyActionId)
-        {
-            foreach (Actions a in list)
-            {
-                actionid = a.Id;
-                actionName = a.Name;
-                break;
-            }
-            aList.Add(
-                new Actions
-                {
-                    Id = actionid,
-                    Name = actionName
-                });
-        }
-        return aList;
-    }
-
-    private async Task<IEnumerable<PageList>> GetPageListForUser(LoggedInUser userData, bool isSuperAdmin)
-    {
-        var pList = new List<PageList>();
         var repo = repositoryFactory.ConnectDapper<PageList>(DbConstants.Main);
+        var pList = new List<PageList>();
+        var pages = Enumerable.Empty<PageList>();
 
-        if (!isSuperAdmin)
+        if (isSuperAdmin)
         {
-            var roleList = !string.IsNullOrWhiteSpace(userData.RoleId)
-                ? userData.RoleId.Split(',').ToList()
-                : new List<string>();
+            var requestParam = new Dictionary<string, object>
+            {
+                { "ActionType", 2 },
+                { "Id", 0 }
+            };
 
-            foreach (var id in roleList)
+            pages = await repo.QueryAsync<PageList>(
+                AuthSpName.PageMenuList,
+                requestParam,
+                null,
+                CommandType.StoredProcedure);
+        }
+        else
+        {
+            var roleIds = (userData.RoleId ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var id in roleIds)
             {
                 var requestParam = new Dictionary<string, object>
-                                            {
-                                                { "ActionType", 1 },
-                                                { "Id", id }
-                                            };
+                {
+                    { "ActionType", 1 },
+                    { "Id", id }
+                };
 
-                var pages = await repo.QueryAsync<PageList>(
-                    AuthSpName.PageMenuList, // Use your actual stored procedure name
+                var rolePages = await repo.QueryAsync<PageList>(
+                    AuthSpName.PageMenuList,
                     requestParam,
                     null,
                     CommandType.StoredProcedure);
 
-                foreach (var page in pages)
-                {
-                    page.ActionList = await UserActionListAsync(userData.UserType, string.IsNullOrEmpty(page.ActionId) ? "" : page.ActionId);
-                }
-                pList.AddRange(pages);
+                pages = pages.Concat(rolePages);
             }
         }
-        else
+
+        foreach (var page in pages)
         {
-            var requestParam = new Dictionary<string, object>
-                                            {
-                                                { "ActionType", 2 },
-                                                { "Id", 0 }
-                                            };
-
-            var pages = await repo.QueryAsync<PageList>(
-                AuthSpName.PageMenuList, // Use your actual stored procedure name
-                requestParam,
-                null,
-                CommandType.StoredProcedure);
-
-            foreach (var page in pages)
-            {
-                page.ActionList = await UserActionListAsync(userData.UserType, string.IsNullOrEmpty(page.ActionId) ? "" : page.ActionId);
-            }
-            pList.AddRange(pages);
+            var actionIdList = string.IsNullOrEmpty(page.ActionId) ? "" : page.ActionId;
+            page.ActionList = await UserActionListAsync(userData.UserType, actionIdList);
+            pList.Add(page);
         }
+
         return pList;
     }
 
-    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> pList, bool isSuperAdmin)
+    // Group actions for each page before building the menu tree
+    private List<PageList> GroupActionsForPages(IEnumerable<PageList> flatPages)
     {
-        var mList = new List<Module>();
-        var groupbyModuleId = pList.OrderBy(s => s.SubModuleOrderNumber).GroupBy(s => s.ModuleId);
-
-        foreach (var moduleGroup in groupbyModuleId)
+        var result = new List<PageList>();
+        foreach (var pageGroup in flatPages.GroupBy(p => p.PageId))
         {
-            var first = moduleGroup.First();
-            var groupbySubModuleId = moduleGroup.OrderBy(s => s.SubModuleOrderNumber).GroupBy(s => s.SubModuleId);
-            mList.Add(new Module
+            var first = pageGroup.First();
+            var allActions = pageGroup
+                .SelectMany(p => p.ActionList ?? Enumerable.Empty<Actions>())
+                .GroupBy(a => a.Id)
+                .Select(g => g.First())
+                .ToList();
+
+            result.Add(new PageList
             {
-                Id = first.ModuleId,
-                Name = first.ModuleName,
-                Icon = first.ModuleIcon,
-                SubModuleList = GetSubModuleList(groupbySubModuleId, isSuperAdmin)
+                PageId = first.PageId,
+                PageName = first.PageName,
+                PageOrder = first.PageOrder,
+                PageURL = first.PageURL,
+                PageIcon = first.PageIcon,
+                ModuleId = first.ModuleId,
+                ModuleName = first.ModuleName,
+                ModuleIcon = first.ModuleIcon,
+                ModuleOrderNumber = first.ModuleOrderNumber,
+                SubModuleId = first.SubModuleId,
+                SubModuleName = first.SubModuleName,
+                SubModuleOrderNumber = first.SubModuleOrderNumber,
+                ActionId = first.ActionId,
+                RoleId = first.RoleId,
+                ParentId = first.ParentId,
+                Children = first.Children,
+                ActionList = allActions
             });
         }
-        return mList;
+        return result;
     }
 
-    private IEnumerable<PageList> ExtractAllPages(IEnumerable<Module> mList)
+    // n-layer menu tree builder
+    private List<PageList> BuildMenuTree(IEnumerable<PageList> flatList, int? parentId = 0)
     {
-        var pgList = new List<PageList>();
-        foreach (var subModule in from module in mList
-                                  from subModule in module.SubModuleList
-                                  select subModule)
-        {
-            pgList.AddRange(subModule.PageList!.Select(p => new PageList
+        var nodes = flatList
+            .Where(x => x.ParentId == parentId)
+            .OrderBy(x => x.PageOrder)
+            .Select(x =>
             {
-                PageId = p.PageId,
-                ActionList = p.ActionList,
-                ModuleId = p.ModuleId,
-                ModuleName = p.ModuleName,
-                PageIcon = p.PageIcon,
-                PageName = p.PageName,
-                PageOrder = p.PageOrder,
-                PageURL = p.PageURL,
-                RoleId = p.RoleId,
-                SubModuleId = p.SubModuleId,
-                SubModuleName = p.SubModuleName,
-                ActionId = p.ActionId
-            }));
-        }
+                var node = new PageList
+                {
+                    PageId = x.PageId,
+                    PageName = x.PageName,
+                    PageURL = x.PageURL,
+                    PageIcon = x.PageIcon,
+                    PageOrder = x.PageOrder,
+                    ModuleId = x.ModuleId,
+                    ModuleName = x.ModuleName,
+                    ModuleIcon = x.ModuleIcon,
+                    ModuleOrderNumber = x.ModuleOrderNumber,
+                    SubModuleId = x.SubModuleId,
+                    SubModuleName = x.SubModuleName,
+                    SubModuleOrderNumber = x.SubModuleOrderNumber,
+                    ActionId = x.ActionId,
+                    RoleId = x.RoleId,
+                    ActionList = x.ActionList,
+                    ParentId = x.ParentId,
+                    Children = BuildMenuTree(flatList, x.PageId)
+                };
+                return node;
+            })
+            .ToList();
 
-        return pgList;
+        return nodes;
     }
 
+    // Build module/submodule structure using n-layer page tree
+    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> pList, bool isUserSuperAdmin) =>
+        GroupByModule(pList)
+            .Select(moduleGroup => CreateModule(moduleGroup, isUserSuperAdmin))
+            .ToList();
+
+    private IEnumerable<IGrouping<int, PageList>> GroupByModule(IEnumerable<PageList> pList) =>
+        pList.OrderBy(s => s.ModuleOrderNumber).GroupBy(s => s.ModuleId);
+
+    private Module CreateModule(IGrouping<int, PageList> moduleGroup, bool isUserSuperAdmin)
+    {
+        var first = moduleGroup.First();
+        var subModules = BuildSubModuleList(moduleGroup, isUserSuperAdmin);
+
+        return new Module
+        {
+            Id = first.ModuleId,
+            Name = first.ModuleName,
+            Icon = first.ModuleIcon,
+            OrderNumber = first.ModuleOrderNumber,
+            SubModuleList = subModules
+        };
+    }
+
+    private IEnumerable<SubModule> BuildSubModuleList(IEnumerable<PageList> moduleGroup, bool isUserSuperAdmin) =>
+        GroupBySubModule(moduleGroup)
+            .Select(CreateSubModule)
+            .ToList();
+
+    private IEnumerable<IGrouping<int, PageList>> GroupBySubModule(IEnumerable<PageList> moduleGroup) =>
+        moduleGroup.OrderBy(s => s.SubModuleOrderNumber).GroupBy(s => s.SubModuleId);
+
+    private SubModule CreateSubModule(IGrouping<int, PageList> subModuleGroup)
+    {
+        var first = subModuleGroup.First();
+        // Group actions for submodule's pages, then build tree
+        var groupedPages = GroupActionsForPages(subModuleGroup);
+        var pageTree = BuildMenuTree(groupedPages);
+
+        return new SubModule
+        {
+            Id = first.SubModuleId,
+            Name = first.SubModuleName,
+            OrderNumber = first.SubModuleOrderNumber,
+            PageList = pageTree
+        };
+    }
+
+    // Optional: flatten tree if needed for UI
+    private List<PageList> FlattenMenuTree(IEnumerable<PageList> tree)
+    {
+        var result = new List<PageList>();
+        foreach (var node in tree)
+        {
+            result.Add(node);
+            if (node.Children != null && node.Children.Count > 0)
+                result.AddRange(FlattenMenuTree(node.Children));
+        }
+        return result;
+    }
 }

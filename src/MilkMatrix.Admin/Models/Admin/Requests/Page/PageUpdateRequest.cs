@@ -21,6 +21,7 @@ public class PageUpdateRequest
     public bool? Status { get; set; }
     public string? ActionDetails { get; set; }
 
+    public int? ParentId { get; set; }
     public int ModifyBy { get; set; }
 
     public bool? IsActive { get; set; }

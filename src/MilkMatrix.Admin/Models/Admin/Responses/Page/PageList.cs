@@ -17,4 +17,8 @@ public class PageList
     public string? SubModuleName { get; set; }
     public int SubModuleOrderNumber { get; set; }
     public IEnumerable<Actions>? ActionList { get; set; }
+
+    public int? ParentId { get; set; }
+
+    public List<PageList>? Children { get; set; } // Add this for tree building 
 }
