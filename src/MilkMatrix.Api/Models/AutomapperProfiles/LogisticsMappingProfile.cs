@@ -3,12 +3,14 @@ using Azure.Core;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Api.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Api.Models.Request.Logistics.Vendor;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Milk.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -210,6 +212,28 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifyBy,opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+            CreateMap<VehicleBillingTypeInsertRequestModel, VehicleBillingTypeInsertRequest>()
+                .ForMember(dest => dest.VehicleId, opt => opt.MapFrom(src => src.VehicleId))
+                .ForMember(dest => dest.BillingTypeId, opt => opt.MapFrom(src => src.BillingTypeId))
+                .ForMember(dest => dest.WefDate, opt => opt.MapFrom(src => src.WefDate))
+                .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks))
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.TransporterId, opt => opt.MapFrom(src => src.TransporterId))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
+            CreateMap<VehicleBillingTypeUpdateRequestModel, VehicleBillingTypeUpdateRequest>()
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.VehicleId, opt => opt.MapFrom(src => src.VehicleId))
+                .ForMember(dest => dest.BillingTypeId, opt => opt.MapFrom(src => src.BillingTypeId))
+                .ForMember(dest => dest.WefDate, opt => opt.MapFrom(src => src.WefDate))
+                .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks))
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.TransporterId, opt => opt.MapFrom(src => src.TransporterId))
+                .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+
         }
     }
 }

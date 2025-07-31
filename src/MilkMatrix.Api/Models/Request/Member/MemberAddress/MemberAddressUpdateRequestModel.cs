@@ -5,7 +5,6 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberAddress
     public class MemberAddressUpdateRequestModel
     {
         public long AddressID { get; set; }
-        public long MemberID { get; set; }
         public int StateID { get; set; }
         public int DistrictID { get; set; }
         public int TehsilID { get; set; }
@@ -14,5 +13,6 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberAddress
         public string? FullAddress { get; set; }
         public string? Pincode { get; set; }
         public bool IsStatus { get; set; }
+
     }
 }

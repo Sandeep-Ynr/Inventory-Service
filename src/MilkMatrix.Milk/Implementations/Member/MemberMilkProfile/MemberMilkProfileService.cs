@@ -50,7 +50,6 @@ namespace MilkMatrix.Milk.Implementations.Member.MilkProfile
                     {"AvgMilkYield", request.AvgMilkYield ?? (object)DBNull.Value},
                     {"PreferredShift", request.PreferredShift ?? (object)DBNull.Value},
                     {"PouringStartDate", request.PouringStartDate},
-                    {"IsStatus", request.IsStatus ?? (object)DBNull.Value},
                     {"CreatedBy", request.CreatedBy ?? (object)DBNull.Value},
                 };
 

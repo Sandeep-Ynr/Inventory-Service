@@ -4,7 +4,6 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberAddress
 {
     public class MemberAddressInsertRequestModel
     {
-        public long MemberID { get; set; }
         public string? FullAddress { get; set; }
         public int StateID { get; set; }
         public int DistrictID { get; set; }
@@ -12,6 +11,5 @@ namespace MilkMatrix.Api.Models.Request.Member.MemberAddress
         public int VillageID { get; set; }
         public int? HamletID { get; set; }
         public string? Pincode { get; set; }
-        public bool? IsStatus { get; set; }
     }
 }
