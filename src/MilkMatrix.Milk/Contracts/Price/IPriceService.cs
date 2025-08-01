@@ -1,3 +1,4 @@
+using System.Data;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Milk.Models.Request.Price;
@@ -9,10 +10,10 @@ namespace MilkMatrix.Milk.Contracts.Price
     {
         Task<IListsResponse<MilkPriceInsertResponse>> GetAllAsync(IListsRequest request);
         Task<MilkPriceInsertResponse?> GetByIdAsync(int id);
+        Task<object> GetMilkFatChartJsonAsync(int rateCode);
         Task AddAsync(MilkPriceInsertRequest request);
         Task UpdateAsync(MilkPriceUpdateRequest request);
         Task DeleteAsync(int id, int userId);
 
-        Task AddBulkUsersAsync(byte[] bytes, int userId);
     }
 }
