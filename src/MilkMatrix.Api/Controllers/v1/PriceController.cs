@@ -140,51 +140,24 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
+        [HttpGet("milk-chart{id}")]
+        public async Task<ActionResult> GetMilkChartByRateCode(int id)
+        {
+            try
+            {
+                var result = await priceService.GetMilkFatChartJsonAsync(id);
+                if (result == null)
+                    return NotFound();
 
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Milk Chart with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Milk Chart.");
+            }
+        }
 
-
-        //[HttpPost("bulk-price-upload")]
-        ////public async Task<IActionResult> BulkMilkPriceUpload(IFormFile request)
-        //public async Task<IActionResult> BulkMilkPriceUpload([FromForm] BulkMilkPriceUploadRequest request)
-        //{
-        //    if (request == null)
-        //    {
-        //        logger.LogWarning(ErrorMessage.NothingSelectedToUpload);
-        //        return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ErrorMessage.NothingSelectedToUpload });
-        //    }
-
-        //    try
-        //    {
-        //        var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value ?? "0";
-        //        // Modify the line to create a list of UploadRequest objects instead of passing IFormFile directly
-        //        var uploadRequests = new List<UploadRequest>
-        //        {
-        //            new UploadRequest
-        //            {
-        //                //FolderType = FolderType.BulkMilkPriceUploadPath, // Replace with the appropriate FolderType
-        //                FormFile = new List<IFormFile> { request.CsvFile }
-        //            }
-        //        };
-
-        //        var fileResponse = await fileUploader.UploadFile<UploadRequest, UploadResponse>(uploadRequests, UserId, true);
-
-        //        if (!fileResponse.Any())
-        //        {
-        //            return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ErrorMessage.NoFileError });
-        //        }
-        //        else
-        //        {
-        //            await priceService.AddBulkUsersAsync(fileResponse.FirstOrDefault()!.FileBytes, Convert.ToInt32(UserId));
-        //            return Ok("Bulk Milk Price upload started.");
-        //        }
-        //    }
-
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex.Message, ex);
-        //        return BadRequest(new StatusCode { Code = (int)HttpStatusCode.BadRequest, Message = ex.Message });
-        //    }
-        //}
 
     }
 }
