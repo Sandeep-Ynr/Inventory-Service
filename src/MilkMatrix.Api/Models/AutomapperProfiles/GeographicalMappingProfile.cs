@@ -73,6 +73,7 @@ public class GeographicalMappingProfile : Profile
          CreateMap<VillageRequestModel, VillageRequest>();
 
          CreateMap<HamletInsertRequestModel, HamletInsertRequest>()
+            .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
             .ForMember(x => x.HamletName, opt => opt.MapFrom(src => src.HamletName))
             .ForMember(x => x.VillageId, opt => opt.MapFrom(src => src.VillageId))
             .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
