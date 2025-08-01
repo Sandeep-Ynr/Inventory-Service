@@ -5,6 +5,7 @@ namespace MilkMatrix.Milk.Models.Request.Bank
     public class BankRegInsertRequest
     {
         public ReadActionType ActionType { get; set; } = ReadActionType.All;
+        public string? BusinessId { get; set; }
         public string? RegionalCode { get; set; }
         public string? BankID { get; set; }
         public string? RegionalBankName { get; set; }
