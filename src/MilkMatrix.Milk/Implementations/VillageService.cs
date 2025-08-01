@@ -105,6 +105,8 @@ namespace MilkMatrix.Milk.Implementations
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create },
+                    { "BusinessId ", request.BusinessId  ?? (object)DBNull.Value },
+                    { "VillageId ", request.VillageId  ?? (object)DBNull.Value },
                     { "VillageName", request.VillageName ?? (object)DBNull.Value },
                     { "TehsilId", request.TehsilId ?? (object)DBNull.Value},
                     { "IsStatus", request.IsActive?? (object)DBNull.Value },

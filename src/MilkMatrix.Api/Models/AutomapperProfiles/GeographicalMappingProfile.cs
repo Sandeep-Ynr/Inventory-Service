@@ -55,8 +55,9 @@ public class GeographicalMappingProfile : Profile
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
         CreateMap<TehsilRequestModel, TehsilRequest>();
 
-
-        CreateMap<VillageInsertRequestModel, VillageInsertRequest>()
+ 
+    CreateMap<VillageInsertRequestModel, VillageInsertRequest>()
+                        .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
                         .ForMember(x => x.VillageName, opt => opt.MapFrom(src => src.VillageName))
                         .ForMember(x => x.TehsilId, opt => opt.MapFrom(src => src.TehsilId))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
