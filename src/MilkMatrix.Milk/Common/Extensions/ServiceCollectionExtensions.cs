@@ -7,6 +7,7 @@ using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
+using MilkMatrix.Milk.Contracts.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Contracts.Mcc;
 using MilkMatrix.Milk.Contracts.Member;
@@ -26,6 +27,7 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
 using MilkMatrix.Milk.Implementations.Logistics.Route;
+using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
 using MilkMatrix.Milk.Implementations.Mcc;
 using MilkMatrix.Milk.Implementations.Member.Address;
@@ -74,6 +76,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMemberDocumentsService, MemberDocumentsService>()
                     .AddScoped<IMemberMilkProfileService, MemberMilkProfileService>()
                     .AddScoped<IMemberBankDetailsService, MemberBankDetailsService>()
-                    .AddScoped<IPriceService, PriceService>();
+                    .AddScoped<IPriceService, PriceService>()
+                    .AddScoped<IVehicleBillingTypeService, VehicleBillingTypeService>();
     }
 }

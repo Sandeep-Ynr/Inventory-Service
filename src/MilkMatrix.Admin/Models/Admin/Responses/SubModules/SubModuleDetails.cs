@@ -9,7 +9,9 @@ public class SubModuleDetails : Audit
 
     [GlobalSearch]
     public string SubModuleName { get; set; } = string.Empty;
-  
+
+    public int? ParentId { get; set; }
+
     public int OrderNo { get; set; }
 
     public bool IsActive { get; set; }

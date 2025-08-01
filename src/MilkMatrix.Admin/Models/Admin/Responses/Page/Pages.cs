@@ -10,6 +10,8 @@ public class Pages : Audit
 
     [GlobalSearch]
     public string? PageName { get; set; }
+
+    public int? ParentId { get; set; }
     public string? PageURL { get; set; }
     public string? PageIcon { get; set; }
     public int PageOrder { get; set; }

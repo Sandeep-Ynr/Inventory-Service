@@ -14,9 +14,11 @@ public class ModuleSubModuleMapping : Profile
 
         CreateMap<SubModuleUpsertModel, SubModuleUpdateRequest>()
                          .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                         .ForMember(x => x.SubModuleParentId, opt => opt.MapFrom(src => src.ParentId))
                          .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
         CreateMap<SubModuleUpsertModel, SubModuleInsertRequest>()
+                  .ForMember(x => x.SubModuleParentId, opt => opt.MapFrom(src=> src.ParentId))
                   .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
 
         CreateMap<ModuleUpsertModel, ModuleUpdateRequest>()

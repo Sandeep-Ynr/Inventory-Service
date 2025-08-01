@@ -2,12 +2,14 @@ using System.Net;
 using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Logistics.Route;
 using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Api.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Api.Models.Request.Logistics.Vendor;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -17,23 +19,27 @@ using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
+using MilkMatrix.Milk.Contracts.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Contracts.Logistics.Vendor;
 using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
+using MilkMatrix.Milk.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
+using MilkMatrix.Milk.Models.Response.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using MilkMatrix.Milk.Models.Response.Logistics.Vendor;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -47,9 +53,10 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IVehicleTypeService vehicleTypeService;
         private readonly IVehicleService vehicleService;
         private readonly IVendorService vendorService;
+        private readonly IVehicleBillingTypeService vehicleBillingTypeService;
         public LogisticsController(IHttpContextAccessor httpContextAccessor, ILogging logger,
             ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService
-            , IVehicleService vehicleService, IVendorService vendorService, IMapper mapper)
+            , IVehicleService vehicleService, IVendorService vendorService, IVehicleBillingTypeService vehicleBillingTypeService, IMapper mapper)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(LogisticsController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -58,6 +65,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.vehicleTypeService = vehicleTypeService ?? throw new ArgumentNullException(nameof(vehicleTypeService));
             this.vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
             this.vendorService = vendorService ?? throw new ArgumentNullException(nameof(vendorService));
+            this.vehicleBillingTypeService = vehicleBillingTypeService ?? throw new ArgumentNullException(nameof(vehicleBillingTypeService));
             this.mapper = mapper;
         }
         #region Transport
@@ -605,6 +613,121 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
+        #endregion
+
+        #region Vehicle Billing Type
+        [HttpPost("list-vehiclebillingtype")]
+        public async Task<IActionResult> GetVehicleBillingTypeList([FromBody] ListsRequest request)
+        {
+            var result = await vehicleBillingTypeService.GetAllVehicleBillingTypes(request);
+            return Ok(result);
+        }
+
+        [HttpGet("vehiclebillingtype/{id}")]
+        public async Task<ActionResult<VehicleBillingTypeResponse?>> GetVehicleBillingTypeById(long id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for Vehicle Billing Type Code: {id}");
+                var result = await vehicleBillingTypeService.GetVehicleBillingTypeById(id);
+
+                if (result == null)
+                {
+                    logger.LogInfo($"Vehicle Billing Type with Code {id} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"Vehicle Billing Type with Code {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Vehicle Billing Type with Code: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record. " + ex.Message);
+            }
+        }
+
+
+        [HttpPost("Insert-vehiclebillingtype")]
+        public async Task<IActionResult> AddVehicleBillingType([FromBody] VehicleBillingTypeInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = ErrorMessage.InvalidRequest
+                    });
+                }
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var mappedRequest = mapper.MapWithOptions<VehicleBillingTypeInsertRequest, VehicleBillingTypeInsertRequestModel>(
+                  request,
+                  new Dictionary<string, object>
+                  {
+                        { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                  });
+                await vehicleBillingTypeService.AddVehicleBillingType(mappedRequest);
+                logger.LogInfo("Vehicle Billing Type added successfully.");
+                return Ok(new { message = "Vehicle Billing Type added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding vehicle billing type", ex);
+                return StatusCode(500, "An error occurred while adding the record. " + ex.Message);
+            }
+        }
+
+        [HttpPut("update-vehiclebillingtype")]
+        public async Task<IActionResult> UpdateVehicleBillingType([FromBody] VehicleBillingTypeUpdateRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = ErrorMessage.InvalidRequest
+                    });
+                }
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var mappedRequest = mapper.MapWithOptions<VehicleBillingTypeUpdateRequest, VehicleBillingTypeUpdateRequestModel>(
+                  request,
+                  new Dictionary<string, object>
+                  {
+                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                  });
+                await vehicleBillingTypeService.UpdateVehicleBillingType(mappedRequest);
+                logger.LogInfo($"Vehicle Billing Type with code {request.VehicleId} updated successfully.");
+                return Ok(new { message = "Vehicle Billing Type updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error updating vehicle billing type with code ", ex);
+                return StatusCode(500, "An error occurred while updating the record. " + ex.Message);
+            }
+        }
+
+
+        [HttpDelete("delete-vehiclebillingtype/{id}")]
+        public async Task<IActionResult> DeleteVehicleBillingType(long id)
+        {
+            try
+            {
+                var deletedBy = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value ?? "system";
+
+                await vehicleBillingTypeService.DeleteVehicleBillingType(id, deletedBy);
+                logger.LogInfo($"Vehicle Billing Type with Code {id} deleted successfully.");
+                return Ok(new { message = "Vehicle Billing Type deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Vehicle Billing Type with Code: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the vehicle billing type. " + ex.Message);
+            }
+        }
         #endregion
     }
 }

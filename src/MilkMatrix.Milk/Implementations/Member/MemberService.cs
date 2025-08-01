@@ -136,7 +136,7 @@ namespace MilkMatrix.Milk.Implementations
             {
                 logging.LogInfo($"GetById called for Member ID: {id}");
                 var repo = repositoryFactory.ConnectDapper<MemberResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<MemberResponse>("usp_member_list", new Dictionary<string, object>
+                var data = await repo.QueryAsync<MemberResponse>(MemberQueries.GetMemberList, new Dictionary<string, object>
                 {
                     {"ActionType", (int)ReadActionType.Individual},
                     {"MemberID", id}

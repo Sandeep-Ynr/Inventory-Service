@@ -45,6 +45,7 @@ public class SubModuleService : ISubModuleService
                 ["SubModuleName"] = request.Name,
                 ["OrderNumber"] = request.Order,
                 ["CreatedBy"] = request.CreatedBy,
+                ["ParentId"] = request.SubModuleParentId,
                 ["Status"] = true,
                 ["ActionType"] = request.ActionType
             };
@@ -115,6 +116,7 @@ public class SubModuleService : ISubModuleService
                 ["SubModuleName"] = request.Name,
                 ["SubModuleId"] = request.Id,
                 ["OrderNumber"] = request.Order,
+                ["ParentId"] = request.SubModuleParentId,
                 ["ModifyBy"] = request.ModifyBy,
                 ["Status"] = request.IsActive,
                 ["ActionType"] = request.ActionType
