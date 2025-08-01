@@ -14,6 +14,7 @@ public class BankMappingProfile : Profile
     {
 
         CreateMap<BankRegInsertReqModel, BankRegInsertRequest>()
+             .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
             .ForMember(x => x.RegionalCode, opt => opt.MapFrom(src => src.RegionalCode))
             .ForMember(x => x.BankID, opt => opt.MapFrom(src => src.BankID))
             .ForMember(x => x.RegionalBankName, opt => opt.MapFrom(src => src.RegionalBankName))
@@ -28,6 +29,7 @@ public class BankMappingProfile : Profile
             .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
         CreateMap<BankTypeInsertRequestModel, BankTypeInsertRequest>()
+             .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
             .ForMember(dest => dest.BankTypeName, opt => opt.MapFrom(src => src.BankTypeName))
             .ForMember(dest => dest.BankTypeDescription, opt => opt.MapFrom(src => src.BankTypeDescription))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsStatus))
@@ -40,6 +42,7 @@ public class BankMappingProfile : Profile
             .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
 
         CreateMap<BankInsertRequestModel, BankInsertRequest>()
+             .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
             .ForMember(dest => dest.BankCode, opt => opt.MapFrom(src => src.BankCode))
             .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.BankName))
             .ForMember(dest => dest.BankShortName, opt => opt.MapFrom(src => src.BankShortName))
@@ -69,6 +72,7 @@ public class BankMappingProfile : Profile
 
 
     CreateMap<BranchInsertRequestModel, BranchInsertRequest>()
+             .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
            .ForMember(dest => dest.BankID, opt => opt.MapFrom(src => src.BankID))
            .ForMember(dest => dest.BranchCode, opt => opt.MapFrom(src => src.BranchCode))
            .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.BranchName))
