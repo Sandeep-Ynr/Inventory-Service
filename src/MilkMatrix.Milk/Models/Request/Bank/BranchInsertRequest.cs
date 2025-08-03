@@ -5,6 +5,7 @@ namespace MilkMatrix.Milk.Models.Request.Bank
     {
 
         public ReadActionType? ActionType { get; set; } = ReadActionType.All;
+        public string? BusinessId { get; set; }
         public int BranchID { get; set; }
         public string BranchCode { get; set; } = string.Empty;
         public int BankID { get; set; }

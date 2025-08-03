@@ -45,6 +45,7 @@ namespace MilkMatrix.Milk.Implementations
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create },  // 1 = Insert
+                    { "BusinessId ", request.BusinessId  ?? (object)DBNull.Value },
                     { "BankCode", request.BankCode ?? (object)DBNull.Value },
                     { "BankName", request.BankName ?? (object)DBNull.Value },
                     { "BankShortName", request.BankShortName ?? (object)DBNull.Value },

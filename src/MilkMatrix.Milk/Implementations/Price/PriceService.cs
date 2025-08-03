@@ -1,10 +1,6 @@
 using System.Data;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-//using MilkMatrix.Admin.Business.Admin.Contracts;
-//using MilkMatrix.Admin.Common.Extensions;
-//using MilkMatrix.Admin.Models.Admin.Requests.User;
-//using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Core.Abstractions.Csv;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.HostedServices;
@@ -24,7 +20,6 @@ using MilkMatrix.Milk.Models.Request.Price;
 using MilkMatrix.Milk.Models.Response;
 using MilkMatrix.Milk.Models.Response.Price;
 
-//using static MilkMatrix.Milk.Models.Constants;
 using static MilkMatrix.Milk.Models.Queries.PriceQueries;
 
 namespace MilkMatrix.Milk.Implementations.Price
@@ -51,8 +46,7 @@ namespace MilkMatrix.Milk.Implementations.Price
             this.repositoryFactory = repositoryFactory;
             this.fileConfig = fileConfig.Value ?? throw new ArgumentNullException(nameof(fileConfig), "FileConfig cannot be null");
             this.queryMultipleData = queryMultipleData;
-            //this.appConfig = appConfig.Value ?? throw new ArgumentNullException(nameof(appConfig), "AppConfig cannot be null");
-            //this.csvReader = csvReader ?? throw new ArgumentNullException(nameof(csvReader), "CSV Reader cannot be null");
+            
         }
 
         public async Task AddAsync(MilkPriceInsertRequest request)
@@ -230,97 +224,72 @@ namespace MilkMatrix.Milk.Implementations.Price
             }
         }
 
-
-        public async Task AddBulkUsersAsync(byte[] bytes, int userId)
+        public async Task<object> GetMilkFatChartJsonAsync(int rateCode)
         {
-            if (bytes == null || bytes.Length == 0)
-            {
-                logger.LogWarning("No file provided for bulk user upload.");
-                return;
-            }
-            logger.LogInfo("AddBulkUsersAsync called with a file for bulk user upload.");
-            var result = await csvReader.ReadCsvFile<BulkMilkPriceUploadRequest>(bytes);
-            if (result.Errors.Any())
-            {
-                logger.LogError("CSV parsing errors occurred", new Exception(JsonSerializer.Serialize(result.Errors)));
-                throw new InvalidOperationException("CSV parsing errors occurred");
-            }
-
-            // Enqueue the background work
-            bulkProcessingTasks.QueueBulkWorkItem(async token =>
-            {
-                try
-                {
-                    await AddBulkUsersToStagingAsync(result.Records, userId);
-                    logger.LogInfo("Bulk Milk Price upload completed in background.");
-                    // TODO: Add SignalR notification here if needed
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError("Error in background bulk Milk Price upload", ex);
-                    // TODO: Optionally notify user of failure
-                }
-            });
-        }
-
-        private async Task AddBulkUsersToStagingAsync(IEnumerable<BulkMilkPriceUploadRequest> requests, int userId)
-        {
-            if (requests == null || !requests.Any())
-            {
-                logger.LogWarning("No user requests provided for bulk insert.");
-                return;
-            }
-            logger.LogInfo($"AddBulkMilkPriceToStagingAsync called with {requests.Count()} requests.");
-
-            //foreach (var user in requests.Where(user => string.IsNullOrWhiteSpace(user.Password)))
-            //{
-            //    user.Password = appConfig.DefaultPassword.EncodeSHA512();
-            //    user.CreatedBy = userId;
-            //}
-
-            // Add ProcessStatus and ErrorMessage columns to mapping
-            var propsMapping = new Dictionary<string, string>
-                                {
-                                    { "Username", "UserName" },
-                                    { "Password", "Password" },
-                                    { "EmailId", "Email_Id" },
-                                    { "HrmsCode", "Hrms_Code" },
-                                    { "RoleId", "Role_Id" },
-                                    { "BusinessId", "Business_Id" },
-                                    { "ReportingId", "Reporting_Id" },
-                                    { "UserType", "User_Type" },
-                                    { "MobileNumber", "Mobile_No" },
-                                    { "IsMFA", "Is_MFA" },
-                                    { "IsBulkUser", "is_bulk_user" },
-                                    { "ChangePassword", "change_password" },
-                                    { "IsActive", "Status" },
-                                    { "CreatedBy", "Created_By" },
-                                    { "ProcessStatus", "ProcessStatus" },
-                                    { "ErrorMessage", "ErrorMessage" }
-                                };
-
-            var repo = repositoryFactory.ConnectDapper<BulkMilkPriceUploadRequest>(DbConstants.Main);
-            if (repo == null)
-                throw new InvalidOperationException("Repository is not present");
             try
             {
-                await repo.BulkInsertAsync(PriceQuery.UserStagingTable, requests, propsMapping, appConfig.UserBulkUploadBatchSize);
+                var repo = repositoryFactory.ConnectDapper<dynamic>(DbConstants.Main);
 
-                // Call the processing stored procedure
-                await repo.ExecuteScalarAsync(PriceQuery.ProcessStagedUsers, null, CommandType.StoredProcedure);
+                var result = await repo.QueryAsync<dynamic>(
+                    PriceQuery.MilkRateChart,
+                    new Dictionary<string, object>
+                    {
+                { "ActionType", (int)ReadActionType.Individual },
+                { "RateCode", rateCode }
+                    },
+                    null
+                );
 
-                // Optionally, fetch failed records for reporting
-                var failedRecords = await repo.QueryAsync<BulkMilkPriceUploadRequest>(PriceQuery.GetFailedBulkProcessingUsers, null, null, CommandType.Text);
+                // Convert dynamic result to DataTable
+                var dataTable = new DataTable();
+                bool columnsBuilt = false;
 
-                if (failedRecords.Any())
+                foreach (var row in result)
                 {
-                    logger.LogWarning($"{failedRecords.Count()} records failed to process. Check ErrorMessage column in staging table.");
-                    // Optionally: return or handle failedRecords as needed
+                    var dict = (IDictionary<string, object>)row;
+
+                    if (!columnsBuilt)
+                    {
+                        foreach (var key in dict.Keys)
+                        {
+                            dataTable.Columns.Add(key);
+                        }
+                        columnsBuilt = true;
+                    }
+
+                    var dataRow = dataTable.NewRow();
+                    foreach (var key in dict.Keys)
+                    {
+                        dataRow[key] = dict[key] ?? DBNull.Value;
+                    }
+                    dataTable.Rows.Add(dataRow);
                 }
+
+                // Now extract columns
+                var columns = dataTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList();
+
+                // Extract rows
+                var rows = new List<List<object>>();
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    var rowData = new List<object>();
+                    foreach (var column in columns)
+                    {
+                        var value = row[column];
+                        rowData.Add(value == DBNull.Value ? null : value);
+                    }
+                    rows.Add(rowData);
+                }
+
+                return new
+                {
+                    columns,
+                    rows
+                };
             }
             catch (Exception ex)
             {
-                logger.LogError("Bulk insert or processing failed", ex);
+                logger.LogError("Error creating milk fat chart JSON", ex);
                 throw;
             }
         }

@@ -3,6 +3,7 @@ namespace MilkMatrix.Api.Models.Request.Bank.Branch
 {
     public class BranchInsertRequestModel
     {
+        public string? BusinessId { get; set; }
         public string BranchCode { get; set; } = string.Empty;
         public int BankID { get; set; }
         public string BranchName { get; set; } = string.Empty;
