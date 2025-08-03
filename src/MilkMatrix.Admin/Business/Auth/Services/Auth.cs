@@ -125,7 +125,7 @@ public class Auth : IAuth
                 finalResult.Status = HttpStatusCode.OK.ToString();
             else if (finalResult.Message == SuccessMessage.OTPSuccess)
             {
-                finalResult.Data = new TokenResponse();
+                finalResult.Data = new TokenResponse() { IsMFA = finalResult.Data.IsMFA };
                 finalResult.Status = HttpStatusCode.OK.ToString();
             }
             else if (finalResult.Message == "Your current IP address is not authorized to access this resource.Please make sure you are connecting from an authorized IP address and try again.")
