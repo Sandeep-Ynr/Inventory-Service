@@ -234,7 +234,7 @@ public class UserController : ControllerBase
 
 
     [HttpGet("notification/{id}")]
-    public async Task<ActionResult<Pages?>> GetNotificationByUserId(int id)
+    public async Task<IActionResult> GetNotificationByUserId(int id)
     {
         try
         {
