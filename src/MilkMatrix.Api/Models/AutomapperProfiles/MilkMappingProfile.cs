@@ -1,7 +1,9 @@
 using AutoMapper;
 using MilkMatrix.Api.Models.Request.Milk;
+using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
+using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -49,6 +51,52 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+            CreateMap<DeviceSettingInsertRequestModel, DeviceSettingInsertRequest>()
+                .ForMember(dest => dest.MppId, opt => opt.MapFrom(src => src.MppId))
+                .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
+                .ForMember(dest => dest.EffectiveShift, opt => opt.MapFrom(src => src.EffectiveShift))
+                .ForMember(dest => dest.IsManual, opt => opt.MapFrom(src => src.IsManual))
+                .ForMember(dest => dest.EncryptUsbData, opt => opt.MapFrom(src => src.EncryptUsbData))
+                .ForMember(dest => dest.DpuModel, opt => opt.MapFrom(src => src.DpuModel))
+                .ForMember(dest => dest.MaxCollectionPerShift, opt => opt.MapFrom(src => src.MaxCollectionPerShift))
+                .ForMember(dest => dest.IsWifiEnabled, opt => opt.MapFrom(src => src.IsWifiEnabled))
+                .ForMember(dest => dest.ApName, opt => opt.MapFrom(src => src.ApName))
+                .ForMember(dest => dest.ApPassword, opt => opt.MapFrom(src => src.ApPassword))
+                .ForMember(dest => dest.AdminPassword, opt => opt.MapFrom(src => src.AdminPassword))
+                .ForMember(dest => dest.SupportPassword, opt => opt.MapFrom(src => src.SupportPassword))
+                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
+                .ForMember(dest => dest.Apn, opt => opt.MapFrom(src => src.Apn))
+                .ForMember(dest => dest.IsDispatchMandate, opt => opt.MapFrom(src => src.IsDispatchMandate))
+                .ForMember(dest => dest.IsMaCalibration, opt => opt.MapFrom(src => src.IsMaCalibration))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.is_status))
+                .ForMember(dest => dest.is_deleted, opt => opt.MapFrom(src => src.is_deleted))
+                .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+              .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
+
+            CreateMap<DeviceSettingUpdateRequestModel, DeviceSettingUpdateRequest>()
+                .ForMember(dest => dest.DeviceSettingId, opt => opt.MapFrom(src => src.DeviceSettingId))
+                .ForMember(dest => dest.MppId, opt => opt.MapFrom(src => src.MppId))
+                .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
+                .ForMember(dest => dest.EffectiveShift, opt => opt.MapFrom(src => src.EffectiveShift))
+                .ForMember(dest => dest.IsManual, opt => opt.MapFrom(src => src.IsManual))
+                .ForMember(dest => dest.EncryptUsbData, opt => opt.MapFrom(src => src.EncryptUsbData))
+                .ForMember(dest => dest.DpuModel, opt => opt.MapFrom(src => src.DpuModel))
+                .ForMember(dest => dest.MaxCollectionPerShift, opt => opt.MapFrom(src => src.MaxCollectionPerShift))
+                .ForMember(dest => dest.IsWifiEnabled, opt => opt.MapFrom(src => src.IsWifiEnabled))
+                .ForMember(dest => dest.ApName, opt => opt.MapFrom(src => src.ApName))
+                .ForMember(dest => dest.ApPassword, opt => opt.MapFrom(src => src.ApPassword))
+                .ForMember(dest => dest.AdminPassword, opt => opt.MapFrom(src => src.AdminPassword))
+                .ForMember(dest => dest.SupportPassword, opt => opt.MapFrom(src => src.SupportPassword))
+                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
+                .ForMember(dest => dest.Apn, opt => opt.MapFrom(src => src.Apn))
+                .ForMember(dest => dest.IsDispatchMandate, opt => opt.MapFrom(src => src.IsDispatchMandate))
+                .ForMember(dest => dest.IsMaCalibration, opt => opt.MapFrom(src => src.IsMaCalibration))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.is_status))
+                .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
         }
+
+
+    
     }
 }

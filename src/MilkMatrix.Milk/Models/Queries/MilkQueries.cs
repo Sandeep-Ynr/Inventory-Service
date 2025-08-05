@@ -25,5 +25,10 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetMeasurementUnitList = "usp_measurement_unit_list";
             public const string InsupdMeasurementUnit = "usp_measurement_unit_insupd";
         }
+        public static class DeviceSettingQueries
+        {
+            public const string AddDeviceSetting = "usp_device_settings_insupd";
+            public const string GetDeviceSettingList = "usp_device_settings_list";
+        }
     }
 }
