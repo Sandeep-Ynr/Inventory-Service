@@ -6,16 +6,22 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Milk;
+using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Milk;
+using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
+using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
+
 //using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
+using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Response.Milk;
+using MilkMatrix.Milk.Models.Response.Milk.DeviceSetting;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -31,11 +37,13 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly ILogging logger;
         private readonly IMapper mapper;
         private readonly IMilkService milkService;
+        private readonly IDeviceSettingService deviceSettingService;
 
-        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService)
+        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
+            this.deviceSettingService = deviceSettingService ?? throw new ArgumentNullException(nameof(deviceSettingService));
             this.mapper = mapper;
             this.milkService = milkService;
         }
@@ -331,6 +339,141 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the Measurement Unit.");
             }
         }
+
+        #region Device Settings
+        [HttpPost("DeviceSetting-list")]
+        public async Task<IActionResult> GetList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await deviceSettingService.GetAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving Device Settings list", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the list.",
+
+                });
+            }
+        }
+
+        [HttpGet("DeviceSetting{id}")]
+        public async Task<ActionResult<DeviceSettingResponse?>> GetDeviceSettingById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for DeviceSetting ID: {id}");
+                var result = await deviceSettingService.GetDeviceSettingById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"Device Setting with ID {id} not found.");
+                    return NotFound(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        ErrorMessage = "Device Setting not found."
+                    });
+                }
+
+                logger.LogInfo($"Device Setting with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving DeviceSetting with ID: {id}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the record.",
+                });
+            }
+        }
+        [HttpPost]
+        [Route("Insert-DeviceSetting")]
+        public async Task<IActionResult> InsertDeviceSetting([FromBody] DeviceSettingInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<DeviceSettingInsertRequest, DeviceSettingInsertRequestModel>(request
+                    , new Dictionary<string, object> {
+                          { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await deviceSettingService.InsertDeviceSetting(requestParams);
+                logger.LogInfo($"Device Setting for MPP ID {request.MppId} added successfully.");
+                return Ok(new { message = "Device Setting added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding DeviceSetting", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while adding the record.",
+                });
+            }
+        }
+
+
+        [HttpPut]
+        [Route("Update-DeviceSetting")]
+        public async Task<IActionResult> UpdateBankType([FromBody] DeviceSettingUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.DeviceSettingId <= 0)
+                    return BadRequest("Invalid request.");
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<DeviceSettingUpdateRequest, DeviceSettingUpdateRequestModel>(request
+                            , new Dictionary<string, object> {
+                      {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                        });
+                await deviceSettingService.UpdateDeviceSetting(requestParams);
+                logger.LogInfo($"Device Setting {request.DeviceSettingId} updated successfully.");
+                return Ok(new { message = "Device Setting updated successfully." });
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError($"Error updating DeviceSetting with ID {request?.DeviceSettingId}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while updating the record.",
+                });
+            }
+
+        }
+
+
+        [HttpDelete("Delete-DeviceSetting/{id}")]
+        public async Task<IActionResult> DeleteDeviceSetting(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await deviceSettingService.DeleteDeviceSetting(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Device Setting with id {id} deleted successfully.");
+                return Ok(new { message = "Device Setting deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting DeviceSetting with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Bank Type.");
+            }
+        }
+        #endregion
 
     }
 }
