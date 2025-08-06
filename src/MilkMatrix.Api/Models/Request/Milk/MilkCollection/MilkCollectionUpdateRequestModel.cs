@@ -3,7 +3,6 @@ namespace MilkMatrix.Api.Models.Request.MilkCollection
 {
     public class MilkCollectionUpdateRequestModel
     {
-        public string? BusinessID { get; set; }
         public int CollectionId { get; set; }
         public long? MemberId { get; set; }
         public string? CenterType { get; set; }
@@ -25,5 +24,8 @@ namespace MilkMatrix.Api.Models.Request.MilkCollection
         public long? CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
         public long? ModifiedBy { get; set; }
+
+        public string? BusinessID { get; set; }
+
     }
 }

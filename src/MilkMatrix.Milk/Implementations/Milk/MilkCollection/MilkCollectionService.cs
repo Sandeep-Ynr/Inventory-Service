@@ -40,7 +40,36 @@ namespace MilkMatrix.Milk.Implementations
             this.queryMultipleData = queryMultipleData;
         }
 
-        public async Task<IListsResponse<BankResponse>> GetAll(IListsRequest request)
+        public async Task<MilkCollectionResponse?> GetMilkCollectionById(int id)
+        {
+            try
+            {
+                logging.LogInfo($"GetMilkCollectionById called for ID: {id}");
+                var repo = repositoryFactory.ConnectDapper<MilkCollectionResponse>(DbConstants.Main);
+
+                var data = await repo.QueryAsync<MilkCollectionResponse>(
+                    MilkCollectionQueries.GetMilkCollectionList,
+                    new Dictionary<string, object>
+                    {
+                        { "ActionType", (int)ReadActionType.Individual },
+                        { "CollectionId", id }
+                    }, null
+                );
+
+                var result = data.FirstOrDefault() ?? new MilkCollectionResponse();
+                logging.LogInfo(result != null
+                    ? $"Milk Collection with ID {id} retrieved successfully."
+                    : $"Milk Collection with ID {id} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetMilkCollectionById for ID: {id}", ex);
+                throw;
+            }
+        }
+
+        public async Task<IListsResponse<MilkCollectionResponse>> GetMilkCollectionAll(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>() {
                 { "ActionType", (int)ReadActionType.All }
@@ -50,7 +79,7 @@ namespace MilkMatrix.Milk.Implementations
 
             // 1. Fetch all results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<BankResponse, int, FiltersMeta>(MilkCollectionQueries.GetMilkCollectionList,
+                .GetMultiDetailsAsync<MilkCollectionResponse, int, FiltersMeta>(MilkCollectionQueries.GetMilkCollectionList,
                     DbConstants.Main,
                     parameters,
                     null);
@@ -69,46 +98,12 @@ namespace MilkMatrix.Milk.Implementations
             var filteredCount = filtered.Count();
 
             // 5. Return result
-            return new ListsResponse<BankResponse>
+            return new ListsResponse<MilkCollectionResponse>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),
                 Filters = filterMetas
             };
-        }
-
-        public async Task<MilkCollectionResponse?> GetMilkCollectionById(int id)
-        {
-            try
-            {
-                logging.LogInfo($"GetMilkCollectionById called for ID: {id}");
-                var repo = repositoryFactory.ConnectDapper<MilkCollectionResponse>(DbConstants.Main);
-
-                var data = await repo.QueryAsync<MilkCollectionResponse>(
-                    MilkCollectionQueries.GetMilkCollectionList,
-                    new Dictionary<string, object>
-                    {
-                        { "ActionType", (int)ReadActionType.Individual },
-                        { "MilkCollectionID", id }
-                    }, null
-                );
-
-                var result = data.FirstOrDefault() ?? new MilkCollectionResponse();
-                logging.LogInfo(result != null
-                    ? $"Milk Collection with ID {id} retrieved successfully."
-                    : $"Milk Collection with ID {id} not found.");
-                return result;
-            }
-            catch (Exception ex)
-            {
-                logging.LogError($"Error in GetMilkCollectionById for ID: {id}", ex);
-                throw;
-            }
-        }
-
-        public Task<IListsResponse<MilkCollectionResponse>> GetMilkCollectionAll(IListsRequest request)
-        {
-            throw new NotImplementedException();
         }
 
        
@@ -212,7 +207,6 @@ namespace MilkMatrix.Milk.Implementations
                     { "ActionType", (int)CrudActionType.Delete },
                     { "CollectionId", id },
                     { "ModifiedBy", userId },
-                    { "ModifiedOn", DateTime.Now }
                 };
 
                 var response = await repository.DeleteAsync(

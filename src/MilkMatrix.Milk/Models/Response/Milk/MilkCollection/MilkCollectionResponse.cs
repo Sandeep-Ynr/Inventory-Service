@@ -1,10 +1,11 @@
 
+using MilkMatrix.Core.Entities.Response;
+
 namespace MilkMatrix.Api.Models.Request.MilkCollection
 {
-    public class MilkCollectionResponse
+    public class MilkCollectionResponse: CommonLists
     {
         public string? BusinessID { get; set; }
-        public int CollectionId { get; set; }
         public long? MemberId { get; set; }
         public string? CenterType { get; set; }
         public int? CenterId { get; set; }

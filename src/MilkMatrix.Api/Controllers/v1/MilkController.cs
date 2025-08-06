@@ -479,28 +479,26 @@ namespace MilkMatrix.Api.Controllers.v1
         }
         #endregion
 
-
-
         #region MilkCollection
 
-        //[HttpPost("MilkCollection-list")]
-        //public async Task<IActionResult> GetMilkCollectionList([FromBody] ListsRequest request)
-        //{
-        //    try
-        //    {
-        //        var result = await milkcollectionservice.GetMilkCollectionList(request);
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError("Error retrieving Milk Collection list", ex);
-        //        return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
-        //        {
-        //            StatusCode = (int)HttpStatusCode.InternalServerError,
-        //            ErrorMessage = "An error occurred while retrieving the list.",
-        //        });
-        //    }
-        //}
+        [HttpPost("MilkCollection-list")]
+        public async Task<IActionResult> GetMilkCollectionList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await milkcollectionservice.GetMilkCollectionAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving Milk Collection list", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the list.",
+                });
+            }
+        }
 
         [HttpGet("MilkCollection/{id}")]
         public async Task<ActionResult<MilkCollectionResponse?>> GetMilkCollectionById(int id)
