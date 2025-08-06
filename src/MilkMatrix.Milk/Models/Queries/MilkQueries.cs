@@ -37,5 +37,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetMilkCollectionList = "usp_milkcollection_list";
         }
 
+        public static class DockDataQueries
+        {
+            public const string AddDockData = "usp_dock_data_insupd";
+            public const string GetDockDataList = "usp_dock_data_list";
+        }
+
     }
 }

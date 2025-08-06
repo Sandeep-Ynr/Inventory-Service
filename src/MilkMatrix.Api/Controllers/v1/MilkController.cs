@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
+using MilkMatrix.Api.Models.Request.Milk.DockData;
 using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -15,13 +16,17 @@ using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
+using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
+using MilkMatrix.Milk.Implementations.Milk.DockData;
+
 
 //using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
+using MilkMatrix.Milk.Models.Request.Milk.DockData;
 using MilkMatrix.Milk.Models.Response.Milk;
 using MilkMatrix.Milk.Models.Response.Milk.DeviceSetting;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -41,8 +46,9 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMilkService milkService;
         private readonly IMilkCollectionService milkcollectionservice;
         private readonly IDeviceSettingService deviceSettingService;
+        private readonly IDockDataService dockDataService;
 
-        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice)
+        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice, IDockDataService dockDataService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -50,6 +56,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.milkcollectionservice = milkcollectionservice ?? throw new ArgumentNullException(nameof(milkcollectionservice));
             this.mapper = mapper;
             this.milkService = milkService;
+            this.dockDataService = dockDataService ?? throw new ArgumentNullException(nameof(dockDataService));
         }
 
         [HttpPost]
@@ -612,5 +619,147 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
         #endregion
+    
+
+        #region DockData
+
+        [HttpPost("DockData-list")]
+        public async Task<IActionResult> GetDockDataList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await dockDataService.GetAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving DockData list", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the list.",
+                });
+            }
+        }
+
+        [HttpGet("DockData/{id}")]
+        public async Task<IActionResult> GetDockDataById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for DockData ID: {id}");
+
+                var result = await dockDataService.GetById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"DockData with ID {id} not found.");
+                    return NotFound(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        ErrorMessage = "DockData record not found."
+                    });
+                }
+
+                logger.LogInfo($"DockData with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving DockData with ID: {id}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the record.",
+                });
+            }
+        }
+
+
+        [HttpPost("Insert-DockData")]
+        public async Task<IActionResult> InsertDockData([FromBody] DockDataInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<DockDataInsertRequest, DockDataInsertRequestModel>(request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await dockDataService.InsertDockData(requestParams);
+                logger.LogInfo($"DockData record added successfully.");
+                return Ok(new { message = "DockData record added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding DockData", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while adding the record.",
+                });
+            }
+        }
+
+
+        [HttpPut("Dockdata-update")]
+        public async Task<IActionResult> Update([FromBody] DockDataUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.DockDataUpdateId <= 0)
+                {
+                    return BadRequest("Invalid request.");
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<DockDataUpdateRequest, DockDataUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                 { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+
+                await dockDataService.UpdateDockData(mappedRequest);
+
+                logger.LogInfo($"DockData with ID {request.DockDataUpdateId} updated successfully.");
+                return Ok(new { message = "DockData updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Update DockData", ex);
+                return StatusCode(500, $"An error occurred while updating the record. {ex.Message}");
+            }
+        }
+
+        [HttpDelete("Dockdata-delete/{id}")]
+        public async Task<IActionResult> DockDataDelete(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await dockDataService.DockDataDelete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"DockData with ID {id} deleted successfully.");
+                return Ok(new { message = "DockData deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting DockData with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the DockData record.");
+            }
+        }
+
+        #endregion
+
     }
 }
