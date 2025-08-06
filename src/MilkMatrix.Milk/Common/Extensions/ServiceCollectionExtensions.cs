@@ -17,6 +17,7 @@ using MilkMatrix.Milk.Contracts.Member.MemberDocuments;
 using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
+using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
@@ -38,6 +39,7 @@ using MilkMatrix.Milk.Implementations.Member.MemberDocuments;
 using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
+using MilkMatrix.Milk.Implementations.Milk.DockData;
 using MilkMatrix.Milk.Implementations.Plant;
 using MilkMatrix.Milk.Implementations.Price;
 using MilkMatrix.Milk.Implementations.PriceApplicability;
@@ -82,6 +84,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IPriceService, PriceService>()
                     .AddScoped<IVehicleBillingTypeService, VehicleBillingTypeService>()
                     .AddScoped<IDeviceSettingService, DeviceSettingService>()
-                    .AddScoped<IMilkCollectionService, MilkCollectionService>();
+                    .AddScoped<IMilkCollectionService, MilkCollectionService>()
+                    .AddScoped<IDockDataService, DockDataService>();
     }
 }
