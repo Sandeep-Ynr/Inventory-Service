@@ -1,6 +1,7 @@
 using AutoMapper;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
+using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
@@ -52,27 +53,27 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
 
-            CreateMap<DeviceSettingInsertRequestModel, DeviceSettingInsertRequest>()
-                .ForMember(dest => dest.MppId, opt => opt.MapFrom(src => src.MppId))
-                .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
-                .ForMember(dest => dest.EffectiveShift, opt => opt.MapFrom(src => src.EffectiveShift))
-                .ForMember(dest => dest.IsManual, opt => opt.MapFrom(src => src.IsManual))
-                .ForMember(dest => dest.EncryptUsbData, opt => opt.MapFrom(src => src.EncryptUsbData))
-                .ForMember(dest => dest.DpuModel, opt => opt.MapFrom(src => src.DpuModel))
-                .ForMember(dest => dest.MaxCollectionPerShift, opt => opt.MapFrom(src => src.MaxCollectionPerShift))
-                .ForMember(dest => dest.IsWifiEnabled, opt => opt.MapFrom(src => src.IsWifiEnabled))
-                .ForMember(dest => dest.ApName, opt => opt.MapFrom(src => src.ApName))
-                .ForMember(dest => dest.ApPassword, opt => opt.MapFrom(src => src.ApPassword))
-                .ForMember(dest => dest.AdminPassword, opt => opt.MapFrom(src => src.AdminPassword))
-                .ForMember(dest => dest.SupportPassword, opt => opt.MapFrom(src => src.SupportPassword))
-                .ForMember(dest => dest.UserPassword, opt => opt.MapFrom(src => src.UserPassword))
-                .ForMember(dest => dest.Apn, opt => opt.MapFrom(src => src.Apn))
-                .ForMember(dest => dest.IsDispatchMandate, opt => opt.MapFrom(src => src.IsDispatchMandate))
-                .ForMember(dest => dest.IsMaCalibration, opt => opt.MapFrom(src => src.IsMaCalibration))
-                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.is_status))
-                .ForMember(dest => dest.is_deleted, opt => opt.MapFrom(src => src.is_deleted))
-                .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
-              .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
+            CreateMap<MilkCollectionInsertRequestModel, MilkCollectionInsertRequest>()
+                         .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
+                         .ForMember(dest => dest.MemberId, opt => opt.MapFrom(src => src.MemberId))
+                         .ForMember(dest => dest.CenterType, opt => opt.MapFrom(src => src.CenterType))
+                         .ForMember(dest => dest.CenterId, opt => opt.MapFrom(src => src.CenterId))
+                         .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                         .ForMember(dest => dest.CollectionDate, opt => opt.MapFrom(src => src.CollectionDate))
+                         .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+                         .ForMember(dest => dest.MilkType, opt => opt.MapFrom(src => src.MilkType))
+                         .ForMember(dest => dest.QuantityLtr, opt => opt.MapFrom(src => src.QuantityLtr))
+                         .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
+                         .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
+                         .ForMember(dest => dest.RatePerLtr, opt => opt.MapFrom(src => src.RatePerLtr))
+                         .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                         .ForMember(dest => dest.CollectionMode, opt => opt.MapFrom(src => src.CollectionMode))
+                         .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                         .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                         .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+                         .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
+                         .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
+
 
             CreateMap<DeviceSettingUpdateRequestModel, DeviceSettingUpdateRequest>()
                 .ForMember(dest => dest.DeviceSettingId, opt => opt.MapFrom(src => src.DeviceSettingId))

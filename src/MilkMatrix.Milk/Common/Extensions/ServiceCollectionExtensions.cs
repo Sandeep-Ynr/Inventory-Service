@@ -17,6 +17,7 @@ using MilkMatrix.Milk.Contracts.Member.MemberDocuments;
 using MilkMatrix.Milk.Contracts.Member.MilkProfile;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
+using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
@@ -80,6 +81,7 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IMemberBankDetailsService, MemberBankDetailsService>()
                     .AddScoped<IPriceService, PriceService>()
                     .AddScoped<IVehicleBillingTypeService, VehicleBillingTypeService>()
-                    .AddScoped<IDeviceSettingService, DeviceSettingService>();
+                    .AddScoped<IDeviceSettingService, DeviceSettingService>()
+                    .AddScoped<IMilkCollectionService, MilkCollectionService>();
     }
 }

@@ -30,5 +30,12 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string AddDeviceSetting = "usp_device_settings_insupd";
             public const string GetDeviceSettingList = "usp_device_settings_list";
         }
+
+        public static class MilkCollectionQueries
+        {
+            public const string AddMilkCollection = "usp_milkcollection_insupd";
+            public const string GetMilkCollectionList = "usp_milkcollection_list";
+        }
+
     }
 }

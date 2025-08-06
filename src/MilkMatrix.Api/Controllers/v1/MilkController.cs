@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
+using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -14,6 +15,7 @@ using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
+using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 
 //using MilkMatrix.Milk.Implementations.Milk;
@@ -26,7 +28,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -37,13 +39,15 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly ILogging logger;
         private readonly IMapper mapper;
         private readonly IMilkService milkService;
+        private readonly IMilkCollectionService milkcollectionservice;
         private readonly IDeviceSettingService deviceSettingService;
 
-        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService)
+        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
             this.deviceSettingService = deviceSettingService ?? throw new ArgumentNullException(nameof(deviceSettingService));
+            this.milkcollectionservice = milkcollectionservice ?? throw new ArgumentNullException(nameof(milkcollectionservice));
             this.mapper = mapper;
             this.milkService = milkService;
         }
@@ -475,5 +479,140 @@ namespace MilkMatrix.Api.Controllers.v1
         }
         #endregion
 
+
+
+        #region MilkCollection
+
+        //[HttpPost("MilkCollection-list")]
+        //public async Task<IActionResult> GetMilkCollectionList([FromBody] ListsRequest request)
+        //{
+        //    try
+        //    {
+        //        var result = await milkcollectionservice.GetMilkCollectionList(request);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError("Error retrieving Milk Collection list", ex);
+        //        return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+        //        {
+        //            StatusCode = (int)HttpStatusCode.InternalServerError,
+        //            ErrorMessage = "An error occurred while retrieving the list.",
+        //        });
+        //    }
+        //}
+
+        [HttpGet("MilkCollection/{id}")]
+        public async Task<ActionResult<MilkCollectionResponse?>> GetMilkCollectionById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for MilkCollection ID: {id}");
+                var result = await milkcollectionservice.GetMilkCollectionById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"Milk Collection with ID {id} not found.");
+                    return NotFound(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        ErrorMessage = "Milk Collection record not found."
+                    });
+                }
+
+                logger.LogInfo($"Milk Collection with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving MilkCollection with ID: {id}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the record.",
+                });
+            }
+        }
+
+        [HttpPost("Insert-MilkCollection")]
+        public async Task<IActionResult> InsertMilkCollection([FromBody] MilkCollectionInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<MilkCollectionInsertRequest, MilkCollectionInsertRequestModel>(request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await milkcollectionservice.InsertMilkCollection(requestParams);
+                logger.LogInfo($"Milk Collection record added successfully.");
+                return Ok(new { message = "Milk Collection record added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Milk Collection", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while adding the record.",
+                });
+            }
+        }
+
+        [HttpPut("Update-MilkCollection")]
+        public async Task<IActionResult> UpdateMilkCollection([FromBody] MilkCollectionUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.CollectionId <= 0)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<MilkCollectionUpdateRequest, MilkCollectionUpdateRequestModel>(request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
+                    });
+
+                await milkcollectionservice.UpdateMilkCollection(requestParams);
+                logger.LogInfo($"Milk Collection {request.CollectionId} updated successfully.");
+                return Ok(new { message = "Milk Collection updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error updating MilkCollection with ID {request?.CollectionId}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while updating the record.",
+                });
+            }
+        }
+
+        [HttpDelete("Delete-MilkCollection/{id}")]
+        public async Task<IActionResult> DeleteMilkCollection(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await milkcollectionservice.DeleteMilkCollection(id, Convert.ToInt32(userId));
+                logger.LogInfo($"Milk Collection with id {id} deleted successfully.");
+                return Ok(new { message = "Milk Collection deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting MilkCollection with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Milk Collection record.");
+            }
+        }
+        #endregion
     }
 }
