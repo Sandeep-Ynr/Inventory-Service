@@ -1,6 +1,6 @@
 namespace MilkMatrix.Api.Models.Request.MPP
 {
-    public class MPPInsertRequestModel
+    public class SaleInsertRequestModel
     {
         public string Code { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
