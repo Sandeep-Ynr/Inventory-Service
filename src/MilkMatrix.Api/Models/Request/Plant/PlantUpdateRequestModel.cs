@@ -3,6 +3,8 @@ namespace MilkMatrix.Api.Models.Request.Plant
     public class PlantUpdateRequestModel
     {
         public int? PlantId { get; set; }
+
+        public string? PlantCode { get; set; }
         public string? PlantName { get; set; }
         public int CompanyId { get; set; }
         public string? Capacity { get; set; }

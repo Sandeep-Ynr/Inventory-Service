@@ -45,6 +45,7 @@ namespace MilkMatrix.Milk.Implementations.Plant
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
                     { "PlantName", request.PlantName ?? (object)DBNull.Value },
+                    { "PlantCode", request.PlantCode ?? (object)DBNull.Value },
                     { "CompanyId", request.CompanyId },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "FsssiNumber", request.FSSSINumber ?? (object)DBNull.Value },
@@ -91,6 +92,7 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     { "ActionType", (int)CrudActionType.Update },
                     { "PlantId", request.PlantId},
                     { "PlantName", request.PlantName ?? (object)DBNull.Value },
+                    { "PlantCode", request.PlantCode ?? (object)DBNull.Value },
                     { "CompanyId", request.CompanyId},
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "FsssiNumber", request.FSSSINumber},
