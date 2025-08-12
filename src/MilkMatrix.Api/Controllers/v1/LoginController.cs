@@ -86,7 +86,7 @@ namespace MilkMatrix.Api.Controllers.v1
 
             if (loginResponse == null)
                 return NotFound();
-            if(loginResponse.Status != HttpStatusCode.OK.ToString())
+            if (loginResponse.Status != HttpStatusCode.OK.ToString())
             {
                 return BadRequest(new ErrorResponse
                 {
@@ -235,6 +235,29 @@ namespace MilkMatrix.Api.Controllers.v1
             var result = await iAuthentication.ChangePassword(mapper.MapWithOptions<ChangePasswordRequest, ChangePasswordModel>(model, new Dictionary<string, object> {
             { Constants.AutoMapper.LoginId ,Convert.ToInt32(userId)}
                 }));
+            if (result == null || result.Status != HttpStatusCode.OK.ToString())
+            {
+                return NotFound("No record found");
+            }
+            else
+                return Ok(result);
+        }
+
+
+        /// <summary>
+        /// Logs out the currently authenticated user and invalidates their session.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("logout")]
+        public async Task<IActionResult> Logout(LogoutModel request)
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            if (string.IsNullOrEmpty(userId) || request.UserId != Convert.ToInt32(userId))
+            {
+                return BadRequest(new ErrorResponse { StatusCode = (int)HttpStatusCode.Unauthorized, ErrorMessage = ErrorMessage.UnAuthorized });
+            }
+            var result = await iAuthentication.Userlogout(mapper.Map<LogoutRequest>(request));
             if (result == null || result.Status != HttpStatusCode.OK.ToString())
             {
                 return NotFound("No record found");

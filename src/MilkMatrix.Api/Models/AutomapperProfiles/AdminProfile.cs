@@ -127,5 +127,7 @@ public class AdminProfile : Profile
            .ForMember(x => x.StatusName, opt => opt.MapFrom(src => src.Name))
            .ForMember(x => x.StatusType, opt => opt.MapFrom(src => src.Type))
            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        CreateMap<LogoutModel, LogoutRequest>();
     }
 }
