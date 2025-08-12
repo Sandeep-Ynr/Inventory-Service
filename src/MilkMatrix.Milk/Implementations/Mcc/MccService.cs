@@ -43,6 +43,7 @@ namespace MilkMatrix.Milk.Implementations.Mcc
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
+                    { "MccCode", request.MccCode ?? (object)DBNull.Value },
                     { "MccName", request.MccName ?? (object)DBNull.Value },
                     { "BusinessId",request.BusinessId ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
@@ -55,8 +56,8 @@ namespace MilkMatrix.Milk.Implementations.Mcc
                     { "VillageId", request.VillageId },
                     { "HamletId", request.HamletId },
                     { "Pincode", request.Pincode },
-                    { "Latitude", request.Latitude },
-                    { "Longitude", request.Longitude },
+                    { "Latitude", request.Latitude ?? (object)DBNull.Value},
+                    { "Longitude", request.Longitude ?? (object)DBNull.Value},
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
                     { "RegionalContactPerson", request.RegionalContactPerson ?? (object)DBNull.Value },
@@ -90,6 +91,7 @@ namespace MilkMatrix.Milk.Implementations.Mcc
                     { "ActionType", (int)CrudActionType.Update },
                     { "MccId", request.MccId},
                     { "MccName", request.MccName ?? (object)DBNull.Value },
+                    { "MccCode", request.MccCode ?? (object)DBNull.Value },
                     { "BusinessId",request.BusinessId ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "FsssiNumber", request.FSSSINumber},

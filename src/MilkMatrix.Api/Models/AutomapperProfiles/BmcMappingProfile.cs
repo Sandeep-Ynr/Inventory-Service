@@ -14,6 +14,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
             CreateMap<BmcUpdateRequestModel, BmcUpdateRequest>()
                         .ForMember(x => x.BmcId, opt => opt.MapFrom(src => src.BmcId))
                         .ForMember(x => x.BmcName, opt => opt.MapFrom(src => src.BmcName))
+                        .ForMember(x => x.BmcCode, opt => opt.MapFrom(src => src.BmcCode))
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
                         .ForMember(x => x.RegionalName, opt => opt.MapFrom(src => src.RegionalName))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
@@ -44,6 +45,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
             CreateMap<BmcInsertRequestModel, BmcInsertRequest>()
                         .ForMember(x => x.BmcName, opt => opt.MapFrom(src => src.BmcName))
+                        .ForMember(x => x.BmcCode, opt => opt.MapFrom(src => src.BmcCode))
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
                         .ForMember(x => x.RegionalName, opt => opt.MapFrom(src => src.RegionalName))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))

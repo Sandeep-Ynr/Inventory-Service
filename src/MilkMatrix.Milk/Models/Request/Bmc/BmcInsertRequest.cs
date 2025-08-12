@@ -9,6 +9,7 @@ namespace MilkMatrix.Milk.Models.Request.Bmc
     public class BmcInsertRequest
     {
         public string? BmcName { get; set; }
+        public string? BmcCode { get; set; }
         public int? BusinessEntityId { get; set; }
         public string? RegionalName { get; set; }
         public string? Capacity { get; set; }

@@ -44,6 +44,7 @@ namespace MilkMatrix.Milk.Implementations.Bmc
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
                     { "BmcName", request.BmcName ?? (object)DBNull.Value },
+                    { "BmcCode", request.BmcCode ?? (object)DBNull.Value },
                     { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
@@ -95,6 +96,7 @@ namespace MilkMatrix.Milk.Implementations.Bmc
                     { "ActionType", (int)CrudActionType.Update },
                     { "BmcId", request.BmcId},
                     { "BmcName", request.BmcName ?? (object)DBNull.Value },
+                    { "BmcCode", request.BmcCode ?? (object)DBNull.Value },
                     { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },

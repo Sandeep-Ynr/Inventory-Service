@@ -9,6 +9,7 @@ namespace MilkMatrix.Milk.Models.Response.Mcc
     public class MccIndividualResponse
     {
         public int? Id { get; set; }
+        public string? MccCode { get; set; }
         public string? Name { get; set; }
         public int? BusinessId { get; set; }
         public string? Capacity { get; set; }

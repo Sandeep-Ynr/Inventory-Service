@@ -10,6 +10,7 @@ namespace MilkMatrix.Milk.Models.Request.Plant
     {
         //public int? PlantId { get; set; }
         public string? PlantName { get; set; }
+        public string? PlantCode { get; set; }
         public int CompanyId { get; set; }
         public string? Capacity { get; set; }
         public string? FSSSINumber { get; set; }

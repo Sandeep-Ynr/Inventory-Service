@@ -4,6 +4,7 @@ namespace MilkMatrix.Api.Models.Request.Bmc
     {
         public int BmcId { get; set; }
         public string? BmcName { get; set; }
+        public string? BmcCode { get; set; }
         public int? BusinessEntityId { get; set; }
         public string? RegionalName { get; set; }
         public string? Capacity { get; set; }
