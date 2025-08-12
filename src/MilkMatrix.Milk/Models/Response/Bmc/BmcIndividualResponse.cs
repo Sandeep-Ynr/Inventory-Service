@@ -12,6 +12,7 @@ namespace MilkMatrix.Milk.Models.Response.Bmc
         //public int Id { get; set; }
         //public string? Name { get; set; }
         public int? BusinessEntityId { get; set; }
+        public string? BmcCode { get; set; }
         public string? RegionalName { get; set; }
         public string? Capacity { get; set; }
         public string? Manufacturer { get; set; }

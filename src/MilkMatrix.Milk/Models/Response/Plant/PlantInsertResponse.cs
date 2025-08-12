@@ -12,6 +12,7 @@ namespace MilkMatrix.Milk.Models.Response.Plant
     {
         public int? Id { get; set; }
         public string? Name { get; set; }
+        public string? PlantCode { get; set; }
         public int CompanyId { get; set; }
         public string? CompanyName{ get; set; }
         public string? Capacity { get; set; }
