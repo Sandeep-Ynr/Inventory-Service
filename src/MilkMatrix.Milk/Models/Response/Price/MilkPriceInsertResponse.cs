@@ -18,5 +18,7 @@ namespace MilkMatrix.Milk.Models.Response.Price
         public string? RateGenType { get; set; }
         public bool? IsActive { get; set; }
         public int? CreatedBy { get; set; }
+
+        public string? PriceDetails { get; set; }
     }
 }
