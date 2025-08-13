@@ -11,6 +11,7 @@ using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Api.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Api.Models.Request.Logistics.Vendor;
+using MilkMatrix.Api.Models.Request.Route.RouteContractor;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -21,8 +22,10 @@ using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
 using MilkMatrix.Milk.Contracts.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Contracts.Logistics.Vendor;
+using MilkMatrix.Milk.Contracts.Route.RouteContractor;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
+using MilkMatrix.Milk.Implementations.Route.RouteContractor;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
@@ -30,6 +33,7 @@ using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
+using MilkMatrix.Milk.Models.Request.Route.RouteContractor;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleBillingType;
@@ -39,7 +43,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -54,9 +58,11 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IVehicleService vehicleService;
         private readonly IVendorService vendorService;
         private readonly IVehicleBillingTypeService vehicleBillingTypeService;
+        private readonly IRouteContractorService routeContractorService;
+
         public LogisticsController(IHttpContextAccessor httpContextAccessor, ILogging logger,
             ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService
-            , IVehicleService vehicleService, IVendorService vendorService, IVehicleBillingTypeService vehicleBillingTypeService, IMapper mapper)
+            , IVehicleService vehicleService, IVendorService vendorService, IVehicleBillingTypeService vehicleBillingTypeService, IRouteContractorService routeContractorService, IMapper mapper)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(LogisticsController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -66,6 +72,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
             this.vendorService = vendorService ?? throw new ArgumentNullException(nameof(vendorService));
             this.vehicleBillingTypeService = vehicleBillingTypeService ?? throw new ArgumentNullException(nameof(vehicleBillingTypeService));
+            this.routeContractorService = routeContractorService ?? throw new ArgumentNullException(nameof(routeContractorService));
             this.mapper = mapper;
         }
         #region Transport
@@ -729,5 +736,122 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
         #endregion
+
+        #region Route Contractor
+
+        [HttpPost("contractor/list")]
+        public async Task<IActionResult> GetContractorList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await routeContractorService.GetAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving contractor list.", ex);
+                return StatusCode(500, "An error occurred while retrieving the contractor list.");
+            }
+        }
+
+        [HttpGet("contractor/{id}")]
+        public async Task<IActionResult> GetContractorById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetContractorById called for ID: {id}");
+                var result = await routeContractorService.GetRouteContractorById(id);
+                if (result == null)
+                    return NotFound(new { message = $"Route Contractor with ID {id} not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving contractor with ID: {id}", ex);
+                return StatusCode(500, $"An error occurred while retrieving contractor with ID {id}.");
+            }
+        }
+
+        [HttpPost("contractor/add")]
+        public async Task<IActionResult> AddContractor([FromBody] RouteContractorInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var mappedRequest = mapper.Map<RouteContractorInsertRequest>(request, opt =>
+                {
+                    opt.Items["CreatedBy"] = Convert.ToInt64(userId);
+                });
+
+                mappedRequest.IsStatus = true;
+                mappedRequest.IsDeleted = false;
+                mappedRequest.CreatedOn = DateTime.UtcNow;
+
+                await routeContractorService.InsertRouteContractor(mappedRequest);
+                logger.LogInfo($"Route Contractor '{mappedRequest.ContractorName}' added successfully.");
+                return Ok(new { message = "Route Contractor added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Route Contractor.", ex);
+                return StatusCode(500, "An error occurred while adding the Route Contractor.");
+            }
+        }
+
+        [HttpPut("contractor/update")]
+        public async Task<IActionResult> UpdateContractor([FromBody] RouteContractorUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var mappedRequest = mapper.Map<RouteContractorUpdateRequest>(request, opt =>
+                {
+                    opt.Items["ModifiedBy"] = Convert.ToInt64(userId);
+                });
+
+                await routeContractorService.UpdateRouteContractor(mappedRequest);
+                logger.LogInfo($"Route Contractor with ID {mappedRequest.RouteContractorId} updated successfully.");
+                return Ok(new { message = "Route Contractor updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error updating Route Contractor.", ex);
+                return StatusCode(500, "An error occurred while updating the Route Contractor.");
+            }
+        }
+
+        [HttpDelete("contractor/delete/{id}")]
+        public async Task<IActionResult> DeleteContractor(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await routeContractorService.DeleteRouteContractor(id, Convert.ToInt32(userId));
+
+                logger.LogInfo($"Route Contractor with ID {id} deleted successfully.");
+                return Ok(new { message = "Route Contractor deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Route Contractor with ID: {id}", ex);
+                return StatusCode(500, $"An error occurred while deleting the Route Contractor record.");
+            }
+        }
+
+        #endregion
+
     }
 }
