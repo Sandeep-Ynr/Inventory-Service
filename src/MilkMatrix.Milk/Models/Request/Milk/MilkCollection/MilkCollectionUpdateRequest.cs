@@ -20,10 +20,6 @@ namespace MilkMatrix.Api.Models.Request.MilkCollection
         public string? CollectionMode { get; set; }
         public string? Status { get; set; }
         public bool? IsStatus { get; set; }
-        public bool? IsDeleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public long? CreatedBy { get; set; }
-        public DateTime? ModifiedOn { get; set; }
         public long? ModifiedBy { get; set; }
     }
 }

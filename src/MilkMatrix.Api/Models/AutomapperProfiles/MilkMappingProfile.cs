@@ -74,12 +74,32 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                          .ForMember(dest => dest.CollectionMode, opt => opt.MapFrom(src => src.CollectionMode))
                          .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                          .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
-                         .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
                          .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
                          .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
 
+            CreateMap<MilkCollectionUpdateRequestModel, MilkCollectionUpdateRequest>()
+                         .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
+                         .ForMember(dest => dest.MemberId, opt => opt.MapFrom(src => src.MemberId))
+                         .ForMember(dest => dest.CenterType, opt => opt.MapFrom(src => src.CenterType))
+                         .ForMember(dest => dest.CenterId, opt => opt.MapFrom(src => src.CenterId))
+                         .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                         .ForMember(dest => dest.CollectionDate, opt => opt.MapFrom(src => src.CollectionDate))
+                         .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+                         .ForMember(dest => dest.MilkType, opt => opt.MapFrom(src => src.MilkType))
+                         .ForMember(dest => dest.QuantityLtr, opt => opt.MapFrom(src => src.QuantityLtr))
+                         .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
+                         .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
+                         .ForMember(dest => dest.RatePerLtr, opt => opt.MapFrom(src => src.RatePerLtr))
+                         .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+                         .ForMember(dest => dest.CollectionMode, opt => opt.MapFrom(src => src.CollectionMode))
+                         .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                         .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                         .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
+                         .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
 
-                    CreateMap<DeviceSettingUpdateRequestModel, DeviceSettingUpdateRequest>()
+
+
+            CreateMap<DeviceSettingUpdateRequestModel, DeviceSettingUpdateRequest>()
                         .ForMember(dest => dest.DeviceSettingId, opt => opt.MapFrom(src => src.DeviceSettingId))
                         .ForMember(dest => dest.MppId, opt => opt.MapFrom(src => src.MppId))
                         .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
