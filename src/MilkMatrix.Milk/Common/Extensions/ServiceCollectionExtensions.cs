@@ -24,6 +24,7 @@ using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Contracts.Price;
 using MilkMatrix.Milk.Contracts.PriceApplicability;
+using MilkMatrix.Milk.Contracts.Route.RouteContractor;
 using MilkMatrix.Milk.Contracts.SahayakVSP;
 using MilkMatrix.Milk.Contracts.Shift;
 using MilkMatrix.Milk.Implementations;
@@ -43,6 +44,7 @@ using MilkMatrix.Milk.Implementations.Milk.DockData;
 using MilkMatrix.Milk.Implementations.Plant;
 using MilkMatrix.Milk.Implementations.Price;
 using MilkMatrix.Milk.Implementations.PriceApplicability;
+using MilkMatrix.Milk.Implementations.Route.RouteContractor;
 using MilkMatrix.Milk.Implementations.Shift;
 
 namespace MilkMatrix.Milk.Common.Extensions
@@ -85,6 +87,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IVehicleBillingTypeService, VehicleBillingTypeService>()
                     .AddScoped<IDeviceSettingService, DeviceSettingService>()
                     .AddScoped<IMilkCollectionService, MilkCollectionService>()
-                    .AddScoped<IDockDataService, DockDataService>();
+                    .AddScoped<IDockDataService, DockDataService>()
+                    .AddScoped<IRouteContractorService, RouteContractorService>();
+            
     }
 }
