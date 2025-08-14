@@ -8,6 +8,7 @@ namespace MilkMatrix.Milk.Models.Request.Mcc
 {
     public class MccInsertRequest
     {
+        public string? MccCode { get; set; }
         public string? MccName { get; set; }
         public int? BusinessId { get; set; }
         public string? Capacity { get; set; }

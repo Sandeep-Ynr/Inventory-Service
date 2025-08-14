@@ -12,6 +12,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
             CreateMap<MccUpdateRequestModel, MccUpdateRequest>()
                         .ForMember(x => x.MccId, opt => opt.MapFrom(src => src.MccId))
                         .ForMember(x => x.MccName, opt => opt.MapFrom(src => src.MccName))
+                        .ForMember(x => x.MccCode, opt => opt.MapFrom(src => src.MccCode))
                         .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
                         .ForMember(x => x.FSSSINumber, opt => opt.MapFrom(src => src.FSSSINumber))
@@ -37,6 +38,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
             CreateMap<MccInsertRequestModel, MccInsertRequest>()
                         .ForMember(x => x.MccName, opt => opt.MapFrom(src => src.MccName))
+                        .ForMember(x => x.MccCode, opt => opt.MapFrom(src => src.MccCode))
                         .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
                         .ForMember(x => x.FSSSINumber, opt => opt.MapFrom(src => src.FSSSINumber))

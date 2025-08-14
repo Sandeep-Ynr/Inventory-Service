@@ -4,7 +4,7 @@ namespace MilkMatrix.Api.Models.Request.Mcc
     {
         public int? MccId { get; set; }
         public string? MccName { get; set; }
-
+        public string? MccCode { get; set; }
         public int? BusinessId { get; set; }
         public string? Capacity { get; set; }
         public string? FSSSINumber { get; set; }

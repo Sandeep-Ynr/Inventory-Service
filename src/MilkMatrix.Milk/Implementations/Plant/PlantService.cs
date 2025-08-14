@@ -45,6 +45,7 @@ namespace MilkMatrix.Milk.Implementations.Plant
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
                     { "PlantName", request.PlantName ?? (object)DBNull.Value },
+                    { "PlantCode", request.PlantCode ?? (object)DBNull.Value },
                     { "CompanyId", request.CompanyId },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "FsssiNumber", request.FSSSINumber ?? (object)DBNull.Value },
@@ -56,8 +57,8 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     { "VillageId", request.VillageId },
                     { "HamletId", request.HamletId },
                     { "Pincode", request.Pincode },
-                    { "Latitude", request.Latitude },
-                    { "Longitude", request.Longitude },
+                    { "Latitude", request.Latitude ?? (object)DBNull.Value},
+                    { "Longitude", request.Longitude ?? (object)DBNull.Value},
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "ContactPerson", request.ContactPerson ?? (object)DBNull.Value },
                     { "RegionalContactPerson", request.RegionalContactPerson ?? (object)DBNull.Value },
@@ -91,6 +92,7 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     { "ActionType", (int)CrudActionType.Update },
                     { "PlantId", request.PlantId},
                     { "PlantName", request.PlantName ?? (object)DBNull.Value },
+                    { "PlantCode", request.PlantCode ?? (object)DBNull.Value },
                     { "CompanyId", request.CompanyId},
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "FsssiNumber", request.FSSSINumber},

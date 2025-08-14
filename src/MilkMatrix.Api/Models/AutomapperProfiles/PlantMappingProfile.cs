@@ -12,6 +12,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
             CreateMap<PlantUpdateRequestModel, PlantUpdateRequest>()
                         .ForMember(x => x.PlantId, opt => opt.MapFrom(src => src.PlantId))
                         .ForMember(x => x.PlantName, opt => opt.MapFrom(src => src.PlantName))
+                        .ForMember(x => x.PlantCode, opt => opt.MapFrom(src => src.PlantCode))
                         .ForMember(x => x.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
                         .ForMember(x => x.FSSSINumber, opt => opt.MapFrom(src => src.FSSSINumber))
@@ -37,6 +38,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
             CreateMap<PlantInsertRequestModel, PlantInsertRequest>()
                         .ForMember(x => x.PlantName, opt => opt.MapFrom(src => src.PlantName))
+                        .ForMember(x => x.PlantCode, opt => opt.MapFrom(src => src.PlantCode))
                         .ForMember(x => x.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
                         .ForMember(x => x.FSSSINumber, opt => opt.MapFrom(src => src.FSSSINumber))

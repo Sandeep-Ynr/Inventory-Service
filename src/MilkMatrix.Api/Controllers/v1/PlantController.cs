@@ -95,7 +95,7 @@ namespace MilkMatrix.Api.Controllers.v1
                         { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
                 });
                 await plantService.AddPlantAsync(requestParams);
-                logger.LogInfo($"Plant {request.PlantName} added successfully.");
+                logger.LogInfo($"Plant {request.PlantName} ({request.PlantCode}) added successfully.");
                 return Ok(new { message = "Plant added successfully." });
             }
             catch (Exception ex)
@@ -120,7 +120,7 @@ namespace MilkMatrix.Api.Controllers.v1
                             {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
                     });
             await plantService.UpdatePlantAsync(requestParams);
-            logger.LogInfo($"Plant with id {request.PlantId} updated successfully.");
+            logger.LogInfo($"Update called for Plant: {request.PlantName}, Code: {request.PlantCode}");
             return Ok(new { message = "Plant updated successfully." });
         }
 

@@ -9,6 +9,8 @@ namespace MilkMatrix.Milk.Models.Request.Mcc
     public class MccUpdateRequest
     {
         public int MccId { get; set; }
+        
+        public string? MccCode { get; set; }
         public string? MccName { get; set; }
         public int? BusinessId { get; set; }
         public string? Capacity { get; set; }

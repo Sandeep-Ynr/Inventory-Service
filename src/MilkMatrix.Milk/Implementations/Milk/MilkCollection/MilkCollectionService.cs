@@ -174,10 +174,8 @@ namespace MilkMatrix.Milk.Implementations
                     { "Amount", request.Amount ?? (object)DBNull.Value },
                     { "CollectionMode", request.CollectionMode ?? (object)DBNull.Value },
                     { "Status", request.Status ?? (object)DBNull.Value },
-                    { "is_status", request.IsStatus ?? true },
-                    { "is_deleted", request.IsDeleted ?? false },
+                    { "IsStatus", request.IsStatus ?? true },
                     { "ModifiedBy", request.ModifiedBy ?? 0 },
-                    { "ModifiedOn", DateTime.Now }
                 };
                 var message = await repository.UpdateAsync(MilkCollectionQueries.AddMilkCollection, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
