@@ -788,39 +788,47 @@ namespace MilkMatrix.Api.Controllers.v1
                 }
 
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.Map<RouteContractorInsertRequest>(request, opt =>
-                {
-                    opt.Items["CreatedBy"] = Convert.ToInt64(userId);
-                });
+                logger.LogInfo($"Add Contractor called: {request.ContractorName}");
 
-                mappedRequest.IsStatus = true;
-                mappedRequest.IsDeleted = false;
-                mappedRequest.CreatedOn = DateTime.UtcNow;
+                var mappedRequest = mapper.MapWithOptions<RouteContractorInsertRequest, RouteContractorInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>{
+                            { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
 
                 await routeContractorService.InsertRouteContractor(mappedRequest);
-                logger.LogInfo($"Route Contractor '{mappedRequest.ContractorName}' added successfully.");
+                logger.LogInfo($"Route Contractor '{request.ContractorName}' added successfully.");
                 return Ok(new { message = "Route Contractor added successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError("Error adding Route Contractor.", ex);
+                logger.LogError("Error adding Route Contractor", ex);
                 return StatusCode(500, "An error occurred while adding the Route Contractor.");
             }
         }
-
         [HttpPut("contractor/update")]
         public async Task<IActionResult> UpdateContractor([FromBody] RouteContractorUpdateRequestModel request)
         {
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest("Invalid request.");
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
 
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var mappedRequest = mapper.Map<RouteContractorUpdateRequest>(request, opt =>
-                {
-                    opt.Items["ModifiedBy"] = Convert.ToInt64(userId);
-                });
+                logger.LogInfo($"Update Contractor called: {request.RouteContractorId}");
+
+                var mappedRequest = mapper.MapWithOptions<RouteContractorUpdateRequest, RouteContractorUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
 
                 await routeContractorService.UpdateRouteContractor(mappedRequest);
                 logger.LogInfo($"Route Contractor with ID {mappedRequest.RouteContractorId} updated successfully.");
@@ -828,7 +836,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
             catch (Exception ex)
             {
-                logger.LogError("Error updating Route Contractor.", ex);
+                logger.LogError("Error updating Route Contractor", ex);
                 return StatusCode(500, "An error occurred while updating the Route Contractor.");
             }
         }

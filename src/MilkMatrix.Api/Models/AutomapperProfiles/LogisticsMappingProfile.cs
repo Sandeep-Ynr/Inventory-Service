@@ -241,7 +241,6 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.ContractorName, opt => opt.MapFrom(src => src.ContractorName))
                 .ForMember(dest => dest.ContactNumber, opt => opt.MapFrom(src => src.ContactNumber))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
             CreateMap<RouteContractorUpdateRequestModel, RouteContractorUpdateRequest>()

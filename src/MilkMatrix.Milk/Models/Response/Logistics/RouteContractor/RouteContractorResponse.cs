@@ -1,20 +1,19 @@
 
 using System;
+using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Milk.Models.Response.Route.RouteContractor
 {
-    public class RouteContractorResponse
+    public class RouteContractorResponse:CommonLists
     {
 
-        public int RouteContractorId { get; set; }
-        public string ContractorName { get; set; }
-        public string ContactNumber { get; set; }
-        public string Address { get; set; }
-        public bool? IsStatus { get; set; }
-        public bool? is_deleted { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public long? CreatedBy { get; set; }
+        public string? ContactNumber { get; set; }
+        public string? ContractorAddress { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public int CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
-        public long? ModifiedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+        public int BusinessId { get; set; }
     }
 }
