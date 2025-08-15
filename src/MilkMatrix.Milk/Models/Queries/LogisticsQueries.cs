@@ -43,4 +43,11 @@ namespace MilkMatrix.Milk.Models.Queries
         public const string AddRouteContractor = "usp_routecontractor_insupd";
         public const string GetRouteContractorList = "usp_routecontractor_list";
     }
+
+    public static class RouteTimeQueries
+    {
+        public const string AddUpdateRouteTiming = "usp_route_schedule_insupd";
+        public const string GetRouteTimingList = "usp_route_schedule_list";
+    }
+
 }
