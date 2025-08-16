@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
 using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
@@ -85,6 +86,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IVehicleBillingTypeService, VehicleBillingTypeService>()
                     .AddScoped<IDeviceSettingService, DeviceSettingService>()
                     .AddScoped<IMilkCollectionService, MilkCollectionService>()
-                    .AddScoped<IDockDataService, DockDataService>();
+                    .AddScoped<IDockDataService, DockDataService>()
+                    .AddScoped<ISequenceService, SequenceService>();
+            
     }
 }
