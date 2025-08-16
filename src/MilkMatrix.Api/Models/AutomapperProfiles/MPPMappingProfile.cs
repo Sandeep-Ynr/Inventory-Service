@@ -8,7 +8,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
     {
         public MPPMappingProfile()
         {
-            CreateMap<MPPInsertRequestModel, MPPInsertRequest>()
+            CreateMap<SaleInsertRequestModel, MPPInsertRequest>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
                 .ForMember(dest => dest.MPPName, opt => opt.MapFrom(src => src.MPPName))
