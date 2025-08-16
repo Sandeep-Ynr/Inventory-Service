@@ -8,6 +8,7 @@ public static partial class Constants
         public const string LoginUserDetails = "usp_User_Details"; //For User Login
         public const string ValidateToken = "usp_validate_token";//To validating sekKey
         public const string ValidateRefreshToken = "usp_validate_refresh_token";//To validate secKey and refreshToken
+        public const string UserLogout = "usp_user_logout";//To user logout
         public const string GetUserIdFromEmailId = "usp_user_with_email_id"; //For getting userid using email or mobilenumber
         public const string GetCommonDetails = "usp_user_common_details";
         public const string RoleList = "usp_User_RoleList";//To retriving user role list

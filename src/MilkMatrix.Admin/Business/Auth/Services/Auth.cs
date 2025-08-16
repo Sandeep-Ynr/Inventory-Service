@@ -253,7 +253,7 @@ public class Auth : IAuth
         try
         {
             var repo = repositoryFactory.ConnectDapper<string>(DbConstants.Main);
-            var res = (await repo.QueryAsync<string>(AuthSpName.ValidateRefreshToken, new Dictionary<string, object> { { "LoginId", logout.LoginId }
+            var res = (await repo.QueryAsync<string>(AuthSpName.UserLogout, new Dictionary<string, object> { { "LoginId", logout.LoginId }
                 ,{"UserId", logout.UserId } }, null))?.FirstOrDefault();
             finalResult.Message = res;
             if (finalResult.Message == "Success")

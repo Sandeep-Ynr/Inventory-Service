@@ -205,7 +205,8 @@ namespace MilkMatrix.Milk.Implementations.Milk.DeviceSetting
                     { "IsDispatchMandate", request.IsDispatchMandate },
                     { "IsMaCalibration", request.IsMaCalibration },
                     { "IsStatus", request.IsActive ?? (object)DBNull.Value },
-                    { "ModifiedBy", request.ModifiedBy ?? 0 }
+                    { "ModifiedBy", request.ModifiedBy ?? 0 },
+                    { "BusinessId", "1" }
                 };
                 var message = await repository.UpdateAsync(DeviceSettingQueries.AddDeviceSetting, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error", StringComparison.OrdinalIgnoreCase))

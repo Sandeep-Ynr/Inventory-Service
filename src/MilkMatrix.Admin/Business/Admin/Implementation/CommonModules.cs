@@ -62,8 +62,15 @@ public class CommonModules : ICommonModules
         // Group actions for each page before building the tree
         var flatPagesWithGroupedActions = GroupActionsForPages(flatPages);
 
+        // Normalize parent IDs for robust tree building
+        foreach (var page in flatPagesWithGroupedActions)
+        {
+            page.ParentId = page.ParentId ?? 0;
+            page.SubModuleParentId = page.SubModuleParentId ?? 0;
+        }
+
         // Build n-level module/submodule/page tree
-        response.ModuleList = BuildModuleList(flatPagesWithGroupedActions, isSuperAdmin);
+        response.ModuleList = BuildModuleList(flatPagesWithGroupedActions);
 
         // Optionally, you can also build a flat or tree structure for UI if needed
         response.PageList = BuildPageTree(flatPagesWithGroupedActions);
@@ -123,7 +130,7 @@ public class CommonModules : ICommonModules
             };
             var data = await repo.QueryAsync<Actions>(AuthSpName.GetActions, requestParams, null);
 
-            return data != null && data.Count() > 0 ? data : default;
+            return data != null && data.Count() > 0 ? data.DistinctBy(a => a.Id) : default;
         }
         catch (Exception ex)
         {
@@ -153,12 +160,12 @@ public class CommonModules : ICommonModules
 
             commonList = new CommonUserDetails
             {
-                BusinessDetails = businessDetails,
-                Roles = roles,
-                ReportingDetails = reportingDetails,
-                UserTypes = userTypes,
-                SiteDetails = siteDetails,
-                FinancialYearDetails = financialYearDetails
+                BusinessDetails = businessDetails?.DistinctBy(x => x.GetHashCode()), // or use a key property
+                Roles = roles?.DistinctBy(x => x.Id),
+                ReportingDetails = reportingDetails?.DistinctBy(x => x.GetHashCode()),
+                UserTypes = userTypes?.DistinctBy(x => x.Id),
+                SiteDetails = siteDetails?.DistinctBy(x => x.GetHashCode()),
+                FinancialYearDetails = financialYearDetails?.DistinctBy(x => x.Id)
             };
         }
         return commonList;
@@ -198,11 +205,13 @@ public class CommonModules : ICommonModules
             { "ID", string.Join(",", actionIds) }
         };
 
-        return await repo.QueryAsync<Actions>(
+        var actions = await repo.QueryAsync<Actions>(
             AuthSpName.ActionList,
             requestParam,
             null,
             CommandType.StoredProcedure);
+
+        return actions?.DistinctBy(a => a.Id) ?? Enumerable.Empty<Actions>();
     }
 
     private async Task<List<PageList>> GetPageListForUser(LoggedInUser userData, bool isSuperAdmin)
@@ -255,7 +264,8 @@ public class CommonModules : ICommonModules
             pList.Add(page);
         }
 
-        return pList;
+        // Distinct by PageId
+        return pList.DistinctBy(x => x.PageId).ToList();
     }
 
     // Group actions for each page before building the menu tree
@@ -290,27 +300,29 @@ public class CommonModules : ICommonModules
                 ParentId = first.ParentId,
                 SubModuleParentId = first.SubModuleParentId,
                 Children = first.Children,
-                ActionList = allActions
+                ActionList = allActions.DistinctBy(a => a.Id).ToList()
             });
         }
-        return result;
+        // Distinct by PageId
+        return result.DistinctBy(x => x.PageId).ToList();
     }
 
     // n-layer menu tree builder
-    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> flatList, bool isUserSuperAdmin)
+    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> flatList)
     {
         // Group by ModuleId for root modules
         var modules = flatList
-            .GroupBy(x => new { x.ModuleId, x.ModuleName, x.ModuleIcon, x.ModuleOrderNumber })
+            .GroupBy(x => x.ModuleId)
             .Select(g => new Module
             {
-                Id = g.Key.ModuleId,
-                Name = g.Key.ModuleName,
-                Icon = g.Key.ModuleIcon,
-                OrderNumber = g.Key.ModuleOrderNumber,
-                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key.ModuleId).ToList())
+                Id = g.Key,
+                Name = g.First().ModuleName,
+                Icon = g.First().ModuleIcon,
+                OrderNumber = g.First().ModuleOrderNumber,
+                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key).ToList(), 0)
             })
             .OrderBy(m => m.OrderNumber)
+            .DistinctBy(m => m.Id)
             .ToList();
 
         return modules;
@@ -320,18 +332,19 @@ public class CommonModules : ICommonModules
     private List<SubModule> BuildSubModuleTree(List<PageList> flatList, int? parentSubModuleId = 0)
     {
         var subModules = flatList
-            .Where(x => x.SubModuleId != 0 && x.SubModuleParentId == parentSubModuleId)
-            .GroupBy(x => new { x.SubModuleId, x.SubModuleName, x.SubModuleOrderNumber, x.SubModuleParentId })
+            .Where(x => x.SubModuleId != 0 && (x.SubModuleParentId ?? 0) == (parentSubModuleId ?? 0))
+            .GroupBy(x => x.SubModuleId)
             .Select(g => new SubModule
             {
-                Id = g.Key.SubModuleId,
-                Name = g.Key.SubModuleName,
-                OrderNumber = g.Key.SubModuleOrderNumber,
-                ParentId = g.Key.SubModuleParentId,
-                Children = BuildSubModuleTree(flatList, g.Key.SubModuleId),
-                PageList = BuildPageTree(flatList.Where(p => p.SubModuleId == g.Key.SubModuleId).ToList())
+                Id = g.Key,
+                Name = g.First().SubModuleName,
+                OrderNumber = g.First().SubModuleOrderNumber,
+                ParentId = g.First().SubModuleParentId,
+                Children = BuildSubModuleTree(flatList, g.Key),
+                PageList = BuildPageTree(flatList.Where(p => p.SubModuleId == g.Key).ToList(), 0)
             })
             .OrderBy(sm => sm.OrderNumber)
+            .DistinctBy(sm => sm.Id)
             .ToList();
 
         return subModules;
@@ -341,7 +354,7 @@ public class CommonModules : ICommonModules
     private List<PageList> BuildPageTree(List<PageList> flatList, int? parentPageId = 0)
     {
         var pages = flatList
-            .Where(x => x.ParentId == parentPageId)
+            .Where(x => (x.ParentId ?? 0) == (parentPageId ?? 0))
             .OrderBy(x => x.PageOrder)
             .Select(x =>
             {
@@ -361,13 +374,14 @@ public class CommonModules : ICommonModules
                     SubModuleOrderNumber = x.SubModuleOrderNumber,
                     ActionId = x.ActionId,
                     RoleId = x.RoleId,
-                    ActionList = x.ActionList,
+                    ActionList = x.ActionList?.DistinctBy(a => a.Id).ToList(),
                     ParentId = x.ParentId,
                     SubModuleParentId = x.SubModuleParentId,
                     Children = BuildPageTree(flatList, x.PageId)
                 };
                 return node;
             })
+            .DistinctBy(x => x.PageId)
             .ToList();
 
         return pages;
@@ -383,6 +397,6 @@ public class CommonModules : ICommonModules
             if (node.Children != null && node.Children.Count > 0)
                 result.AddRange(FlattenMenuTree(node.Children));
         }
-        return result;
+        return result.DistinctBy(x => x.PageId).ToList();
     }
 }

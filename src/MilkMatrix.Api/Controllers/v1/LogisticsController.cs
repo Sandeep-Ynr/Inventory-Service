@@ -11,6 +11,8 @@ using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Api.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Api.Models.Request.Logistics.Vendor;
+using MilkMatrix.Api.Models.Request.Route.RouteContractor;
+using MilkMatrix.Api.Models.Request.Route.RouteTiming;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
@@ -21,8 +23,12 @@ using MilkMatrix.Milk.Contracts.Logistics.Transporter;
 using MilkMatrix.Milk.Contracts.Logistics.Vehicle;
 using MilkMatrix.Milk.Contracts.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Contracts.Logistics.Vendor;
+using MilkMatrix.Milk.Contracts.Route.RouteContractor;
+using MilkMatrix.Milk.Contracts.Route.RouteTiming;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
+using MilkMatrix.Milk.Implementations.Route.RouteContractor;
+using MilkMatrix.Milk.Implementations.Route.RouteTiming;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
@@ -30,16 +36,19 @@ using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
+using MilkMatrix.Milk.Models.Request.Route.RouteContractor;
+using MilkMatrix.Milk.Models.Request.Route.RouteTiming;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Transporter;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Response.Logistics.VehicleType;
 using MilkMatrix.Milk.Models.Response.Logistics.Vendor;
+using MilkMatrix.Milk.Models.Response.Route.RouteTiming;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -54,9 +63,13 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IVehicleService vehicleService;
         private readonly IVendorService vendorService;
         private readonly IVehicleBillingTypeService vehicleBillingTypeService;
+        private readonly IRouteContractorService routeContractorService;
+        private readonly IRouteTimingService routeTimingService;
+
         public LogisticsController(IHttpContextAccessor httpContextAccessor, ILogging logger,
             ITransporterService transporterService, IRouteService routeService, IVehicleTypeService vehicleTypeService
-            , IVehicleService vehicleService, IVendorService vendorService, IVehicleBillingTypeService vehicleBillingTypeService, IMapper mapper)
+            , IVehicleService vehicleService, IVendorService vendorService, IVehicleBillingTypeService vehicleBillingTypeService, 
+            IRouteContractorService routeContractorService, IMapper mapper, IRouteTimingService routeTimingService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(LogisticsController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -66,6 +79,8 @@ namespace MilkMatrix.Api.Controllers.v1
             this.vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
             this.vendorService = vendorService ?? throw new ArgumentNullException(nameof(vendorService));
             this.vehicleBillingTypeService = vehicleBillingTypeService ?? throw new ArgumentNullException(nameof(vehicleBillingTypeService));
+            this.routeContractorService = routeContractorService ?? throw new ArgumentNullException(nameof(routeContractorService));
+            this.routeTimingService = routeTimingService ?? throw new ArgumentNullException(nameof(routeTimingService));
             this.mapper = mapper;
         }
         #region Transport
@@ -614,7 +629,6 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         #endregion
-
         #region Vehicle Billing Type
         [HttpPost("list-vehiclebillingtype")]
         public async Task<IActionResult> GetVehicleBillingTypeList([FromBody] ListsRequest request)
@@ -728,6 +742,226 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the vehicle billing type. " + ex.Message);
             }
         }
+        #endregion
+        #region Route Contractor
+
+        [HttpPost("contractor/list")]
+        public async Task<IActionResult> GetContractorList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await routeContractorService.GetAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving contractor list.", ex);
+                return StatusCode(500, "An error occurred while retrieving the contractor list.");
+            }
+        }
+
+        [HttpGet("contractor/{id}")]
+        public async Task<IActionResult> GetContractorById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetContractorById called for ID: {id}");
+                var result = await routeContractorService.GetRouteContractorById(id);
+                if (result == null)
+                    return NotFound(new { message = $"Route Contractor with ID {id} not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving contractor with ID: {id}", ex);
+                return StatusCode(500, $"An error occurred while retrieving contractor with ID {id}.");
+            }
+        }
+
+        [HttpPost("contractor/add")]
+        public async Task<IActionResult> AddContractor([FromBody] RouteContractorInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add Contractor called: {request.ContractorName}");
+
+                var mappedRequest = mapper.MapWithOptions<RouteContractorInsertRequest, RouteContractorInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>{
+                            { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await routeContractorService.InsertRouteContractor(mappedRequest);
+                logger.LogInfo($"Route Contractor '{request.ContractorName}' added successfully.");
+                return Ok(new { message = "Route Contractor added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Route Contractor", ex);
+                return StatusCode(500, "An error occurred while adding the Route Contractor.");
+            }
+        }
+        [HttpPut("contractor/update")]
+        public async Task<IActionResult> UpdateContractor([FromBody] RouteContractorUpdateRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Update Contractor called: {request.RouteContractorId}");
+
+                var mappedRequest = mapper.MapWithOptions<RouteContractorUpdateRequest, RouteContractorUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+
+                await routeContractorService.UpdateRouteContractor(mappedRequest);
+                logger.LogInfo($"Route Contractor with ID {mappedRequest.RouteContractorId} updated successfully.");
+                return Ok(new { message = "Route Contractor updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error updating Route Contractor", ex);
+                return StatusCode(500, "An error occurred while updating the Route Contractor.");
+            }
+        }
+
+        [HttpDelete("contractor/delete/{id}")]
+        public async Task<IActionResult> DeleteContractor(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await routeContractorService.DeleteRouteContractor(id, Convert.ToInt32(userId));
+
+                logger.LogInfo($"Route Contractor with ID {id} deleted successfully.");
+                return Ok(new { message = "Route Contractor deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Route Contractor with ID: {id}", ex);
+                return StatusCode(500, $"An error occurred while deleting the Route Contractor record.");
+            }
+        }
+
+        #endregion
+        
+        #region Route-Timing
+        [HttpPost]
+        [Route("routeTiming-list")]
+        public async Task<IActionResult> RouteTimingList([FromBody] ListsRequest request)
+        {
+            var result = await routeTimingService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("routeTimingID{id}")]
+        public async Task<ActionResult<RouteTimingResponse?>> GetRouteTimingById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get Route Timing by id called for id: {id}");
+                var timing = await routeTimingService.GetById(id);
+                if (timing == null)
+                {
+                    logger.LogInfo($"Route Timing with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"Route Timing with id {id} retrieved successfully.");
+                return Ok(timing);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Route Timing with id: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the Route Timing.");
+            }
+        }
+
+        [HttpPost]
+        [Route("Insert-routeTiming")]
+        public async Task<IActionResult> InsertRouteTiming([FromBody] RouteTimingInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for Route Timing with RouteId: {request.RouteId}");
+                var requestParams = mapper.MapWithOptions<RouteTimingInsertRequest, RouteTimingInsertRequestModel>(request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(UserId) }
+                    });
+                await routeTimingService.InsertRouteTiming(requestParams);
+                logger.LogInfo($"Route Timing for RouteId {request.RouteId} added successfully.");
+                return Ok(new { message = "Route Timing added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Route Timing", ex);
+                return StatusCode(500, "An error occurred while adding the Route Timing.");
+            }
+        }
+
+        [HttpPut]
+        [Route("update-routeTiming")]
+        public async Task<IActionResult> UpdateRouteTiming([FromBody] RouteTimingUpdateRequestModel request)
+        {
+            if (!ModelState.IsValid || request.RouteTimingId <= 0)
+                return BadRequest("Invalid request.");
+            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            var requestParams = mapper.MapWithOptions<RouteTimingUpdateRequest, RouteTimingUpdateRequestModel>(request,
+                new Dictionary<string, object> {
+            { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(UserId) }
+                });
+            await routeTimingService.UpdateRouteTiming(requestParams);
+            logger.LogInfo($"Route Timing with id {request.RouteTimingId} updated successfully.");
+            return Ok(new { message = "Route Timing updated successfully." });
+        }
+
+        [HttpDelete("routeTiming-delete/{id}")]
+        public async Task<IActionResult> DeleteRouteTiming(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await routeTimingService.DeleteRouteTiming(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"Route Timing with id {id} deleted successfully.");
+                return Ok(new { message = "Route Timing deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Route Timing with id: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the Route Timing.");
+            }
+        }
+
         #endregion
     }
 }

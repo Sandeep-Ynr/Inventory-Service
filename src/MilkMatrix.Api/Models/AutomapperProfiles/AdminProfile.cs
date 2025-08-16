@@ -2,30 +2,28 @@ using AutoMapper;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
-using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
 using MilkMatrix.Admin.Models.Login.Requests;
 using MilkMatrix.Api.Models.Request.Admin.Approval.Level;
 using MilkMatrix.Api.Models.Request.Admin.Business;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
-using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
-using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.Sequance;
-using MilkMatrix.Api.Models.Request.Admin.Rejection;
 using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Api.Models.Request.Login;
 using MilkMatrix.Core.Entities.Enums;
+using MilkMatrix.Infrastructure.Common.Utils;
+using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
+using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
+using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
+using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
+using MilkMatrix.Api.Models.Request.Admin.Rejection;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
+using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Core.Entities.Request.Approval.Level;
 using MilkMatrix.Core.Entities.Request.Rejection;
-using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance;
-using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
-using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
-using InsertLevel = MilkMatrix.Core.Entities.Request.Approval.Level.Insert;
-using InsertLevelModel = MilkMatrix.Api.Models.Request.Admin.Approval.Level.InsertModel;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles;
 
@@ -130,29 +128,6 @@ public class AdminProfile : Profile
            .ForMember(x => x.StatusType, opt => opt.MapFrom(src => src.Type))
            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
 
-
-
-        // Insert mapping
-        CreateMap<SequanceInsertRequestModel, SequenceInsertRequest>()
-            .ForMember(dest => dest.HeadName, opt => opt.MapFrom(src => src.HeadName))
-            .ForMember(dest => dest.Prefix, opt => opt.MapFrom(src => src.Prefix))
-            .ForMember(dest => dest.StartValue, opt => opt.MapFrom(src => src.StartValue))
-            .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
-            .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
-            .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
-            
-                
-            
-
-        // Update mapping
-        CreateMap<SequanceUpdateRequestModel, SequenceUpdateRequest>()
-            .ForMember(dest => dest.HeadName, opt => opt.MapFrom(src => src.HeadName))
-            .ForMember(dest => dest.Prefix, opt => opt.MapFrom(src => src.Prefix))
-            .ForMember(dest => dest.StartValue, opt => opt.MapFrom(src => src.StartValue))
-            .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
-            .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
-            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
-            
-
+        CreateMap<LogoutModel, LogoutRequest>();
     }
 }
