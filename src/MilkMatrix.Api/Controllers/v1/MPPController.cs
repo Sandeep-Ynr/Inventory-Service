@@ -69,7 +69,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> Add([FromBody] MPPInsertRequestModel request)
+        public async Task<IActionResult> Add([FromBody] SaleInsertRequestModel request)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
                 logger.LogInfo($"Add called for MPP: {request.MPPName}");
 
-                var mappedRequest = mapper.MapWithOptions<MPPInsertRequest, MPPInsertRequestModel>(
+                var mappedRequest = mapper.MapWithOptions<MPPInsertRequest, SaleInsertRequestModel>(
                     request,
                     new Dictionary<string, object>
                     {

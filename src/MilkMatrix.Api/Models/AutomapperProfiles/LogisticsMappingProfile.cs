@@ -5,6 +5,8 @@ using MilkMatrix.Api.Models.Request.Logistics.Transporter;
 using MilkMatrix.Api.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Api.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Api.Models.Request.Logistics.Vendor;
+using MilkMatrix.Api.Models.Request.Route.RouteContractor;
+using MilkMatrix.Api.Models.Request.Route.RouteTiming;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Request.Logistics.Transporter;
@@ -12,6 +14,8 @@ using MilkMatrix.Milk.Models.Request.Logistics.VehcileType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vehicle;
 using MilkMatrix.Milk.Models.Request.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Models.Request.Logistics.Vendor;
+using MilkMatrix.Milk.Models.Request.Route.RouteContractor;
+using MilkMatrix.Milk.Models.Request.Route.RouteTiming;
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
     public class LogisticsMappingProfile : Profile
@@ -233,7 +237,39 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.TransporterId, opt => opt.MapFrom(src => src.TransporterId))
                 .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
 
+            // RouteContractor Mappings
+            CreateMap<RouteContractorInsertRequestModel, RouteContractorInsertRequest>()
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.ContractorName, opt => opt.MapFrom(src => src.ContractorName))
+                .ForMember(dest => dest.ContactNumber, opt => opt.MapFrom(src => src.ContactNumber))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
+            CreateMap<RouteContractorUpdateRequestModel, RouteContractorUpdateRequest>()
+                .ForMember(dest => dest.RouteContractorId, opt => opt.MapFrom(src => src.RouteContractorId))
+                .ForMember(dest => dest.ContractorName, opt => opt.MapFrom(src => src.ContractorName))
+                .ForMember(dest => dest.ContactNumber, opt => opt.MapFrom(src => src.ContactNumber))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+            CreateMap<RouteTimingInsertRequestModel, RouteTimingInsertRequest>()
+              .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+              .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+              .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
+              .ForMember(dest => dest.MorningTime, opt => opt.MapFrom(src => src.MorningTime))
+              .ForMember(dest => dest.EveningTime, opt => opt.MapFrom(src => src.EveningTime))
+              .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+            CreateMap<RouteTimingUpdateRequestModel, RouteTimingUpdateRequest>()
+                .ForMember(dest => dest.RouteTimingId, opt => opt.MapFrom(src => src.RouteTimingId))
+                .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.EffectiveDate))
+                .ForMember(dest => dest.MorningTime, opt => opt.MapFrom(src => src.MorningTime))
+                .ForMember(dest => dest.EveningTime, opt => opt.MapFrom(src => src.EveningTime))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive))
+                .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
         }
     }
 }

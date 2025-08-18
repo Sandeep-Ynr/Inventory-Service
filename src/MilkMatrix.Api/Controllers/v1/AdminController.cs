@@ -1,21 +1,28 @@
-using System.Net;
+    using System.Net;
 using System.Security.Claims;
 using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Api.Models.Request.Admin.Business;
+using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.Sequance;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
 using MilkMatrix.Core.Abstractions.Approval.Service;
+using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Rejection;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Request.Rejection;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
+using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
+using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance;
+using MilkMatrix.Milk.Models.Response.Admin.GlobleSetting.Sequance;
 using static MilkMatrix.Api.Common.Constants.Constants;
 using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
@@ -40,6 +47,7 @@ public class AdminController : ControllerBase
     private readonly ICommonModules commonModules;
     private readonly IApprovalService approvalService;
     private readonly IRejectionService rejectionService;
+    private readonly ISequenceService sequanceService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AdminController"/> class.
@@ -54,14 +62,17 @@ public class AdminController : ControllerBase
         IMapper mapper,
         ILogging logging,
         ICommonModules commonModules,
-        IApprovalService approvalService, IRejectionService rejectionService)
+        IApprovalService approvalService, IRejectionService rejectionService, ISequenceService sequenceService)
     {
         this.ihttpContextAccessor = ihttpContextAccessor;
         this.mapper = mapper;
+        this.ihttpContextAccessor = ihttpContextAccessor ?? throw new ArgumentNullException(nameof(ihttpContextAccessor));
         this.commonModules = commonModules;
         this.logging = logging.ForContext("ServiceName", nameof(AdminController));
         this.approvalService = approvalService;
         this.rejectionService = rejectionService;
+        this.sequanceService= sequenceService;
+
     }
 
     /// <summary>
@@ -290,4 +301,146 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
     #endregion
+
+    #region Sequence
+
+    [HttpPost("sequence-list")]
+    public async Task<IActionResult> GetSequanceList([FromBody] ListsRequest request)
+    {
+        var result = await sequanceService.GetSequanceList(request);
+        return Ok(result);
+    }
+
+    
+    [HttpGet("Sequence-list-id")]
+    public async Task<ActionResult<SequenceResponse?>> GetSequanceById(string HeadName)
+    {
+        try
+        {
+            //logger.LogInfo($"GetSequanceById called for Sequence ID: {id}");
+            logging.LogError($"GetSequanceById called for Sequence ID: {HeadName}");
+
+            var result = await sequanceService.GetSequanceById(HeadName);
+            if (result == null)
+            {
+                //logger.LogInfo($"Sequence with ID {id} not found.");
+                logging.LogError($"Sequence with ID {HeadName} not found.");
+                return NotFound();
+            }
+
+            
+            logging.LogError($"Sequence with ID {HeadName} retrieved successfully.");
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+          
+            logging.LogError($"Error retrieving Sequence with ID: {HeadName}", ex);
+
+            return StatusCode(500, "An error occurred while retrieving the record. " + ex);
+        }
+    }
+
+    [HttpPost("insert-sequence")]
+    public async Task<IActionResult> Insertsequence([FromBody] SequanceInsertRequestModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = "Invalid request."
+                });
+            }
+
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            logging.LogInfo($"Insertsequence called for Sequence: {request.HeadName}");
+
+            var mappedRequest = mapper.MapWithOptions<SequenceInsertRequest, SequanceInsertRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                });
+
+            await sequanceService.Insertsequence(mappedRequest);
+            return Ok(new { message = "Sequence inserted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Insertsequence", ex);
+            return StatusCode(500, "An error occurred while inserting the record. " + ex);
+        }
+    }
+
+    [HttpPut("update-sequence")]
+    public async Task<IActionResult> Updatesequence([FromBody] SequanceUpdateRequestModel request)
+    {
+        try
+        {
+            if (!ModelState.IsValid || string.IsNullOrEmpty(request.HeadName))
+                return BadRequest("Invalid request.");
+
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var mappedRequest = mapper.MapWithOptions<SequenceUpdateRequest, SequanceUpdateRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                });
+
+            await sequanceService.Updatesequence(mappedRequest);
+            logging.LogInfo($"Sequence with  {request.HeadName} updated successfully.");
+            return Ok(new { message = "Sequence " + request.HeadName + " updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Updatesequence", ex);
+            return StatusCode(500, "An error occurred while updating the record. " + ex);
+        }
+    }
+
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteSequance(int id)
+    {
+        try
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await sequanceService.DeleteSequance(id, Convert.ToInt32(userId));
+            logging.LogError($"Sequence with ID {id} deleted successfully.");
+            return Ok(new { message = "Sequence deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+        
+            logging.LogError($"Error in DeleteSequance with ID: {id}", ex);
+            return StatusCode(500, "An error occurred while deleting the record. " + ex);
+        }
+    }
+
+
+    [HttpPost("generatenextseq/{HeadName}")]
+    public async Task<IActionResult> GenerateNextSequance(string HeadName)
+    {
+        try
+        {
+
+            NextNumberResponse GetUpdatedSeq = await sequanceService.GetNextNumberforSeq(HeadName);
+            logging.LogError($"Sequence with ID {HeadName} deleted successfully.");
+            return Ok(new { GetUpdatedSeq });
+        }
+        catch (Exception ex)
+        {
+
+            logging.LogError($"Error in DeleteSequance with ID: {HeadName}", ex);
+            return StatusCode(500, "An error occurred while deleting the record. " + ex);
+        }
+    }
+
+    #endregion
+
+
 }
