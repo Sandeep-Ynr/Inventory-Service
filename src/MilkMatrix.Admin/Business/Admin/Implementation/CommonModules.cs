@@ -319,7 +319,7 @@ public class CommonModules : ICommonModules
                 Name = g.First().ModuleName,
                 Icon = g.First().ModuleIcon,
                 OrderNumber = g.First().ModuleOrderNumber,
-                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key).ToList(), 0)
+                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key).ToList(), null)
             })
             .OrderBy(m => m.OrderNumber)
             .DistinctBy(m => m.Id)
@@ -329,8 +329,27 @@ public class CommonModules : ICommonModules
     }
 
     // Recursively build n-level submodule tree
-    private List<SubModule> BuildSubModuleTree(List<PageList> flatList, int? parentSubModuleId = 0)
+    private List<SubModule> BuildSubModuleTree(List<PageList> flatList, int? parentSubModuleId = null)
     {
+        // If parentSubModuleId is null, find all root submodules (those whose SubModuleParentId is not present as SubModuleId)
+        if (parentSubModuleId == null)
+        {
+            var allSubModuleIds = flatList.Select(x => x.SubModuleId).Where(id => id != 0).Distinct().ToHashSet();
+            var rootParentIds = flatList
+                .Where(x => x.SubModuleId != 0)
+                .Select(x => x.SubModuleParentId ?? 0)
+                .Distinct()
+                .Where(pid => !allSubModuleIds.Contains(pid))
+                .ToList();
+
+            var roots = new List<SubModule>();
+            foreach (var rootId in rootParentIds)
+            {
+                roots.AddRange(BuildSubModuleTree(flatList, rootId));
+            }
+            return roots.DistinctBy(sm => sm.Id).ToList();
+        }
+
         var subModules = flatList
             .Where(x => x.SubModuleId != 0 && (x.SubModuleParentId ?? 0) == (parentSubModuleId ?? 0))
             .GroupBy(x => x.SubModuleId)
