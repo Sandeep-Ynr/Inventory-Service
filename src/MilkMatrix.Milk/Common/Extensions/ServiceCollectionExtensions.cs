@@ -4,6 +4,7 @@ using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
 using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
+using MilkMatrix.Milk.Contracts.ConfigSettings;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
@@ -32,6 +33,7 @@ using MilkMatrix.Milk.Contracts.Shift;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
+using MilkMatrix.Milk.Implementations.ConfigSettings;
 using MilkMatrix.Milk.Implementations.Logistics.Route;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
@@ -93,7 +95,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IDockDataService, DockDataService>()
                     .AddScoped<IRouteContractorService, RouteContractorService>()
                     .AddScoped<IRouteTimingService, RouteTimingService>()
-                    .AddScoped<ISequenceService, SequenceService>();
+                    .AddScoped<ISequenceService, SequenceService>()
+                    .AddScoped<IConfigSettingService, ConfigSettingService>();
 
     }
 }

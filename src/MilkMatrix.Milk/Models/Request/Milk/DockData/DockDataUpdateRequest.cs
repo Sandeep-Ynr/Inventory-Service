@@ -4,6 +4,7 @@ namespace MilkMatrix.Milk.Models.Request.Milk.DockData
 {
     public class DockDataUpdateRequest
     {
+        public int DockDataUpdateId { get; set; }
         public int BusinessId { get; set; }
         public string? BmcId { get; set; }
         public DateTime DumpDate { get; set; }
@@ -12,6 +13,6 @@ namespace MilkMatrix.Milk.Models.Request.Milk.DockData
         public int UpdatedRecords { get; set; }
         public string? Remarks { get; set; }
         public bool? IsStatus { get; set; }
-
+        public long ModifiedBy { get; set; }
     }
 }

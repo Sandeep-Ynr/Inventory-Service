@@ -13,6 +13,7 @@ using MilkMatrix.Api.Models.Request.Admin.Approval.Level;
 using MilkMatrix.Api.Models.Request.Admin.Business;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings;
 using MilkMatrix.Api.Models.Request.Admin.ConfigurationSettings.CommonStatus;
+using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.Sequance;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
 using MilkMatrix.Api.Models.Request.Admin.User;
@@ -21,6 +22,7 @@ using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request.Approval.Level;
 using MilkMatrix.Core.Entities.Request.Rejection;
 using MilkMatrix.Infrastructure.Common.Utils;
+using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance;
 using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
@@ -152,5 +154,180 @@ public class AdminProfile : Profile
             .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
             .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        // Insert mapping
+         CreateMap<ConfigSettingInsertRequestModel, ConfigSettingInsertRequest>()
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
+                .ForMember(dest => dest.UnitType, opt => opt.MapFrom(src => src.UnitType))
+                .ForMember(dest => dest.UnitId, opt => opt.MapFrom(src => src.UnitId))
+
+                // General Settings
+                .ForMember(dest => dest.GenlCanPerLit, opt => opt.MapFrom(src => src.GenlCanPerLit))
+                .ForMember(dest => dest.GenlCanWarThr, opt => opt.MapFrom(src => src.GenlCanWarThr))
+                .ForMember(dest => dest.GenlLtrToKgConFac, opt => opt.MapFrom(src => src.GenlLtrToKgConFac))
+                .ForMember(dest => dest.GenlWeiRouMod, opt => opt.MapFrom(src => src.GenlWeiRouMod))
+                .ForMember(dest => dest.GenlQuaRouMod, opt => opt.MapFrom(src => src.GenlQuaRouMod))
+                .ForMember(dest => dest.GenlMemQuaMod, opt => opt.MapFrom(src => src.GenlMemQuaMod))
+                .ForMember(dest => dest.GenlBmcQuaMod, opt => opt.MapFrom(src => src.GenlBmcQuaMod))
+                .ForMember(dest => dest.GenlUseDefSnf, opt => opt.MapFrom(src => src.GenlUseDefSnf))
+                .ForMember(dest => dest.GenlDefSnfVal, opt => opt.MapFrom(src => src.GenlDefSnfVal))
+                .ForMember(dest => dest.GenlZerRatAll, opt => opt.MapFrom(src => src.GenlZerRatAll))
+                .ForMember(dest => dest.GenlEnaShiWisEntDat, opt => opt.MapFrom(src => src.GenlEnaShiWisEntDat))
+
+                // QC Details
+                .ForMember(dest => dest.QcdlColMinFat, opt => opt.MapFrom(src => src.QcdlColMinFat))
+                .ForMember(dest => dest.QcdlColMaxFat, opt => opt.MapFrom(src => src.QcdlColMaxFat))
+                .ForMember(dest => dest.QcdlColMinSnf, opt => opt.MapFrom(src => src.QcdlColMinSnf))
+                .ForMember(dest => dest.QcdlColMaxSnf, opt => opt.MapFrom(src => src.QcdlColMaxSnf))
+                .ForMember(dest => dest.QcdlDisQtyMod, opt => opt.MapFrom(src => src.QcdlDisQtyMod))
+                .ForMember(dest => dest.QcdlDisLtrKg, opt => opt.MapFrom(src => src.QcdlDisLtrKg))
+                .ForMember(dest => dest.QcdlDisMinFat, opt => opt.MapFrom(src => src.QcdlDisMinFat))
+                .ForMember(dest => dest.QcdlDisMaxFat, opt => opt.MapFrom(src => src.QcdlDisMaxFat))
+                .ForMember(dest => dest.QcdlDisMinSnf, opt => opt.MapFrom(src => src.QcdlDisMinSnf))
+                .ForMember(dest => dest.QcdlDisMaxSnf, opt => opt.MapFrom(src => src.QcdlDisMaxSnf))
+
+                // Default Values
+                .ForMember(dest => dest.DvalMilTypDva, opt => opt.MapFrom(src => src.DvalMilTypDva))
+                .ForMember(dest => dest.DvalDefFat, opt => opt.MapFrom(src => src.DvalDefFat))
+                .ForMember(dest => dest.DvalDefSnf, opt => opt.MapFrom(src => src.DvalDefSnf))
+
+                // Weight Settings
+                .ForMember(dest => dest.WsetIsActWse, opt => opt.MapFrom(src => src.WsetIsActWse))
+                .ForMember(dest => dest.WsetWeiRouBy, opt => opt.MapFrom(src => src.WsetWeiRouBy))
+                .ForMember(dest => dest.WsetCanAveWei, opt => opt.MapFrom(src => src.WsetCanAveWei))
+
+                // Lab Settings
+                .ForMember(dest => dest.LsetTraSiz, opt => opt.MapFrom(src => src.LsetTraSiz))
+                .ForMember(dest => dest.LsetSnfRou, opt => opt.MapFrom(src => src.LsetSnfRou))
+                .ForMember(dest => dest.LsetSnfRouBy, opt => opt.MapFrom(src => src.LsetSnfRouBy))
+                .ForMember(dest => dest.LsetSnfAftDec, opt => opt.MapFrom(src => src.LsetSnfAftDec))
+                .ForMember(dest => dest.LsetSnfFor, opt => opt.MapFrom(src => src.LsetSnfFor))
+                .ForMember(dest => dest.LsetSnfCon, opt => opt.MapFrom(src => src.LsetSnfCon))
+                .ForMember(dest => dest.LsetFatRou, opt => opt.MapFrom(src => src.LsetFatRou))
+                .ForMember(dest => dest.LsetFatRouBy, opt => opt.MapFrom(src => src.LsetFatRouBy))
+                .ForMember(dest => dest.LsetFatAftDec, opt => opt.MapFrom(src => src.LsetFatAftDec))
+                .ForMember(dest => dest.LsetLrRou, opt => opt.MapFrom(src => src.LsetLrRou))
+                .ForMember(dest => dest.LsetLrRouBy, opt => opt.MapFrom(src => src.LsetLrRouBy))
+                .ForMember(dest => dest.LsetLrAftDec, opt => opt.MapFrom(src => src.LsetLrAftDec))
+
+                // Quality Limits
+                .ForMember(dest => dest.QlmtMilTypQlm, opt => opt.MapFrom(src => src.QlmtMilTypQlm))
+                .ForMember(dest => dest.QlmtMinFat, opt => opt.MapFrom(src => src.QlmtMinFat))
+                .ForMember(dest => dest.QlmtMaxFat, opt => opt.MapFrom(src => src.QlmtMaxFat))
+                .ForMember(dest => dest.QlmtMinSnf, opt => opt.MapFrom(src => src.QlmtMinSnf))
+                .ForMember(dest => dest.QlmtMaxSnf, opt => opt.MapFrom(src => src.QlmtMaxSnf))
+                .ForMember(dest => dest.QlmtMinClr, opt => opt.MapFrom(src => src.QlmtMinClr))
+                .ForMember(dest => dest.QlmtMaxClr, opt => opt.MapFrom(src => src.QlmtMaxClr))
+
+                // Adult Test
+                .ForMember(dest => dest.AdltTesNam, opt => opt.MapFrom(src => src.AdltTesNam))
+                .ForMember(dest => dest.AdltIsEnaAdl, opt => opt.MapFrom(src => src.AdltIsEnaAdl))
+
+                // Functional Settings
+                .ForMember(dest => dest.FuncAllFarCodEdi, opt => opt.MapFrom(src => src.FuncAllFarCodEdi))
+                .ForMember(dest => dest.FuncValRatRanOnImp, opt => opt.MapFrom(src => src.FuncValRatRanOnImp))
+                .ForMember(dest => dest.FuncLoaAllRouOnDoc, opt => opt.MapFrom(src => src.FuncLoaAllRouOnDoc))
+                .ForMember(dest => dest.FuncAllDupFarCol, opt => opt.MapFrom(src => src.FuncAllDupFarCol))
+                .ForMember(dest => dest.FuncEnaPayCyc, opt => opt.MapFrom(src => src.FuncEnaPayCyc))
+
+                // Unit Settings
+                .ForMember(dest => dest.UnitBmcColMod, opt => opt.MapFrom(src => src.UnitBmcColMod))
+                .ForMember(dest => dest.UnitMppColMod, opt => opt.MapFrom(src => src.UnitMppColMod))
+                .ForMember(dest => dest.UnitLitToKgCon, opt => opt.MapFrom(src => src.UnitLitToKgCon))
+                .ForMember(dest => dest.UnitKgToLitCon, opt => opt.MapFrom(src => src.UnitKgToLitCon))
+
+                // Entry
+                .ForMember(dest => dest.EntrMulSamTyp, opt => opt.MapFrom(src => src.EntrMulSamTyp))
+                .ForMember(dest => dest.EntrMulDifTyp, opt => opt.MapFrom(src => src.EntrMulDifTyp))
+
+                // Input
+                .ForMember(dest => dest.InptInpFat, opt => opt.MapFrom(src => src.InptInpFat))
+                .ForMember(dest => dest.InptInpSnf, opt => opt.MapFrom(src => src.InptInpSnf))
+                .ForMember(dest => dest.InptInpClr, opt => opt.MapFrom(src => src.InptInpClr))
+                .ForMember(dest => dest.InptInpPro, opt => opt.MapFrom(src => src.InptInpPro))
+                .ForMember(dest => dest.InptInpLac, opt => opt.MapFrom(src => src.InptInpLac))
+                .ForMember(dest => dest.InptInpWat, opt => opt.MapFrom(src => src.InptInpWat))
+
+                // Variations
+                .ForMember(dest => dest.VariVarFat, opt => opt.MapFrom(src => src.VariVarFat))
+                .ForMember(dest => dest.VariBloFat, opt => opt.MapFrom(src => src.VariBloFat))
+                .ForMember(dest => dest.VariVarSnf, opt => opt.MapFrom(src => src.VariVarSnf))
+                .ForMember(dest => dest.VariBloSnf, opt => opt.MapFrom(src => src.VariBloSnf))
+                .ForMember(dest => dest.VariVarQty, opt => opt.MapFrom(src => src.VariVarQty))
+                .ForMember(dest => dest.VariBloQty, opt => opt.MapFrom(src => src.VariBloQty))
+
+                // Machine
+                .ForMember(dest => dest.MachMacBasOn, opt => opt.MapFrom(src => src.MachMacBasOn))
+                .ForMember(dest => dest.MachMacShi, opt => opt.MapFrom(src => src.MachMacShi))
+                .ForMember(dest => dest.MachMacNo, opt => opt.MapFrom(src => src.MachMacNo))
+
+                // Display
+                .ForMember(dest => dest.DsplDisBasOn, opt => opt.MapFrom(src => src.DsplDisBasOn))
+                .ForMember(dest => dest.DsplDisShi, opt => opt.MapFrom(src => src.DsplDisShi))
+                .ForMember(dest => dest.DsplDisNo, opt => opt.MapFrom(src => src.DsplDisNo))
+
+                // Other
+                .ForMember(dest => dest.OthrIsAutMer, opt => opt.MapFrom(src => src.OthrIsAutMer))
+                .ForMember(dest => dest.OthrRatChaApp, opt => opt.MapFrom(src => src.OthrRatChaApp))
+                .ForMember(dest => dest.OthrNotes, opt => opt.MapFrom(src => src.OthrNotes))
+
+                // Audit
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
+
+
+        // Update mapping
+        CreateMap<ConfigSettingUpdateRequestModel, ConfigSettingUpdateRequest>()
+            .ForMember(dest => dest.ConfigId, opt => opt.MapFrom(src => src.ConfigId))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.CompanyId))
+            .ForMember(dest => dest.UnitType, opt => opt.MapFrom(src => src.UnitType))
+            .ForMember(dest => dest.UnitId, opt => opt.MapFrom(src => src.UnitId))
+            .ForMember(dest => dest.GenlCanPerLit, opt => opt.MapFrom(src => src.GenlCanPerLit))
+            .ForMember(dest => dest.GenlLtrToKgConFac, opt => opt.MapFrom(src => src.GenlLtrToKgConFac))
+            .ForMember(dest => dest.GenlRoundMode, opt => opt.MapFrom(src => src.GenlRoundMode))
+            .ForMember(dest => dest.GenlUseDefSnf, opt => opt.MapFrom(src => src.GenlUseDefSnf))
+            .ForMember(dest => dest.GenlDefSnf, opt => opt.MapFrom(src => src.GenlDefSnf))
+            .ForMember(dest => dest.QcdlColMinFat, opt => opt.MapFrom(src => src.QcdlColMinFat))
+            .ForMember(dest => dest.QcdlColMaxFat, opt => opt.MapFrom(src => src.QcdlColMaxFat))
+            .ForMember(dest => dest.QcdlDisMinSnf, opt => opt.MapFrom(src => src.QcdlDisMinSnf))
+            .ForMember(dest => dest.QcdlDisMaxSnf, opt => opt.MapFrom(src => src.QcdlDisMaxSnf))
+            .ForMember(dest => dest.DvalDefFat, opt => opt.MapFrom(src => src.DvalDefFat))
+            .ForMember(dest => dest.DvalDefSnf, opt => opt.MapFrom(src => src.DvalDefSnf))
+            .ForMember(dest => dest.DvalMilkType, opt => opt.MapFrom(src => src.DvalMilkType))
+            .ForMember(dest => dest.WsetRoundWtMode, opt => opt.MapFrom(src => src.WsetRoundWtMode))
+            .ForMember(dest => dest.WsetAvgCanWt, opt => opt.MapFrom(src => src.WsetAvgCanWt))
+            .ForMember(dest => dest.LsetSnfRou, opt => opt.MapFrom(src => src.LsetSnfRou))
+            .ForMember(dest => dest.LsetFatAftDec, opt => opt.MapFrom(src => src.LsetFatAftDec))
+            .ForMember(dest => dest.LsetClrAftDec, opt => opt.MapFrom(src => src.LsetClrAftDec))
+            .ForMember(dest => dest.QlmtMinFat, opt => opt.MapFrom(src => src.QlmtMinFat))
+            .ForMember(dest => dest.QlmtMaxFat, opt => opt.MapFrom(src => src.QlmtMaxFat))
+            .ForMember(dest => dest.QlmtMinSnf, opt => opt.MapFrom(src => src.QlmtMinSnf))
+            .ForMember(dest => dest.QlmtMaxSnf, opt => opt.MapFrom(src => src.QlmtMaxSnf))
+            .ForMember(dest => dest.QlmtMinClr, opt => opt.MapFrom(src => src.QlmtMinClr))
+            .ForMember(dest => dest.QlmtMaxClr, opt => opt.MapFrom(src => src.QlmtMaxClr))
+            .ForMember(dest => dest.AdltMbrAllow, opt => opt.MapFrom(src => src.AdltMbrAllow))
+            .ForMember(dest => dest.AdltBlock, opt => opt.MapFrom(src => src.AdltBlock))
+            .ForMember(dest => dest.FuncCollWhileUnapprove, opt => opt.MapFrom(src => src.FuncCollWhileUnapprove))
+            .ForMember(dest => dest.FuncDirectDispatch, opt => opt.MapFrom(src => src.FuncDirectDispatch))
+            .ForMember(dest => dest.UnitKgToLtrFactor, opt => opt.MapFrom(src => src.UnitKgToLtrFactor))
+            .ForMember(dest => dest.EntrSameMilkType, opt => opt.MapFrom(src => src.EntrSameMilkType))
+            .ForMember(dest => dest.EntrDiffMilkType, opt => opt.MapFrom(src => src.EntrDiffMilkType))
+            .ForMember(dest => dest.InptFatEditable, opt => opt.MapFrom(src => src.InptFatEditable))
+            .ForMember(dest => dest.InptSnfEditable, opt => opt.MapFrom(src => src.InptSnfEditable))
+            .ForMember(dest => dest.VariVarFat, opt => opt.MapFrom(src => src.VariVarFat))
+            .ForMember(dest => dest.VariVarSnf, opt => opt.MapFrom(src => src.VariVarSnf))
+            .ForMember(dest => dest.VariBloQty, opt => opt.MapFrom(src => src.VariBloQty))
+            .ForMember(dest => dest.MachMacNo, opt => opt.MapFrom(src => src.MachMacNo))
+            .ForMember(dest => dest.MachMacShi, opt => opt.MapFrom(src => src.MachMacShi))
+            .ForMember(dest => dest.DsplMapRule, opt => opt.MapFrom(src => src.DsplMapRule))
+            .ForMember(dest => dest.OthrNotes, opt => opt.MapFrom(src => src.OthrNotes))
+            .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+            .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom(src => DateTime.Now))
+            .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+
     }
 }

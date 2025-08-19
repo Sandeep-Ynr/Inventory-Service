@@ -74,9 +74,9 @@ namespace MilkMatrix.Milk.Implementations.Milk.DockData
             }
         }
 
-        public async Task UpdateDockData(DockDataRequest request)
+        public async Task UpdateDockData(DockDataUpdateRequest request)
         {
-            try
+          try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
@@ -91,7 +91,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.DockData
                     { "UpdatedRecords", request.UpdatedRecords },
                     { "Remarks", request.Remarks ?? (object)DBNull.Value },
                     { "IsStatus", request.IsStatus ?? (object)DBNull.Value},
-                    { "ModifiedBy", request.ModifiedBy ?? 0 }
+                    { "ModifiedBy", request.ModifiedBy  }
                 };
 
                 var message = await repository.UpdateAsync(DockDataQueries.AddDockData, requestParams, CommandType.StoredProcedure);
@@ -197,10 +197,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.DockData
             };
         }
 
-        public Task UpdateDockData(DockDataUpdateRequest request)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public Task<IEnumerable<DockDataResponse>> GetDockData(DockDataRequest request)
         {
