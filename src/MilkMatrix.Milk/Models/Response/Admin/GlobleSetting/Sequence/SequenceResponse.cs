@@ -2,7 +2,7 @@ using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Milk.Models.Response.Admin.GlobleSetting.Sequance
 {
-    public class SequenceResponse : CommonLists
+    public class SequenceResponse 
     {
         public int Serial { get; set; }
         public string HeadName { get; set; } = string.Empty;
@@ -25,7 +25,7 @@ namespace MilkMatrix.Milk.Models.Response.Admin.GlobleSetting.Sequance
         public string ?Message { get; set; }
     }
 
-    public class SequenceTransResponse : CommonLists
+    public class SequenceTransResponse 
     {
         public int Serial { get; set; }
         public string HeadName { get; set; } = string.Empty;
