@@ -35,7 +35,7 @@ namespace MilkMatrix.Api.Controllers.v1;
 /// Controller for managing administrative tasks such as user details, modules, and financial years.
 /// This controller is secured and requires authorization for access.
 /// </summary>
-[Authorize]
+//[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -442,5 +442,167 @@ public class AdminController : ControllerBase
 
     #endregion
 
+    #region SequenceTrans
+
+    [HttpPost("sequenceTrans-list")]
+    public async Task<IActionResult> GetSequanceTransList([FromBody] ListsRequest request)
+    {
+        var result = await sequanceService.GetSequanceTransList(request);
+        return Ok(result);
+    }
+
+
+    [HttpGet("SequenceTrans-list-id")]
+    public async Task<ActionResult<SequenceResponse?>> GetSequanceTransById(string HeadName, string FY )
+    {
+        try
+        {
+            //logger.LogInfo($"GetSequanceById called for Sequence ID: {id}");
+            logging.LogError($"GetSequanceById called for Sequence ID: {HeadName}");
+
+            var result = await sequanceService.GetSequanceTransById(HeadName,FY);
+            if (result == null)
+            {
+                //logger.LogInfo($"Sequence with ID {id} not found.");
+                logging.LogError($"Sequence with ID {HeadName},{FY} not found.");
+                return NotFound();
+            }
+
+
+            logging.LogError($"Sequence with ID {HeadName},{FY} retrieved successfully.");
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+
+            logging.LogError($"Error retrieving Sequence with ID: {HeadName},{FY}", ex);
+
+            return StatusCode(500, "An error occurred while retrieving the record. " + ex);
+        }
+    }
+
+    [HttpPost("insert-sequencetrans")]
+    public async Task<IActionResult> InsertsequenceTrans([FromBody] SequanceTransInsertRequestModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = "Invalid request."
+                });
+            }
+
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            logging.LogInfo($"Insertsequence called for Sequence: {request.HeadName}");
+
+            var mappedRequest = mapper.MapWithOptions<SequenceTransInsertRequest, SequanceTransInsertRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                });
+
+            await sequanceService.InsertsequenceTrans(mappedRequest);
+            return Ok(new { message = "Sequence inserted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Insertsequence", ex);
+            return StatusCode(500, "An error occurred while inserting the record. " + ex);
+        }
+    }
+
+    [HttpPut("update-sequencetrans")]
+    public async Task<IActionResult> UpdatesequenceTrans([FromBody] SequanceTransUpdateRequestModel request)
+    {
+        try
+        {
+            if (!ModelState.IsValid || string.IsNullOrEmpty(request.HeadName))
+                return BadRequest("Invalid request.");
+
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            var mappedRequest = mapper.MapWithOptions<SequenceTransUpdateRequest, SequanceTransUpdateRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                });
+
+            await sequanceService.UpdatesequenceTrans(mappedRequest);
+            logging.LogInfo($"Sequence with  {request.HeadName} updated successfully.");
+            return Ok(new { message = "Sequence " + request.HeadName + " updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in Updatesequence", ex);
+            return StatusCode(500, "An error occurred while updating the record. " + ex);
+        }
+    }
+
+  
+
+    [HttpPost("generatenextseqtrans/{HeadName}")]
+    public async Task<IActionResult> GenerateNextSequanceTrans(string HeadName, string FY)
+    {
+        try
+        {
+
+            SeqTransNextNumberResponse GetUpdatedSeq = await sequanceService.GetNextNumberforSeqTrans(HeadName,FY);
+            logging.LogError($"Sequence  Next No with ID {HeadName} Generated successfully.");
+            return Ok(new { GetUpdatedSeq });
+        }
+        catch (Exception ex)
+        {
+
+            logging.LogError($"Error in Generated with ID: {HeadName}", ex);
+            return StatusCode(500, "An error occurred while geneated Next No the record. " + ex);
+        }
+    }
+
+
+    [HttpPost("SeqTransCloneforAllDocs/{clonefromfy}/{newfy}")]
+    public async Task<IActionResult> SeqTransCloneforAllDocs(string clonefromfy, string newfy)
+    {
+        try
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            SequenceTransResponse newclonedata = await sequanceService.SeqTransCloneforAllDocs(clonefromfy, newfy, Convert.ToInt32(userId));
+            logging.LogError($"Sequence Trans Clone from  {clonefromfy} to {newfy} Generated successfully.");
+            return Ok(new { newclonedata });
+        }
+        catch (Exception ex)
+        {
+
+            logging.LogError($"Error Sequence Trans Clone from  {clonefromfy} to {newfy}", ex);
+            return StatusCode(500, "An error occurred while Sequence Trans Clone from  {clonefromfy} to {newfy} " + ex);
+        }
+    }
+
+
+    [HttpPost("SeqTransCloneforSelHead/{clonefromfy}/{clonefromhead}/{newfy}")]
+    public async Task<IActionResult> SeqTransCloneforselective(string clonefromfy, string clonefromhead, string newfy )
+    {
+        try
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+            SequenceTransResponse newclonedata = await sequanceService.SeqTransCloneforSelectiveHead(clonefromfy,clonefromhead, newfy, Convert.ToInt32(userId));
+            logging.LogError($"Sequence Trans Clone from  {clonefromfy} and {clonefromhead} to {newfy} and {clonefromhead} Generated successfully.");
+            return Ok(new { newclonedata });
+        }
+        catch (Exception ex)
+        {
+
+            logging.LogError($"Error Sequence Trans Clone from  {clonefromfy}  and {clonefromhead} to {newfy}  and {clonefromhead} ", ex);
+            return StatusCode(500, "An error occurred while Sequence Trans Clone from  {clonefromfy}  and {clonefromhead} to {newfy}  and {clonefromhead} " + ex);
+        }
+    }
+
+    #endregion
 
 }
