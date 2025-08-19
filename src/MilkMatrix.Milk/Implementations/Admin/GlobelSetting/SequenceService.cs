@@ -81,6 +81,11 @@ namespace MilkMatrix.Milk.Implementations
             throw new NotImplementedException();
         }
 
+        //public Task SeqTransCloneforAllDocs(string clonefromfy, string newfy)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
         public async Task<IListsResponse<SequenceResponse>> GetSequanceList(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>() {
@@ -203,6 +208,257 @@ namespace MilkMatrix.Milk.Implementations
                 logging.LogError($"Error in Next Sequence No for HeadName = {HeadName}. Exception: {ex}");
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task InsertsequenceTrans(SequenceTransInsertRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Create },
+                    { "HeadName", request.HeadName },
+                    { "financial_year", request.fy_year },
+                    { "delimiter", request.delimiter ?? (object)DBNull.Value },
+                    { "prefix", request.Prefix ?? (object)DBNull.Value },
+                    { "suffix", request.suffix ?? (object)DBNull.Value},
+                    { "StartValue", request.StartValue ?? (object)DBNull.Value },
+                    { "StopValue", request.StopValue ?? (object)DBNull.Value },
+                    { "IncrementValue", request.IncrementValue ?? (object)DBNull.Value },
+                    { "LastValue", request.LastValue ?? (object)DBNull.Value },
+                    { "CreatedBy", request.CreatedBy ?? 0 }
+                };
+
+                var message = await repository.AddAsync(SequenceQuery.InsupdSequenceTrans, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"Sequence {message} added successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in Insert/Update Sequence: {request.HeadName}", ex);
+                throw;
+            }
+
+        }
+
+        public async Task UpdatesequenceTrans(SequenceTransUpdateRequest request)
+        {
+            try
+            {
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+                var requestParams = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)CrudActionType.Update },
+                    { "HeadName", request.HeadName },
+                    { "financial_year", request.fy_year },
+                    { "delimiter", request.delimiter ?? (object)DBNull.Value },
+                    { "prefix", request.Prefix ?? (object)DBNull.Value },
+                    { "suffix", request.suffix ?? (object)DBNull.Value},
+                    { "StartValue", request.StartValue ?? (object)DBNull.Value },
+                    { "StopValue", request.StopValue ?? (object)DBNull.Value },
+                    { "IncrementValue", request.IncrementValue ?? (object)DBNull.Value },
+                    { "ModifyBy", request.ModifyBy ?? 0 }
+                };
+
+                var message = await repository.UpdateAsync(SequenceQuery.InsupdSequenceTrans, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"Sequence {message} updated successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in Update Sequence: {request.HeadName}", ex);
+                throw;
+            }
+
+        }
+
+        public async  Task<SequenceTransResponse?> GetSequanceTransById(string HeadName, string FY)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called for Get Sequance id: {HeadName}");
+                var repo = repositoryFactory
+                           .ConnectDapper<SequenceTransResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<SequenceTransResponse>(SequenceQuery.GetSequenceTransList, new Dictionary<string, object>
+                {
+                    { "ActionType", (int)ReadActionType.Individual },
+                    { "HeadName", HeadName },
+                    { "financialyear", FY }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new SequenceTransResponse();
+                logging.LogInfo(result != null
+                    ? $"Sequance with id {HeadName} retrieved successfully."
+                    : $"Sequance with id {HeadName} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetByIdAsync for Sequance id: {HeadName}", ex);
+                throw;
+            }
+        }
+
+        public async Task<SequenceTransResponse?> SeqTransCloneforAllDocs(string clonefromfy, string newfy,int userId)
+        {
+            try
+            {
+                logging.LogInfo($"SeqTransCloneforAllDocs from: {clonefromfy} to {newfy}");
+
+                var repo = repositoryFactory
+                           .ConnectDapper<SequenceTransResponse>(DbConstants.Main);
+
+                var data = await repo.QueryAsync<SequenceTransResponse>(
+                    SequenceQuery.GenClonefornextfyfromold,
+                    new Dictionary<string, object>
+                    {
+                { "FromFinancialYear", clonefromfy },
+                { "NewFinancialYear", newfy },
+                { "CreatedBy", userId }
+                    },
+                    null);
+
+                var result = data.FirstOrDefault(); // return null if empty
+
+                if (result == null)
+                {
+                    logging.LogWarning($"No clone created. Kindly check if FY {clonefromfy} exists.");
+                    throw new Exception($"No clone created. Kindly check if FY {clonefromfy} exists.");
+
+                }
+                else
+                {
+                    logging.LogInfo($"New Clone {newfy} against {clonefromfy} retrieved successfully.");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error SeqTransCloneforAllDocs from: {clonefromfy} to {newfy}. Exception:", ex);
+                throw new Exception(ex.Message); // don’t wrap ex.Message only, preserve stack trace
+            }
+        }
+
+        public async Task<SequenceTransResponse?> SeqTransCloneforSelectiveHead(string clonefromfy, string fromhead, string newfy, int userId)
+        {
+            try
+            {
+                logging.LogInfo($"SeqTransCloneforAllDocs from: {clonefromfy} to {newfy}");
+
+                var repo = repositoryFactory
+                           .ConnectDapper<SequenceTransResponse>(DbConstants.Main);
+
+                var data = await repo.QueryAsync<SequenceTransResponse>(
+                    SequenceQuery.sequence_clone_by_head_fy,
+                    new Dictionary<string, object>
+                    {
+                 {"HeadName",fromhead },
+                { "FromFinancialYear", clonefromfy },
+                { "NewFinancialYear", newfy },
+                { "CreatedBy", userId }
+                    },
+                    null);
+
+                var result = data.FirstOrDefault(); // return null if empty
+
+                if (result == null)
+                {
+                    logging.LogWarning($"No clone created. Kindly check if FY {clonefromfy} and {fromhead} exists.");
+                    throw new Exception($"No clone created. Kindly check if FY {clonefromfy}  and {fromhead}    exists.");
+
+                }
+                else
+                {
+                    logging.LogInfo($"New Clone {newfy} against {clonefromfy} and {fromhead}  retrieved successfully.");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error SeqTransCloneforAllDocs from: {clonefromfy} and {fromhead}  to {newfy} and {fromhead} . Exception:", ex);
+                throw new Exception(ex.Message); // don’t wrap ex.Message only, preserve stack trace
+            }
+        }
+
+        public async Task<SeqTransNextNumberResponse> GetNextNumberforSeqTrans(string HeadName, string FY)
+        {
+            try
+            {
+                logging.LogInfo($"GetByIdAsync called Next No generation for: {HeadName}");
+                var repo = repositoryFactory
+                           .ConnectDapper<SeqTransNextNumberResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<SeqTransNextNumberResponse>(SequenceQuery.GenNextSeqNoforTrans, new Dictionary<string, object>
+                {
+
+                    { "HeadName", HeadName },
+                    { "financial_year", FY }
+                }, null);
+
+                var result = data.Any() ? data.FirstOrDefault() : new SeqTransNextNumberResponse();
+                logging.LogInfo(result != null
+                    ? $"Next No against {HeadName} retrieved successfully."
+                    : $"Head Name with  {HeadName} not found.");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in Next Sequence No for HeadName = {HeadName}. Exception: {ex}");
+                throw new Exception(ex.Message);
+            }
+        }
+     
+        public async Task<IListsResponse<SequenceTransResponse>> GetSequanceTransList(IListsRequest request)
+        {
+            var parameters = new Dictionary<string, object>() {
+                { "ActionType", (int)ReadActionType.All }
+                //{ "Start", request.Limit },
+                //{ "End", request.Offset }
+            };
+
+            // 1. Fetch all results, count, and filter meta from stored procedure
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<SequenceTransResponse, int, FiltersMeta>(SequenceQuery.GetSequenceTransList,
+                    DbConstants.Main,
+                    parameters,
+                    null);
+
+            // 2. Build criteria from client request and filter meta
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            // 3. Apply filtering, sorting, and paging
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+
+            // 4. Get count after filtering (before paging)
+            var filteredCount = filtered.Count();
+
+            // 5. Return result
+            return new ListsResponse<SequenceTransResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
         }
     }
 }

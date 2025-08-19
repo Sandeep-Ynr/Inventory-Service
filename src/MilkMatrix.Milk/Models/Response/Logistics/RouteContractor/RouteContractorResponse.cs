@@ -9,7 +9,6 @@ namespace MilkMatrix.Milk.Models.Response.Route.RouteContractor
 
         public string? ContactNumber { get; set; }
         public string? ContractorAddress { get; set; }
-        public bool IsActive { get; set; }
         public DateTime CreatedOn { get; set; }
         public int CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
