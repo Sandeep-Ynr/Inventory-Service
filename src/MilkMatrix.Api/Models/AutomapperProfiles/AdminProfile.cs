@@ -152,5 +152,29 @@ public class AdminProfile : Profile
             .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
             .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
             .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
+
+        // Insert mapping for Trans
+        CreateMap<SequanceTransInsertRequestModel, SequenceTransInsertRequest>()
+            .ForMember(dest => dest.HeadName, opt => opt.MapFrom(src => src.HeadName))
+            .ForMember(dest => dest.Prefix, opt => opt.MapFrom(src => src.Prefix))
+            .ForMember(dest => dest.StartValue, opt => opt.MapFrom(src => src.StartValue))
+            .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
+            .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
+            .ForMember(dest => dest.fy_year, opt => opt.MapFrom(src => src.fy_year))
+            .ForMember(dest => dest.delimiter, opt => opt.MapFrom(src => src.delimiter))
+            .ForMember(dest => dest.suffix, opt => opt.MapFrom(src => src.suffix))
+            .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+        // Update mapping  for Trans
+        CreateMap<SequanceTransUpdateRequestModel, SequenceTransUpdateRequest >()
+            .ForMember(dest => dest.HeadName, opt => opt.MapFrom(src => src.HeadName))
+            .ForMember(dest => dest.Prefix, opt => opt.MapFrom(src => src.Prefix))
+            .ForMember(dest => dest.StartValue, opt => opt.MapFrom(src => src.StartValue))
+            .ForMember(dest => dest.StopValue, opt => opt.MapFrom(src => src.StopValue))
+            .ForMember(dest => dest.IncrementValue, opt => opt.MapFrom(src => src.IncrementValue))
+            .ForMember(dest => dest.fy_year, opt => opt.MapFrom(src => src.fy_year))
+            .ForMember(dest => dest.delimiter, opt => opt.MapFrom(src => src.delimiter))
+            .ForMember(dest => dest.suffix, opt => opt.MapFrom(src => src.suffix))
+            .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.ModifiedBy]));
     }
 }
