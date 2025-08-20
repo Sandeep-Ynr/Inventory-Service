@@ -20,16 +20,12 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation;
 
 public class CommonModules : ICommonModules
 {
-    private readonly ILogging logger;
+    private ILogging logger;
     private readonly IRepositoryFactory repositoryFactory;
     private readonly IQueryMultipleData queryMultipleData;
     private readonly AppConfig appConfig;
 
-    public CommonModules(
-        ILogging logger,
-        IRepositoryFactory repositoryFactory,
-        IOptions<AppConfig> appConfig,
-        IQueryMultipleData queryMultipleData)
+    public CommonModules(ILogging logger, IRepositoryFactory repositoryFactory, IOptions<AppConfig> appConfig, IQueryMultipleData queryMultipleData)
     {
         this.repositoryFactory = repositoryFactory;
         this.logger = logger.ForContext("ServiceName", nameof(CommonModules));
@@ -46,7 +42,7 @@ public class CommonModules : ICommonModules
         catch (Exception ex)
         {
             logger.LogError(ex.Message, ex);
-            return default!;
+            return default;
         }
     }
 
@@ -61,18 +57,20 @@ public class CommonModules : ICommonModules
         }
 
         bool isSuperAdmin = userData.UserType == 0;
-        var allRows = await GetAllMenuRows(userData, isSuperAdmin);
+        var flatPages = await GetPageListForUser(userData, isSuperAdmin);
 
-        var pageRows = allRows.Where(x => x.PageId > 0).ToList();
-        var flatPagesWithGroupedActions = GroupActionsForPages(pageRows);
+        // Group actions for each page before building the tree
+        var flatPagesWithGroupedActions = GroupActionsForPages(flatPages);
 
+        // Normalize parent IDs for robust tree building
         foreach (var page in flatPagesWithGroupedActions)
         {
             page.ParentId = page.ParentId ?? 0;
             page.SubModuleParentId = page.SubModuleParentId ?? 0;
         }
 
-        response.ModuleList = BuildModuleListWithFullSubmoduleHierarchy(flatPagesWithGroupedActions, allRows);
+        // Build n-level module/submodule/page tree
+        response.ModuleList = BuildModuleList(flatPagesWithGroupedActions);
 
         return response;
     }
@@ -119,7 +117,8 @@ public class CommonModules : ICommonModules
     {
         try
         {
-            var repo = repositoryFactory.ConnectDapper<Actions>(DbConstants.Main);
+            var repo = repositoryFactory
+                           .ConnectDapper<Actions>(DbConstants.Main);
 
             var requestParams = new Dictionary<string, object>
             {
@@ -128,7 +127,7 @@ public class CommonModules : ICommonModules
             };
             var data = await repo.QueryAsync<Actions>(AuthSpName.GetActions, requestParams, null);
 
-            return data != null && data.Any() ? data.DistinctBy(a => a.Id) : default;
+            return data != null && data.Count() > 0 ? data.DistinctBy(a => a.Id) : default;
         }
         catch (Exception ex)
         {
@@ -158,7 +157,7 @@ public class CommonModules : ICommonModules
 
             commonList = new CommonUserDetails
             {
-                BusinessDetails = businessDetails?.DistinctBy(x => x.GetHashCode()),
+                BusinessDetails = businessDetails?.DistinctBy(x => x.GetHashCode()), // or use a key property
                 Roles = roles?.DistinctBy(x => x.Id),
                 ReportingDetails = reportingDetails?.DistinctBy(x => x.GetHashCode()),
                 UserTypes = userTypes?.DistinctBy(x => x.Id),
@@ -172,11 +171,14 @@ public class CommonModules : ICommonModules
     private async Task<LoggedInUser?> GetUserData(string userId, string mobileNumber, int businessId = 0)
     {
         var requestParam = new Dictionary<string, object> { { "UserId", userId } };
-        var repo = repositoryFactory.ConnectDapper<LoggedInUser>(DbConstants.Main);
+        var repo = repositoryFactory
+                       .ConnectDapper<LoggedInUser>(DbConstants.Main);
         var data = await repo.QueryAsync<LoggedInUser>(AuthSpName.LoginUserDetails, requestParam, null);
-        if (data != null && data.Any())
+        var user = new LoggedInUser();
+        if (data != null && data.Count() > 0)
         {
-            return data.FirstOrDefault();
+            user = data.FirstOrDefault();
+            return user;
         }
         else
         {
@@ -209,10 +211,10 @@ public class CommonModules : ICommonModules
         return actions?.DistinctBy(a => a.Id) ?? Enumerable.Empty<Actions>();
     }
 
-    private async Task<List<PageList>> GetAllMenuRows(LoggedInUser userData, bool isSuperAdmin)
+    private async Task<List<PageList>> GetPageListForUser(LoggedInUser userData, bool isSuperAdmin)
     {
         var repo = repositoryFactory.ConnectDapper<PageList>(DbConstants.Main);
-        var allRows = new List<PageList>();
+        var pList = new List<PageList>();
         var pages = Enumerable.Empty<PageList>();
 
         if (isSuperAdmin)
@@ -252,25 +254,22 @@ public class CommonModules : ICommonModules
             }
         }
 
-        foreach (var row in pages)
+        foreach (var page in pages)
         {
-            if (row.PageId > 0)
-            {
-                var actionIdList = string.IsNullOrEmpty(row.ActionId) ? "" : row.ActionId;
-                row.ActionList = await UserActionListAsync(userData.UserType, actionIdList);
-            }
-            allRows.Add(row);
+            var actionIdList = string.IsNullOrEmpty(page.ActionId) ? "" : page.ActionId;
+            page.ActionList = await UserActionListAsync(userData.UserType, actionIdList);
+            pList.Add(page);
         }
 
-        return allRows;
+        // Distinct by PageId
+        return pList.DistinctBy(x => x.PageId).ToList();
     }
 
+    // Group actions for each page before building the menu tree
     private List<PageList> GroupActionsForPages(IEnumerable<PageList> flatPages)
     {
         var result = new List<PageList>();
-        var flatList = flatPages.ToList();
-
-        foreach (var pageGroup in flatList.GroupBy(p => p.PageId))
+        foreach (var pageGroup in flatPages.GroupBy(p => p.PageId))
         {
             var first = pageGroup.First();
             var allActions = pageGroup
@@ -297,90 +296,58 @@ public class CommonModules : ICommonModules
                 RoleId = first.RoleId,
                 ParentId = first.ParentId,
                 SubModuleParentId = first.SubModuleParentId,
-                ActionList = allActions.DistinctBy(a => a.Id).ToList(),
-                // Always build the children tree here
-                Children = BuildPageTree(flatList, first.PageId)
+                Children = first.Children,
+                ActionList = allActions.DistinctBy(a => a.Id).ToList()
             });
         }
+        // Distinct by PageId
         return result.DistinctBy(x => x.PageId).ToList();
     }
 
-    private IEnumerable<Module> BuildModuleListWithFullSubmoduleHierarchy(List<PageList> flatPages, List<PageList> allRows)
+    // n-layer menu tree builder
+    private IEnumerable<Module> BuildModuleList(IEnumerable<PageList> flatList)
     {
-        var allSubModules = allRows
-            .Where(x => x.SubModuleId > 0)
-            .Select(x => new SubModule
-            {
-                Id = x.SubModuleId,
-                Name = x.SubModuleName,
-                OrderNumber = x.SubModuleOrderNumber,
-                ParentId = x.SubModuleParentId ?? 0,
-                Children = new List<SubModule>(),
-                PageList = new List<PageList>()
-            })
-            .DistinctBy(x => x.Id)
-            .ToDictionary(x => x.Id);
-
-        foreach (var page in flatPages)
-        {
-            if (allSubModules.TryGetValue(page.SubModuleId, out var subModule))
-            {
-                (subModule.PageList as List<PageList>).Add(page);
-            }
-        }
-
-        List<SubModule> rootSubModules = new();
-        foreach (var sub in allSubModules.Values)
-        {
-            if (sub.ParentId > 0 && allSubModules.TryGetValue(sub.ParentId.Value, out var parent))
-            {
-                (parent.Children as List<SubModule>).Add(sub);
-            }
-            else
-            {
-                rootSubModules.Add(sub);
-            }
-        }
-
-        var modules = flatPages
+        // Group by ModuleId for root modules
+        var modules = flatList
             .GroupBy(x => x.ModuleId)
-            .Select(g =>
+            .Select(g => new Module
             {
-                var moduleRootSubs = rootSubModules
-                    .Where(sm => g.Any(p => p.SubModuleId == sm.Id || IsDescendant(sm, p.SubModuleId, allSubModules)))
-                    .DistinctBy(sm => sm.Id)
-                    .ToList();
-
-                if (!moduleRootSubs.Any())
-                    return null;
-
-                return new Module
-                {
-                    Id = g.Key,
-                    Name = g.First().ModuleName,
-                    Icon = g.First().ModuleIcon,
-                    OrderNumber = g.First().ModuleOrderNumber,
-                    SubModuleList = moduleRootSubs
-                };
+                Id = g.Key,
+                Name = g.First().ModuleName,
+                Icon = g.First().ModuleIcon,
+                OrderNumber = g.First().ModuleOrderNumber,
+                SubModuleList = BuildSubModuleTree(flatList.Where(x => x.ModuleId == g.Key).ToList(), 0)
             })
-            .Where(m => m != null)
             .OrderBy(m => m.OrderNumber)
+            .DistinctBy(m => m.Id)
             .ToList();
 
-        return modules!;
+        return modules;
     }
 
-    private bool IsDescendant(SubModule root, int subModuleId, Dictionary<int, SubModule> allSubModules)
+    // Recursively build n-level submodule tree
+    private List<SubModule> BuildSubModuleTree(List<PageList> flatList, int? parentSubModuleId = 0)
     {
-        if (root.Id == subModuleId) return true;
-        foreach (var child in root.Children ?? Enumerable.Empty<SubModule>())
-        {
-            if (IsDescendant(child, subModuleId, allSubModules))
-                return true;
-        }
-        return false;
+        var subModules = flatList
+            .Where(x => x.SubModuleId != 0 && (x.SubModuleParentId ?? 0) == (parentSubModuleId ?? 0))
+            .GroupBy(x => x.SubModuleId)
+            .Select(g => new SubModule
+            {
+                Id = g.Key,
+                Name = g.First().SubModuleName,
+                OrderNumber = g.First().SubModuleOrderNumber,
+                ParentId = g.First().SubModuleParentId,
+                Children = BuildSubModuleTree(flatList, g.Key),
+                PageList = BuildPageTree(flatList.Where(p => p.SubModuleId == g.Key).ToList(), 0)
+            })
+            .OrderBy(sm => sm.OrderNumber)
+            .DistinctBy(sm => sm.Id)
+            .ToList();
+
+        return subModules;
     }
 
+    // Recursively build n-level page tree
     private List<PageList> BuildPageTree(List<PageList> flatList, int? parentPageId = 0)
     {
         var pages = flatList
@@ -417,13 +384,14 @@ public class CommonModules : ICommonModules
         return pages;
     }
 
+    // Optional: flatten tree if needed for UI
     private List<PageList> FlattenMenuTree(IEnumerable<PageList> tree)
     {
         var result = new List<PageList>();
         foreach (var node in tree)
         {
             result.Add(node);
-            if (node.Children != null && node.Children.Any())
+            if (node.Children != null && node.Children.Count > 0)
                 result.AddRange(FlattenMenuTree(node.Children));
         }
         return result.DistinctBy(x => x.PageId).ToList();
