@@ -8,7 +8,6 @@ namespace MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance
         public int? StartValue { get; set; }
         public int? StopValue { get; set; }
         public int? IncrementValue { get; set; }
-        public int? LastValue { get; set; }
         public int? CreatedBy { get; set; }
 
     }
@@ -22,8 +21,7 @@ namespace MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance
         public int? StartValue { get; set; }
         public int? StopValue { get; set; }
         public int? IncrementValue { get; set; }
-        public int? delimiter { get; set; }
-        public int? LastValue { get; set; }
+        public string? delimiter { get; set; }
         public int? CreatedBy { get; set; }
         
     }

@@ -54,7 +54,6 @@ namespace MilkMatrix.Milk.Implementations
                     { "StartValue", request.StartValue ?? (object)DBNull.Value },
                     { "StopValue", request.StopValue ?? (object)DBNull.Value },
                     { "IncrementValue", request.IncrementValue ?? (object)DBNull.Value },
-                    { "LastValue", request.LastValue ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? 0 }
                 };
 
@@ -227,7 +226,6 @@ namespace MilkMatrix.Milk.Implementations
                     { "StartValue", request.StartValue ?? (object)DBNull.Value },
                     { "StopValue", request.StopValue ?? (object)DBNull.Value },
                     { "IncrementValue", request.IncrementValue ?? (object)DBNull.Value },
-                    { "LastValue", request.LastValue ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? 0 }
                 };
 
