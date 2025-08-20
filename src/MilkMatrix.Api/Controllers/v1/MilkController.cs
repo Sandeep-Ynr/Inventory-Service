@@ -5,9 +5,11 @@ using Asp.Versioning;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MilkMatrix.Api.Models.AutomapperProfiles;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Api.Models.Request.Milk.DockData;
+using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -18,6 +20,7 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 using MilkMatrix.Milk.Implementations.Milk.DockData;
 
@@ -27,6 +30,7 @@ using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
+using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Models.Response.Milk;
 using MilkMatrix.Milk.Models.Response.Milk.DeviceSetting;
 using static MilkMatrix.Api.Common.Constants.Constants;
@@ -47,13 +51,17 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMilkCollectionService milkcollectionservice;
         private readonly IDeviceSettingService deviceSettingService;
         private readonly IDockDataService dockDataService;
+        private readonly IFarmerStagingCollectionService farmerstgollectionservice;
 
-        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService, IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice, IDockDataService dockDataService)
+        public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService,
+            IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice, IDockDataService dockDataService,
+            IFarmerStagingCollectionService farmerstgollectionservice)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
             this.deviceSettingService = deviceSettingService ?? throw new ArgumentNullException(nameof(deviceSettingService));
             this.milkcollectionservice = milkcollectionservice ?? throw new ArgumentNullException(nameof(milkcollectionservice));
+            this.farmerstgollectionservice = farmerstgollectionservice ?? throw new ArgumentNullException(nameof(farmerstgollectionservice));
             this.mapper = mapper;
             this.milkService = milkService;
             this.dockDataService = dockDataService ?? throw new ArgumentNullException(nameof(dockDataService));
@@ -620,7 +628,6 @@ namespace MilkMatrix.Api.Controllers.v1
         }
         #endregion
     
-
         #region DockData
 
         [HttpPost("DockData-list")]
@@ -761,5 +768,145 @@ namespace MilkMatrix.Api.Controllers.v1
 
         #endregion
 
+        #region FarmerStgCollection
+
+
+        [HttpPost("Stg-FarmerColl-list")]
+        public async Task<IActionResult> GetFarmerCollectionAllList([FromBody] ListsRequest request)
+        {
+            try
+            {
+                var result = await farmerstgollectionservice.GetFarmerCollectionAll(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error retrieving Stg-FarmerColl list", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the list.",
+                });
+            }
+        }
+
+        [HttpGet("Stg-FarmerColl/{id}")]
+        public async Task<IActionResult> GetFarmerCollectionById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for FarmerCollection ID: {id}");
+
+                var result = await farmerstgollectionservice.GetFarmerCollectionById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"FarmerCollection with ID {id} not found.");
+                    return NotFound(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        ErrorMessage = "FarmerCollection record not found."
+                    });
+                }
+
+                logger.LogInfo($"FarmerCollection with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving FarmerCollection with ID: {id}", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while retrieving the record.",
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("insert-Stg-FarmerColl")]
+        public async Task<IActionResult> InsertFarmerStagingCollection([FromBody] FarmerCollStgInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<FarmerCollStgInsertRequest, FarmerCollStgInsertRequestModel>(request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await farmerstgollectionservice.InsertFarmerCollection(requestParams);
+                logger.LogInfo($"FarmerStaging record added successfully.");
+                return Ok(new { message = "FarmerStaging record added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding FarmerStaging", ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    ErrorMessage = "An error occurred while adding the record.",
+                });
+            }
+        }
+
+        [HttpPut("update-Stg-FarmerColl")]
+        public async Task<IActionResult> Update([FromBody] FarmerCollStgUpdateRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.CollecionID <= 0)
+                {
+                    return BadRequest("Invalid request.");
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<FarmerCollStgUpdateRequest, FarmerCollStgUpdateRequest>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                 { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+
+                await farmerstgollectionservice.UpdateFarmerCollection(mappedRequest);
+
+                logger.LogInfo($"FarmerStaging record updated successfully.");
+                return Ok(new { message = "FarmerStaging record updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Update DockData", ex);
+                return StatusCode(500, $"An error occurred while updating the record. {ex.Message}");
+            }
+        }
+
+
+        [HttpDelete("delete-Stg-FarmerColl/{id}")]
+        public async Task<IActionResult> DeleteStgColl(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await farmerstgollectionservice.DeleteFarmerCollection(id, Convert.ToInt32(userId));
+                logger.LogInfo($"FarmerStaging record deleted successfully.");
+                return Ok(new { message = "FarmerStaging deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting FarmerStaging with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the FarmerStaging record.");
+            }
+        }
+        #endregion
     }
 }

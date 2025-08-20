@@ -43,5 +43,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetDockDataList = "usp_dock_data_list";
         }
 
+        public static class FarmerStgQueries
+        {
+            public const string AddFarmerStg = "usp_farmerstg_insupd";
+            public const string GetFarmerStgList = "usp_farmerstg_list";
+        }
+
     }
 }
