@@ -3,12 +3,14 @@ using Azure.Core;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Api.Models.Request.Milk.DockData;
+using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
+using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -166,6 +168,114 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks))
                         .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive))
                         .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+
+           
+
+            CreateMap<FarmerCollStgInsertRequestModel, FarmerCollStgInsertRequest>()
+                        .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                        .ForMember(x => x.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
+                        .ForMember(x => x.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
+                        .ForMember(x => x.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
+                        .ForMember(x => x.Fat, opt => opt.MapFrom(src => src.Fat))
+                        .ForMember(x => x.Snf, opt => opt.MapFrom(src => src.Snf))
+                        .ForMember(x => x.LR, opt => opt.MapFrom(src => src.LR))
+                        .ForMember(x => x.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
+                        .ForMember(x => x.Type, opt => opt.MapFrom(src => src.Type))
+                        .ForMember(x => x.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                        .ForMember(x => x.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                        .ForMember(x => x.SampleId, opt => opt.MapFrom(src => src.SampleId))
+                        .ForMember(x => x.BatchNo, opt => opt.MapFrom(src => src.BatchNo))
+                        .ForMember(x => x.FarmerName, opt => opt.MapFrom(src => src.FarmerName))
+                        .ForMember(x => x.Mobile, opt => opt.MapFrom(src => src.Mobile))
+                        .ForMember(x => x.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
+                        .ForMember(x => x.Status, opt => opt.MapFrom(src => src.Status))
+                        .ForMember(x => x.Shift, opt => opt.MapFrom(src => src.Shift))
+                        .ForMember(x => x.MppID, opt => opt.MapFrom(src => src.MppID))
+                        .ForMember(x => x.BmcID, opt => opt.MapFrom(src => src.BmcID))
+                        .ForMember(x => x.RefranceId, opt => opt.MapFrom(src => src.RefranceId))
+                        .ForMember(x => x.Can, opt => opt.MapFrom(src => src.Can))
+                        .ForMember(x => x.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
+                        .ForMember(x => x.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
+                        .ForMember(x => x.CId, opt => opt.MapFrom(src => src.CId))
+                        .ForMember(x => x.CDate, opt => opt.MapFrom(src => DateTime.Now))
+                        .ForMember(x => x.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
+                        .ForMember(x => x.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
+                        .ForMember(x => x.IMEINo, opt => opt.MapFrom(src => src.IMEINo))
+                        .ForMember(x => x.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                        .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
+
+
+            CreateMap<FarmerCollUpdateRequestModel, FarmerCollStgUpdateRequest>()
+                       .ForMember(x => x.CollecionID, opt => opt.MapFrom(src => src.CollecionID))
+                       .ForMember(x => x.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
+                       .ForMember(x => x.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
+                       .ForMember(x => x.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
+                       .ForMember(x => x.Fat, opt => opt.MapFrom(src => src.Fat))
+                       .ForMember(x => x.Snf, opt => opt.MapFrom(src => src.Snf))
+                       .ForMember(x => x.LR, opt => opt.MapFrom(src => src.LR))
+                       .ForMember(x => x.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
+                       .ForMember(x => x.Type, opt => opt.MapFrom(src => src.Type))
+                       .ForMember(x => x.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                       .ForMember(x => x.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                       .ForMember(x => x.SampleId, opt => opt.MapFrom(src => src.SampleId))
+                       .ForMember(x => x.BatchNo, opt => opt.MapFrom(src => src.BatchNo))
+                       .ForMember(x => x.FarmerName, opt => opt.MapFrom(src => src.FarmerName))
+                       .ForMember(x => x.Mobile, opt => opt.MapFrom(src => src.Mobile))
+                       .ForMember(x => x.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
+                       .ForMember(x => x.Status, opt => opt.MapFrom(src => src.Status))
+                       .ForMember(x => x.Shift, opt => opt.MapFrom(src => src.Shift))
+                       .ForMember(x => x.MppID, opt => opt.MapFrom(src => src.MppID))
+                       .ForMember(x => x.BmcID, opt => opt.MapFrom(src => src.BmcID))
+                       .ForMember(x => x.RefranceId, opt => opt.MapFrom(src => src.RefranceId))
+                       .ForMember(x => x.Can, opt => opt.MapFrom(src => src.Can))
+                       .ForMember(x => x.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
+                       .ForMember(x => x.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
+                       .ForMember(x => x.CId, opt => opt.MapFrom(src => src.CId))
+                       .ForMember(x => x.CDate, opt => opt.MapFrom(src => DateTime.Now))
+                       .ForMember(x => x.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
+                       .ForMember(x => x.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
+                       .ForMember(x => x.IMEINo, opt => opt.MapFrom(src => src.IMEINo))
+                       .ForMember(x => x.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                       .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
+
+
+            CreateMap<FarmerCollUpdateRequestModel, FarmerCollStgInsertRequest>()
+                        .ForMember(x => x.CollecionID, opt => opt.MapFrom(src => src.CollecionID))
+                        .ForMember(x => x.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
+                        .ForMember(x => x.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
+                        .ForMember(x => x.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
+                        .ForMember(x => x.Fat, opt => opt.MapFrom(src => src.Fat))
+                        .ForMember(x => x.Snf, opt => opt.MapFrom(src => src.Snf))
+                        .ForMember(x => x.LR, opt => opt.MapFrom(src => src.LR))
+                        .ForMember(x => x.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
+                        .ForMember(x => x.Type, opt => opt.MapFrom(src => src.Type))
+                        .ForMember(x => x.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                        .ForMember(x => x.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                        .ForMember(x => x.SampleId, opt => opt.MapFrom(src => src.SampleId))
+                        .ForMember(x => x.BatchNo, opt => opt.MapFrom(src => src.BatchNo))
+                        .ForMember(x => x.FarmerName, opt => opt.MapFrom(src => src.FarmerName))
+                        .ForMember(x => x.Mobile, opt => opt.MapFrom(src => src.Mobile))
+                        .ForMember(x => x.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
+                        .ForMember(x => x.Status, opt => opt.MapFrom(src => src.Status))
+                        .ForMember(x => x.Shift, opt => opt.MapFrom(src => src.Shift))
+                        .ForMember(x => x.MppID, opt => opt.MapFrom(src => src.MppID))
+                        .ForMember(x => x.BmcID, opt => opt.MapFrom(src => src.BmcID))
+                        .ForMember(x => x.RefranceId, opt => opt.MapFrom(src => src.RefranceId))
+                        .ForMember(x => x.Can, opt => opt.MapFrom(src => src.Can))
+                        .ForMember(x => x.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
+                        .ForMember(x => x.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
+                        .ForMember(x => x.CId, opt => opt.MapFrom(src => src.CId))
+                        .ForMember(x => x.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
+                        .ForMember(x => x.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
+                        .ForMember(x => x.IMEINo, opt => opt.MapFrom(src => src.IMEINo))
+                        .ForMember(x => x.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                        // System fields for update
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifyBy"]))
+                        .ForMember(x => x.ModifyOn, opt => opt.MapFrom(src => DateTime.Now))
+                        // Prevent overwriting insert-only fields
+                        .ForMember(x => x.CreatedBy, opt => opt.Ignore())
+                        .ForMember(x => x.CDate, opt => opt.Ignore());
 
         }
 
