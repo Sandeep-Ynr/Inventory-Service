@@ -9,6 +9,7 @@ using MilkMatrix.Api.Models.AutomapperProfiles;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Api.Models.Request.Milk.DockData;
+using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -20,6 +21,7 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 using MilkMatrix.Milk.Implementations.Milk.DockData;
@@ -30,9 +32,11 @@ using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Milk;
 using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
+using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Models.Response.Milk;
 using MilkMatrix.Milk.Models.Response.Milk.DeviceSetting;
+using MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerCollection;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
@@ -52,10 +56,11 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IDeviceSettingService deviceSettingService;
         private readonly IDockDataService dockDataService;
         private readonly IFarmerStagingCollectionService farmerstgollectionservice;
+        private readonly IFarmerCollectionService farmerCollectionService;
 
         public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService,
             IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice, IDockDataService dockDataService,
-            IFarmerStagingCollectionService farmerstgollectionservice)
+            IFarmerStagingCollectionService farmerstgollectionservice, IFarmerCollectionService farmerCollectionService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -65,6 +70,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.mapper = mapper;
             this.milkService = milkService;
             this.dockDataService = dockDataService ?? throw new ArgumentNullException(nameof(dockDataService));
+            this.farmerCollectionService = farmerCollectionService ?? throw new ArgumentNullException(nameof(farmerCollectionService));
         }
 
         [HttpPost]
@@ -907,6 +913,123 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the FarmerStaging record.");
             }
         }
+        #endregion
+
+
+        #region FarmerCollection
+        // Get All Farmer Collections
+        [HttpPost("list-FarmerCollection")]
+        public async Task<IActionResult> GetFarmerList([FromBody] ListsRequest request)
+        {
+            var result = await farmerCollectionService.GetAll(request);
+            return Ok(result);
+        }
+
+        // Get Farmer Collection by Id
+        [HttpGet("id-FarmerCollection/{id}")]
+        public async Task<ActionResult<FarmerCollectionResponse?>> FarmerGetById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for FarmerCollection ID: {id}");
+                var result = await farmerCollectionService.GetById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"FarmerCollection with ID {id} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"FarmerCollection with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving FarmerCollection with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record." + ex.Message);
+            }
+        }
+
+        
+        [HttpPost("Insert-FarmerCollection")]
+        public async Task<IActionResult> Add([FromBody] FarmerCollectionInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for FarmerCollection: {request}");
+
+                var mappedRequest = mapper.MapWithOptions<FarmerCollectionInsertRequest, FarmerCollectionInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await farmerCollectionService.InsertFarmerColl(mappedRequest);
+                return Ok(new { message = "FarmerCollection added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add FarmerCollection", ex);
+                return StatusCode(500, "An error occurred while adding the record." + ex.Message);
+            }
+        }
+
+        
+        [HttpPut("update-FarmerCollection")]
+        public async Task<IActionResult> Update([FromBody] FarmerCollectionUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.FarmerCollectionId <= 0)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<FarmerCollectionUpdateRequest, FarmerCollectionUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+                    });
+                await farmerCollectionService.UpdateFarmerColl(mappedRequest);
+                logger.LogInfo($"FarmerCollection with ID {request} updated successfully.");
+                return Ok(new { message = "FarmerCollection updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating FarmerCollection", ex);
+                return StatusCode(500, "An error occurred while updating the record." + ex.Message);
+            }
+        }
+
+        
+        [HttpDelete("delete-FarmerCollection/{id}")]
+        public async Task<IActionResult> DeleteFarmerCollection(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await farmerCollectionService.DeleteFarmerColl(id, Convert.ToInt32(userId));
+                logger.LogInfo($"FarmerCollection with ID {id} deleted successfully.");
+                return Ok(new { message = "FarmerCollection deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting FarmerCollection with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the record." + ex.Message);
+            }
+        }
+
         #endregion
     }
 }

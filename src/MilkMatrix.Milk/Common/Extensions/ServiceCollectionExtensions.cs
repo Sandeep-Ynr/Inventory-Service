@@ -20,6 +20,7 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
@@ -44,6 +45,7 @@ using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 using MilkMatrix.Milk.Implementations.Milk.DockData;
+using MilkMatrix.Milk.Implementations.Milk.FarmerCollection;
 using MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Implementations.Plant;
 using MilkMatrix.Milk.Implementations.Price;
@@ -96,7 +98,10 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IRouteContractorService, RouteContractorService>()
                     .AddScoped<IRouteTimingService, RouteTimingService>()
                     .AddScoped<ISequenceService, SequenceService>()
-                    .AddScoped<IFarmerStagingCollectionService, FarmerStgCollService>();
+                    .AddScoped<IFarmerStagingCollectionService, FarmerStgCollService>()
+                    .AddScoped< IFarmerCollectionService,  FarmerCollectionService>();
+
+       
 
     }
 }
