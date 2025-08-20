@@ -3,7 +3,7 @@ using System;
 
 namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection
 {
-    public class FarmerCollUpdateRequestModel
+    public class FarmerCollStgUpdateRequestModel
     {
         public decimal CollecionID { get; set; }
         public DateTime DumpDate { get; set; }
