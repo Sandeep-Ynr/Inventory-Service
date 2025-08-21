@@ -12,6 +12,7 @@ using MilkMatrix.Api.Models.Request.Admin.Business;
 using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.Sequance;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
+using MilkMatrix.Api.Models.Request.Bank.Bank;
 using MilkMatrix.Api.Models.Request.MPP;
 using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -28,6 +29,7 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.ConfigSettings;
 using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance;
+using MilkMatrix.Milk.Models.Request.Bank;
 using MilkMatrix.Milk.Models.Request.MPP;
 using MilkMatrix.Milk.Models.Response.Admin.GlobleSetting.Sequance;
 using MilkMatrix.Milk.Models.Response.ConfigSettings;
@@ -681,14 +683,20 @@ public class AdminController : ControllerBase
 
 
     [HttpPost("config-setting-Update")]
-    public async Task<IActionResult> UpdateCompanySetting([FromBody] ConfigSettingUpdateRequest request)
+    public async Task<IActionResult> UpdateCompanySetting([FromBody] ConfigSettingUpdateRequestModel request)
     {
         try
         {
             if (!ModelState.IsValid || request.BusinessId <= 0)
                 return BadRequest("Invalid request.");
             var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            await configSettingService.UpdateConfigSetting(request);
+            var requestParams = mapper.MapWithOptions<ConfigSettingUpdateRequest, ConfigSettingUpdateRequestModel>(
+               request,
+               new Dictionary<string, object>
+               {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
+               });
+            await configSettingService.UpdateConfigSetting(requestParams);
             logging.LogInfo($"Company Setting with id {request.BusinessId} updated successfully.");
             return Ok(new { message = "Company Setting updated successfully." });
         }
