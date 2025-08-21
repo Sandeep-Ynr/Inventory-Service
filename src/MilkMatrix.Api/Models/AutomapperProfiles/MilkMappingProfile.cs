@@ -160,7 +160,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
 
 
-                    CreateMap<DockDataUpdateRequestModel, DockDataRequest>()
+            CreateMap<DockDataUpdateRequestModel, DockDataRequest>()
                         .ForMember(dest => dest.DockDataUpdateId, opt => opt.MapFrom(src => src.DockDataUpdateId))
                         .ForMember(dest => dest.BmcId, opt => opt.MapFrom(src => src.BmcId))
                         .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))

@@ -9,8 +9,10 @@ using MilkMatrix.Admin.Business.Admin.Contracts;
 using MilkMatrix.Admin.Models;
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Api.Models.Request.Admin.Business;
+using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Api.Models.Request.Admin.GlobleSetting.Sequance;
 using MilkMatrix.Api.Models.Request.Admin.Rejection;
+using MilkMatrix.Api.Models.Request.MPP;
 using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -20,9 +22,15 @@ using MilkMatrix.Core.Entities.Request.Rejection;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
 using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
+using MilkMatrix.Milk.Contracts.Bank;
+using MilkMatrix.Milk.Contracts.ConfigSettings;
 using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Implementations.ConfigSettings;
+using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.ConfigSettings;
 using MilkMatrix.Milk.Models.Request.Admin.GlobleSetting.Sequance;
+using MilkMatrix.Milk.Models.Request.MPP;
 using MilkMatrix.Milk.Models.Response.Admin.GlobleSetting.Sequance;
+using MilkMatrix.Milk.Models.Response.ConfigSettings;
 using static MilkMatrix.Api.Common.Constants.Constants;
 using InsertDetails = MilkMatrix.Core.Entities.Request.Approval.Details.Insert;
 using InsertDetailsModel = MilkMatrix.Api.Models.Request.Admin.Approval.Details.InsertModel;
@@ -35,7 +43,7 @@ namespace MilkMatrix.Api.Controllers.v1;
 /// Controller for managing administrative tasks such as user details, modules, and financial years.
 /// This controller is secured and requires authorization for access.
 /// </summary>
-[Authorize]
+//[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -48,6 +56,7 @@ public class AdminController : ControllerBase
     private readonly IApprovalService approvalService;
     private readonly IRejectionService rejectionService;
     private readonly ISequenceService sequanceService;
+    private readonly IConfigSettingService configSettingService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AdminController"/> class.
@@ -62,7 +71,7 @@ public class AdminController : ControllerBase
         IMapper mapper,
         ILogging logging,
         ICommonModules commonModules,
-        IApprovalService approvalService, IRejectionService rejectionService, ISequenceService sequenceService)
+        IApprovalService approvalService, IRejectionService rejectionService, ISequenceService sequenceService, IConfigSettingService configSettingService)
     {
         this.ihttpContextAccessor = ihttpContextAccessor;
         this.mapper = mapper;
@@ -72,7 +81,7 @@ public class AdminController : ControllerBase
         this.approvalService = approvalService;
         this.rejectionService = rejectionService;
         this.sequanceService= sequenceService;
-
+        this.configSettingService = configSettingService ?? throw new ArgumentNullException(nameof(configSettingService));
     }
 
     /// <summary>
@@ -605,4 +614,108 @@ public class AdminController : ControllerBase
 
     #endregion
 
+    #region ConfigSetting
+
+    [HttpPost("config-setting-list")]
+    public async Task<IActionResult> GetCompanySettings([FromBody] ListsRequest request)
+    {
+        var result = await configSettingService.GetAll(request);
+        return Ok(result);
+    }
+
+    [HttpGet("config-setting-{id}")]
+    public async Task<ActionResult<ConfigSettingResponse?>> GetCompanySettingById(int id)
+    {
+        try
+        {
+            logging.LogInfo($"Get Company Setting by id called for id: {id}");
+            var setting = await configSettingService.GetById(id);
+            if (setting == null)
+            {
+                logging.LogInfo($"Company Setting with id {id} not found.");
+                return NotFound();
+            }
+            logging.LogInfo($"Company Setting with id {id} retrieved successfully.");
+            return Ok(setting);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error retrieving Company Setting with id: {id}", ex);
+            return StatusCode(500, "An error occurred while retrieving the Company Setting.");
+        }
+    }
+
+    [HttpPost("insert-config-settings")]
+    public async Task<IActionResult> InsertConfigSettings([FromBody] ConfigSettingInsertRequestModel request)
+    {
+        try
+        {
+            if (request == null || !ModelState.IsValid)
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    ErrorMessage = "Invalid request."
+                });
+            }
+
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            logging.LogInfo($"InsertConfigSettings called for Key: {request}");
+
+            var mappedRequest = mapper.MapWithOptions<ConfigSettingInsertRequest, ConfigSettingInsertRequestModel>(
+                request,
+                new Dictionary<string, object>
+                {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                });
+
+            await configSettingService.InsertConfigSetting(mappedRequest);
+            return Ok(new { message = "Config settings inserted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError("Error in InsertConfigSettings", ex);
+            return StatusCode(500, "An error occurred while inserting the record. " + ex.Message);
+        }
+    }
+
+
+    [HttpPost("config-setting-Update")]
+    public async Task<IActionResult> UpdateCompanySetting([FromBody] ConfigSettingUpdateRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid || request.BusinessId <= 0)
+                return BadRequest("Invalid request.");
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configSettingService.UpdateConfigSetting(request);
+            logging.LogInfo($"Company Setting with id {request.BusinessId} updated successfully.");
+            return Ok(new { message = "Company Setting updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error updating Company Setting with id: {request.BusinessId}", ex);
+            return StatusCode(500, "An error occurred while updating the Company Setting.");
+        }
+    }
+
+    [HttpDelete("config-setting-delete/{BusinessId}")]
+    public async Task<IActionResult> DeleteCompanySetting(int BusinessId, string UnitType, string UnitIds)
+    {
+        try
+        {
+            var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+            await configSettingService.DeleteConfigSetting(BusinessId, UnitType, UnitIds);
+            logging.LogInfo($"Company Setting with id {BusinessId} deleted successfully.");
+            return Ok(new { message = "Company Setting deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"Error deleting Company Setting with id: {BusinessId}", ex);
+            return StatusCode(500, "An error occurred while deleting the Company Setting.");
+        }
+
+    }
+
+    #endregion
 }
