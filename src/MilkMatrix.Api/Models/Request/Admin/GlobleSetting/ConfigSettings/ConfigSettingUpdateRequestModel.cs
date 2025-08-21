@@ -3,7 +3,6 @@ namespace MilkMatrix.Api.Models.Request.Admin.GlobleSetting.ConfigSettings
     public class ConfigSettingUpdateRequestModel
     {
         public int? BusinessId { get; set; }
-        public int CompanyId { get; set; }   // Primary Key, Identity
         public string UnitType { get; set; }
         public string? UnitId { get; set; }
         public int? GenlCanPerLit { get; set; }

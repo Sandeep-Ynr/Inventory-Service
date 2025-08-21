@@ -165,7 +165,7 @@ namespace MilkMatrix.Milk.Implementations.ConfigSettings
                 {
                     { "ActionType", (int)CrudActionType.Update },
                     { "BusinessId", request.BusinessId ?? (object)DBNull.Value },
-                    { "UnitIds", request.UnitId ?? (object)DBNull.Value  },
+                    { "UnitIds", request.UnitId == "null" ? null : request.UnitId },
                     { "UnitType", request.UnitType ?? (object)DBNull.Value  },
                     { "genl_can_per_lit", request.GenlCanPerLit ?? (object)DBNull.Value },
                     { "genl_can_war_thr", request.GenlCanWarThr ?? (object)DBNull.Value },
