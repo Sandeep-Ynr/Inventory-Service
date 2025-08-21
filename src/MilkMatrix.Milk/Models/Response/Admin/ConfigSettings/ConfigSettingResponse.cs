@@ -2,86 +2,79 @@ namespace MilkMatrix.Milk.Models.Response.ConfigSettings
 {
     public class ConfigSettingResponse
     {
-        public int ConfigId { get; set; }
-        public int CompanyId { get; set; }
-        public string UnitType { get; set; }
-        public int? UnitId { get; set; }
-
-        // ========== General Settings (GENL) ==========
-        public decimal? GenlCanPerLit { get; set; }
+        public int BusinessId { get; set; }
+        public string? UnitType { get; set; }
+        public int UnitId { get; set; }
+        public int? GenlCanPerLit { get; set; }
+        public int? GenlCanWarThr { get; set; }
         public decimal? GenlLtrToKgConFac { get; set; }
-        public string GenlRoundMode { get; set; }
+        public bool? GenlWeiRouMod { get; set; }
+        public bool? GenlQuaRouMod { get; set; }
+        public string? GenlMemQuaMod { get; set; }
+        public string? GenlBmcQuaMod { get; set; }
         public bool? GenlUseDefSnf { get; set; }
-        public decimal? GenlDefSnf { get; set; }
-
-        // ========== Quality Collection/Dispatch Limits (QCDL) ==========
+        public decimal? GenlDefSnfVal { get; set; }
+        public bool? GenlZerRatAll { get; set; }
+        public bool? GenlEnaShiWisEntDat { get; set; }
         public decimal? QcdlColMinFat { get; set; }
         public decimal? QcdlColMaxFat { get; set; }
+        public decimal? QcdlColMinSnf { get; set; }
+        public decimal? QcdlColMaxSnf { get; set; }
+        public bool? QcdlDisQtyMod { get; set; }
+        public bool? QcdlDisLtrKg { get; set; }
+        public decimal? QcdlDisMinFat { get; set; }
+        public decimal? QcdlDisMaxFat { get; set; }
         public decimal? QcdlDisMinSnf { get; set; }
         public decimal? QcdlDisMaxSnf { get; set; }
-
-        // ========== Default Values (DVAL) ==========
+        public string? DvalMilTypDva { get; set; }
         public decimal? DvalDefFat { get; set; }
         public decimal? DvalDefSnf { get; set; }
-        public string DvalMilkType { get; set; }
-
-        // ========== Weight Settings (WSET) ==========
-        public string WsetRoundWtMode { get; set; }
-        public decimal? WsetAvgCanWt { get; set; }
-
-        // ========== Lab Settings (LSET) ==========
-        public int? LsetSnfRou { get; set; }
+        public bool? WsetIsActWse { get; set; }
+        public string? WsetWeiRouBy { get; set; }
+        public decimal? WsetCanAveWei { get; set; }
+        public string ?LsetTraSiz { get; set; }
+        public bool? LsetSnfRou { get; set; }
+        public string? LsetSnfRouBy { get; set; }
+        public int? LsetSnfAftDec { get; set; }
+        public decimal? LsetSnfFor { get; set; }
+        public decimal? LsetSnfCon { get; set; }
+        public bool? LsetFatRou { get; set; }
+        public string? LsetFatRouBy { get; set; }
         public int? LsetFatAftDec { get; set; }
-        public int? LsetClrAftDec { get; set; }
-
-        // ========== Quality Limits (QLMT) ==========
+        public bool? LsetLrRou { get; set; }
+        public string? LsetLrRouBy { get; set; }
+        public int? LsetLrAftDec { get; set; }
+        public string ?QlmtMilTypQlm { get; set; }
         public decimal? QlmtMinFat { get; set; }
         public decimal? QlmtMaxFat { get; set; }
         public decimal? QlmtMinSnf { get; set; }
         public decimal? QlmtMaxSnf { get; set; }
         public decimal? QlmtMinClr { get; set; }
         public decimal? QlmtMaxClr { get; set; }
-
-        // ========== Adulteration Settings (ADLT) ==========
-        public bool? AdltMbrAllow { get; set; }
-        public bool? AdltBlock { get; set; }
-
-        // ========== Functional Toggles (FUNC) ==========
-        public bool? FuncCollWhileUnapprove { get; set; }
-        public bool? FuncDirectDispatch { get; set; }
-
-        // ========== Unit Conversion (UNIT) ==========
-        public decimal? UnitKgToLtrFactor { get; set; }
-
-        // ========== Entry Rules (ENTR) ==========
-        public bool? EntrSameMilkType { get; set; }
-        public bool? EntrDiffMilkType { get; set; }
-
-        // ========== Input Toggles (INPT) ==========
-        public bool? InptFatEditable { get; set; }
-        public bool? InptSnfEditable { get; set; }
-
-        // ========== Variations (VARI) ==========
+        public string? AdltTesNam { get; set; }
+        public bool? AdltIsEnaAdl { get; set; }
+        public bool? FuncAllFarCodEdi { get; set; }
+        public bool? FuncValRatRanOnImp { get; set; }
+        public bool? FuncLoaAllRouOnDoc { get; set; }
+        public bool? FuncAllDupFarCol { get; set; }
+        public bool? FuncEnaPayCyc { get; set; }
+        public string ?UnitBmcColMod { get; set; }
+        public string ?UnitMppColMod { get; set; }
+        public decimal? UnitLitToKgCon { get; set; }
+        public decimal? UnitKgToLitCon { get; set; }
+        public bool? EntrMulSamTyp { get; set; }
+        public bool? EntrMulDifTyp { get; set; }
+        public bool? InptInpFat { get; set; }
+        public bool? InptInpSnf { get; set; }
+        public bool? InptInpClr { get; set; }
+        public bool? InptInpPro { get; set; }
+        public bool? InptInpLac { get; set; }
+        public bool? InptInpWat { get; set; }
         public decimal? VariVarFat { get; set; }
+        public decimal? VariBloFat { get; set; }
         public decimal? VariVarSnf { get; set; }
+        public decimal? VariBloSnf { get; set; }
+        public decimal? VariVarQty { get; set; }
         public decimal? VariBloQty { get; set; }
-
-        // ========== Machine Settings (MACH) ==========
-        public string MachMacNo { get; set; }
-        public string MachMacShi { get; set; }
-
-        // ========== Display (DSPL) ==========
-        public string DsplMapRule { get; set; }
-
-        // ========== Miscellaneous (OTHR) ==========
-        public string OthrNotes { get; set; }
-
-        // ========== System Fields ==========
-        public bool IsStatus { get; set; }
-        public bool IsDeleted { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public long? CreatedBy { get; set; }
-        public DateTime? ModifiedOn { get; set; }
-        public long? ModifiedBy { get; set; }
     }
 }

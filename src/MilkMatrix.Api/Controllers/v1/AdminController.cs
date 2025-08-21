@@ -523,35 +523,33 @@ public class AdminController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid || request.ConfigId <= 0)
+            if (!ModelState.IsValid || request.BusinessId <= 0)
                 return BadRequest("Invalid request.");
             var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
             await configSettingService.UpdateConfigSetting(request);
-
-            logging.LogInfo($"Company Setting with id {request.ConfigId} updated successfully.");
+            logging.LogInfo($"Company Setting with id {request.BusinessId} updated successfully.");
             return Ok(new { message = "Company Setting updated successfully." });
         }
         catch (Exception ex)
         {
-            logging.LogError($"Error updating Company Setting with id: {request.ConfigId}", ex);
+            logging.LogError($"Error updating Company Setting with id: {request.BusinessId}", ex);
             return StatusCode(500, "An error occurred while updating the Company Setting.");
         }
     }
 
-    [HttpDelete("config-setting-delete/{id}")]
-    public async Task<IActionResult> DeleteCompanySetting(int id)
+    [HttpDelete("config-setting-delete/{BusinessId}")]
+    public async Task<IActionResult> DeleteCompanySetting(int BusinessId, string UnitType, string UnitIds)
     {
         try
         {
             var userId = ihttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            await configSettingService.DeleteConfigSetting(id, Convert.ToInt32(userId));
-            logging.LogInfo($"Company Setting with id {id} deleted successfully.");
+            await configSettingService.DeleteConfigSetting(BusinessId, UnitType, UnitIds);
+            logging.LogInfo($"Company Setting with id {BusinessId} deleted successfully.");
             return Ok(new { message = "Company Setting deleted successfully." });
         }
         catch (Exception ex)
         {
-            logging.LogError($"Error deleting Company Setting with id: {id}", ex);
+            logging.LogError($"Error deleting Company Setting with id: {BusinessId}", ex);
             return StatusCode(500, "An error occurred while deleting the Company Setting.");
         }
 

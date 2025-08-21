@@ -12,7 +12,7 @@ namespace MilkMatrix.Milk.Contracts.ConfigSettings
     {
         Task InsertConfigSetting(ConfigSettingInsertRequest request);
         Task UpdateConfigSetting(ConfigSettingUpdateRequest request);
-        Task DeleteConfigSetting(int configId, int userId);
+        Task DeleteConfigSetting(int BusinessId, string UnitType, string UnitIds);
         Task<IEnumerable<CommonLists>> GetSpecificLists(ConfigSettingRequest request);
         Task<IListsResponse<ConfigSettingResponse>> GetAll(IListsRequest request);
         Task<ConfigSettingResponse?> GetById(int configId);
