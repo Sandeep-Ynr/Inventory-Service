@@ -4,7 +4,6 @@ using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
 using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
-using MilkMatrix.Milk.Contracts.ConfigSettings;
 using MilkMatrix.Milk.Contracts.Geographical;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
@@ -21,6 +20,8 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Contracts.MPP;
 using MilkMatrix.Milk.Contracts.Party;
 using MilkMatrix.Milk.Contracts.Plant;
@@ -33,7 +34,6 @@ using MilkMatrix.Milk.Contracts.Shift;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
-using MilkMatrix.Milk.Implementations.ConfigSettings;
 using MilkMatrix.Milk.Implementations.Logistics.Route;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
@@ -45,6 +45,8 @@ using MilkMatrix.Milk.Implementations.Member.MilkProfile;
 using MilkMatrix.Milk.Implementations.Milk;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 using MilkMatrix.Milk.Implementations.Milk.DockData;
+using MilkMatrix.Milk.Implementations.Milk.FarmerCollection;
+using MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Implementations.Plant;
 using MilkMatrix.Milk.Implementations.Price;
 using MilkMatrix.Milk.Implementations.PriceApplicability;
@@ -96,7 +98,10 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IRouteContractorService, RouteContractorService>()
                     .AddScoped<IRouteTimingService, RouteTimingService>()
                     .AddScoped<ISequenceService, SequenceService>()
-                    .AddScoped<IConfigSettingService, ConfigSettingService>();
+                    .AddScoped<IFarmerStagingCollectionService, FarmerStgCollService>()
+                    .AddScoped< IFarmerCollectionService,  FarmerCollectionService>();
+
+       
 
     }
 }

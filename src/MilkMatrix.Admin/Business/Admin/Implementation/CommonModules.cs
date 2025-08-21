@@ -72,9 +72,6 @@ public class CommonModules : ICommonModules
         // Build n-level module/submodule/page tree
         response.ModuleList = BuildModuleList(flatPagesWithGroupedActions);
 
-        // Optionally, you can also build a flat or tree structure for UI if needed
-        response.PageList = BuildPageTree(flatPagesWithGroupedActions);
-
         return response;
     }
 

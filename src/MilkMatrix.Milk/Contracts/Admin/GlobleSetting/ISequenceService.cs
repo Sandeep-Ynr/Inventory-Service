@@ -18,6 +18,15 @@ namespace MilkMatrix.Milk.Contracts.Admin.GlobleSetting
         Task<SequenceResponse?> GetSequanceById(string HeadName);
         Task<NextNumberResponse> GetNextNumberforSeq(string HeadName);
         Task<IListsResponse<SequenceResponse>>  GetSequanceList(IListsRequest request);
-        
+        Task InsertsequenceTrans(SequenceTransInsertRequest request);
+        Task UpdatesequenceTrans(SequenceTransUpdateRequest request);
+        Task<SequenceTransResponse?> GetSequanceTransById(string HeadName, string FY);
+        Task<SeqTransNextNumberResponse> GetNextNumberforSeqTrans(string HeadName, string FY);
+        Task<SequenceTransResponse> SeqTransCloneforAllDocs(string clonefromfy, string newfy,int userId);
+        Task<SequenceTransResponse> SeqTransCloneforSelectiveHead(string clonefromfy,string fromhead, string newfy, int userId);
+        Task<IListsResponse<SequenceTransResponse>> GetSequanceTransList(IListsRequest request);
+
     }
+
+    
 }
