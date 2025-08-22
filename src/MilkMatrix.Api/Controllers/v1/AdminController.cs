@@ -45,7 +45,7 @@ namespace MilkMatrix.Api.Controllers.v1;
 /// Controller for managing administrative tasks such as user details, modules, and financial years.
 /// This controller is secured and requires authorization for access.
 /// </summary>
-//[Authorize]
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -625,24 +625,24 @@ public class AdminController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("config-setting-{id}")]
-    public async Task<ActionResult<ConfigSettingResponse?>> GetCompanySettingById(int id)
+    [HttpGet("config-setting-{businessId}")]
+    public async Task<ActionResult<ConfigSettingResponse?>> GetCompanySettingById(int businessId, string unitType, int unitIds)
     {
         try
         {
-            logging.LogInfo($"Get Company Setting by id called for id: {id}");
-            var setting = await configSettingService.GetById(id);
+            logging.LogInfo($"Get Company Setting by id called for id: {businessId}");
+            var setting = await configSettingService.GetById(businessId, unitType, unitIds);
             if (setting == null)
             {
-                logging.LogInfo($"Company Setting with id {id} not found.");
+                logging.LogInfo($"Company Setting with id {businessId} not found.");
                 return NotFound();
             }
-            logging.LogInfo($"Company Setting with id {id} retrieved successfully.");
+            logging.LogInfo($"Company Setting with id {businessId} retrieved successfully.");
             return Ok(setting);
         }
         catch (Exception ex)
         {
-            logging.LogError($"Error retrieving Company Setting with id: {id}", ex);
+            logging.LogError($"Error retrieving Company Setting with id: {businessId}", ex);
             return StatusCode(500, "An error occurred while retrieving the Company Setting.");
         }
     }
