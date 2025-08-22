@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -294,29 +295,28 @@ namespace MilkMatrix.Milk.Implementations.ConfigSettings
             }
         }
 
-        public async Task<ConfigSettingResponse?> GetById(int CompanyId)
+        public async Task<ConfigSettingResponse?> GetById(int businessId, string unitType, int unitIds)
         {
             try
             {
-                logging.LogInfo($"GetById called for CompanyId: {CompanyId}");
-
+                logging.LogInfo($"GetById called for BusinessId: {businessId}");
                 var repo = repositoryFactory.ConnectDapper<ConfigSettingResponse>(DbConstants.Main);
-
                 var data = await repo.QueryAsync<ConfigSettingResponse>(
                     ConfigSettingQueries.GetConfigSettingList,
                     new Dictionary<string, object>
                     {
                         { "ActionType", (int)ReadActionType.Individual },
-                        { "CompanyId", CompanyId }
+                        { "BusinessId", businessId },
+                        { "UnitType", unitType },
+                        { "UnitId", unitIds }
                     },
                     null
                 );
-
                 return data.FirstOrDefault();
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetById for CompanyId: {CompanyId}", ex);
+                logging.LogError($"Error in GetById for BusinessId: {businessId}", ex);
                 throw;
             }
         }
