@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
@@ -16,6 +17,7 @@ using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
+using MilkMatrix.Core.Entities.Response.Rejection;
 using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
@@ -26,6 +28,7 @@ using MilkMatrix.Milk.Models.Request.Milk.DockData;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Models.Response.Milk.DockData;
 using static MilkMatrix.Milk.Models.Queries.MilkQueries;
+using static MilkMatrix.Milk.Models.Queries.PriceQueries;
 
 namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollection
 {
@@ -82,37 +85,27 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                 var parameters = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create },
-                    { "BusinessId", request.BusinessId  },
+                    { "HeaderId", request.HeaderId },
                     { "DumpDate", request.DumpDate },
                     { "DumpTime", request.DumpTime ?? (object)DBNull.Value },
-                    { "FarmerId", request.FarmerId ?? (object)DBNull.Value },
-                    { "Fat", request.Fat ?? (object)DBNull.Value },
-                    { "Snf", request.Snf ?? (object)DBNull.Value },
-                    { "LR", request.LR ?? (object)DBNull.Value },
-                    { "WeightLiter", request.WeightLiter ?? (object)DBNull.Value },
-                    { "Type", request.Type ?? (object)DBNull.Value },
-                    { "Rtpl", request.Rtpl ?? (object)DBNull.Value },
-                    { "TotalAmount", request.TotalAmount ?? (object)DBNull.Value },
-                    { "SampleId", request.SampleId ?? (object)DBNull.Value },
+                    { "Shift", request.Shift ?? (object)DBNull.Value },
                     { "BatchNo", request.BatchNo ?? (object)DBNull.Value },
-                    { "FarmerName", request.FarmerName ?? (object)DBNull.Value },
-                    { "Mobile", request.Mobile ?? (object)DBNull.Value },
+                    { "MppId", request.MppId },
+                    { "BmcId", request.BmcId },
                     { "InsertMode", request.InsertMode ?? "IMP" },
                     { "Status", request.Status ?? "PENDING" },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
-                    { "MppID", request.MppID },
-                    { "BmcID", request.BmcID },
-                    { "RefranceId", request.RefranceId ?? (object)DBNull.Value },
-                    { "Can", request.Can ?? (object)DBNull.Value },
+                    { "CompanyCode", request.CompanyCode ?? (object)DBNull.Value },
+                    { "IMEI_No", request.ImeiNo ?? (object)DBNull.Value },
                     { "IsValidated", request.IsValidated },
                     { "IsProcess", request.IsProcess },
-                    { "CId", request.CId },
-                    { "CDate", request.CDate },
                     { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
-                    //{ "CompanyID", request.CompanyCode ?? (object)DBNull.Value },
-                    { "IMEI_No", request.IMEINo ?? (object)DBNull.Value },
-                    { "is_status", request.IsStatus ?? (object)DBNull.Value },
-                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value }
+                    { "BusinessId", request.BusinessId },
+                    { "IsDeleted", request.IsDeleted },
+                    { "CreatedOn", request.CreatedOn ?? DateTime.Now },
+                    { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+                    { "ModifyOn", request.ModifyOn ?? (object)DBNull.Value },
+                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                    { "NewHeaderId", ""}
                 };
 
                 var message = await repository.AddAsync(FarmerStgQueries.AddFarmerStg, parameters, CommandType.StoredProcedure);
@@ -123,6 +116,47 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                 else
                 {
                     logging.LogInfo($"FarmerStg {message} added successfully." + message);
+                }
+
+                var tmpHeaderId = Convert.ToInt32(message);
+
+
+
+
+                // 2. Loop through details and insert one-by-one
+                foreach (var detail in request.Details)
+                {
+                    var detailParams = new Dictionary<string, object>
+                    {
+                        { "ActionType", (int)CrudActionType.Create },
+                        { "HeaderId", tmpHeaderId },
+                        { "FarmerId", detail.FarmerId ?? (object)DBNull.Value },
+                        { "FarmerName", detail.FarmerName ?? (object)DBNull.Value },
+                        { "Mobile", detail.Mobile ?? (object)DBNull.Value },
+                        { "Fat", detail.Fat ?? (object)DBNull.Value },
+                        { "Snf", detail.Snf ?? (object)DBNull.Value },
+                        { "LR", detail.Lr ?? (object)DBNull.Value },
+                        { "WeightLiter", detail.WeightLiter ?? (object)DBNull.Value },
+                        { "Type", detail.Type ?? (object)DBNull.Value },
+                        { "Rtpl", detail.RatePerLiter ?? (object)DBNull.Value },
+                        { "TotalAmount", detail.TotalAmount ?? (object)DBNull.Value },
+                        { "SampleId", detail.SampleId ?? (object)DBNull.Value },
+                        { "Can", detail.Can ?? (object)DBNull.Value },
+                        { "ReferenceId", detail.ReferenceId ?? (object)DBNull.Value },
+                    };
+                    var detailproc = await repository.AddAsync(FarmerStgQueries.AddFarmerStgDetail, detailParams, CommandType.StoredProcedure);
+                    if (detailproc.StartsWith("Error"))
+                    {
+                        throw new Exception($"Stored Procedure Error: {detailproc}");
+                    }
+                    else
+                    {
+                        logging.LogInfo($"FarmerStg {detailproc} added successfully." + detailproc);
+                    }
+
+
+                    
+                    //await repository.AddAsync("InsertMilkPriceDetail", detailParams, CommandType.StoredProcedure);
                 }
             }
             catch (Exception ex)

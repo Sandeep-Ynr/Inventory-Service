@@ -775,62 +775,8 @@ namespace MilkMatrix.Api.Controllers.v1
         #endregion
 
         #region FarmerStgCollection
-
-
-        [HttpPost("Stg-FarmerColl-list")]
-        public async Task<IActionResult> GetFarmerCollectionAllList([FromBody] ListsRequest request)
-        {
-            try
-            {
-                var result = await farmerstgollectionservice.GetFarmerCollectionAll(request);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error retrieving Stg-FarmerColl list", ex);
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    ErrorMessage = "An error occurred while retrieving the list.",
-                });
-            }
-        }
-
-        [HttpGet("Stg-FarmerColl/{id}")]
-        public async Task<IActionResult> GetFarmerCollectionById(int id)
-        {
-            try
-            {
-                logger.LogInfo($"GetById called for FarmerCollection ID: {id}");
-
-                var result = await farmerstgollectionservice.GetFarmerCollectionById(id);
-                if (result == null)
-                {
-                    logger.LogInfo($"FarmerCollection with ID {id} not found.");
-                    return NotFound(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.NotFound,
-                        ErrorMessage = "FarmerCollection record not found."
-                    });
-                }
-
-                logger.LogInfo($"FarmerCollection with ID {id} retrieved successfully.");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving FarmerCollection with ID: {id}", ex);
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    ErrorMessage = "An error occurred while retrieving the record.",
-                });
-            }
-        }
-
-
         [HttpPost]
-        [Route("insert-Stg-FarmerColl")]
+        [Route("farmer-collection/import")]
         public async Task<IActionResult> InsertFarmerStagingCollection([FromBody] FarmerCollStgInsertRequestModel request)
         {
             try
@@ -864,57 +810,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 });
             }
         }
-
-        [HttpPut("update-Stg-FarmerColl")]
-        public async Task<IActionResult> Update([FromBody] FarmerCollStgUpdateRequest request)
-        {
-            try
-            {
-                if (!ModelState.IsValid || request.CollecionID <= 0)
-                {
-                    return BadRequest("Invalid request.");
-                }
-
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
-                var mappedRequest = mapper.MapWithOptions<FarmerCollStgUpdateRequest, FarmerCollStgUpdateRequest>(
-                    request,
-                    new Dictionary<string, object>
-                    {
-                 { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
-                    });
-
-                await farmerstgollectionservice.UpdateFarmerCollection(mappedRequest);
-
-                logger.LogInfo($"FarmerStaging record updated successfully.");
-                return Ok(new { message = "FarmerStaging record updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error in Update DockData", ex);
-                return StatusCode(500, $"An error occurred while updating the record. {ex.Message}");
-            }
-        }
-
-
-        [HttpDelete("delete-Stg-FarmerColl/{id}")]
-        public async Task<IActionResult> DeleteStgColl(int id)
-        {
-            try
-            {
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await farmerstgollectionservice.DeleteFarmerCollection(id, Convert.ToInt32(userId));
-                logger.LogInfo($"FarmerStaging record deleted successfully.");
-                return Ok(new { message = "FarmerStaging deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting FarmerStaging with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the FarmerStaging record.");
-            }
-        }
         #endregion
-
 
         #region FarmerCollection
         // Get All Farmer Collections
