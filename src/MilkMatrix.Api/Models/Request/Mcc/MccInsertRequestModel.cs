@@ -2,7 +2,7 @@ namespace MilkMatrix.Api.Models.Request.Mcc
 {
     public class MccInsertRequestModel
     {
-        //public int? PlantId { get; set; }
+        public string? PlantId { get; set; }
         public string? MccCode { get; set; }
         public string? MccName { get; set; }
         public int? BusinessId { get; set; }

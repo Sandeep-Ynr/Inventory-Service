@@ -47,6 +47,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "RouteCode", request.RouteCode },
                     { "CompanyCode", request.CompanyCode },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
+                    { "BmcId", request.BmcId },
                     { "VehicleID", request.VehicleID },
                     { "VehicleCapacity", request.VehicleCapacity },
                     { "MorningStartTime", request.MorningStartTime },
