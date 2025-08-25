@@ -13,6 +13,7 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Route
         public string CompanyCode { get; set; } = string.Empty;
         public string? RegionalName { get; set; }
         public int VehicleID { get; set; }
+        public string BmcId { get; set; }
         public int VehicleCapacity { get; set; }
         public TimeSpan? MorningStartTime { get; set; }
         public TimeSpan? MorningEndTime { get; set; }

@@ -16,6 +16,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.BmcName, opt => opt.MapFrom(src => src.BmcName))
                         .ForMember(x => x.BmcCode, opt => opt.MapFrom(src => src.BmcCode))
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
+                        .ForMember(x => x.MccId, opt => opt.MapFrom(src => src.MccId))
                         .ForMember(x => x.RegionalName, opt => opt.MapFrom(src => src.RegionalName))
                         .ForMember(x => x.Capacity, opt => opt.MapFrom(src => src.Capacity))
                         .ForMember(x => x.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))

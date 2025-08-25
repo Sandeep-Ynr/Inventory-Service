@@ -8,6 +8,7 @@ namespace MilkMatrix.Milk.Models.Response.Logistics.Route
         public string? RegionalName { get; set; }
         public string? VehicleType { get; set; }
         public int VehicleID { get; set; }
+        public string? BmcId { get; set; }
         public int VehicleCapacity { get; set; }
         public TimeSpan? MorningStartTime { get; set; }
         public TimeSpan? MorningEndTime { get; set; }

@@ -1,5 +1,6 @@
 using System.Data;
 using System.Text.Json;
+using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -41,11 +42,12 @@ namespace MilkMatrix.Milk.Implementations.Bmc
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
-                {
+                {   
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
                     { "BmcName", request.BmcName ?? (object)DBNull.Value },
                     { "BmcCode", request.BmcCode ?? (object)DBNull.Value },
                     { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
+                    { "MccId",request.MccId  },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "Manufacturer", request.Manufacturer ?? (object)DBNull.Value },
@@ -98,6 +100,7 @@ namespace MilkMatrix.Milk.Implementations.Bmc
                     { "BmcName", request.BmcName ?? (object)DBNull.Value },
                     { "BmcCode", request.BmcCode ?? (object)DBNull.Value },
                     { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
+                    { "MccId",request.MccId  },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "Capacity", request.Capacity ?? (object)DBNull.Value },
                     { "Manufacturer", request.Manufacturer ?? (object)DBNull.Value },
