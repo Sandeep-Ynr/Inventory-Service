@@ -777,7 +777,7 @@ namespace MilkMatrix.Api.Controllers.v1
         #region FarmerStgCollection
         [HttpPost]
         [Route("farmer-collection/import")]
-        public async Task<IActionResult> InsertFarmerStagingCollection([FromBody] FarmerCollStgInsertRequestModel request)
+        public async Task<IActionResult> ImportFarmerCollection([FromBody] FarmerCollStgInsertRequestModel request)
         {
             try
             {
@@ -796,7 +796,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
                     });
 
-                await farmerstgollectionservice.InsertFarmerCollection(requestParams);
+                await farmerstgollectionservice.ImportFarmerCollection(requestParams);
                 logger.LogInfo($"FarmerStaging record added successfully.");
                 return Ok(new { message = "FarmerStaging record added successfully." });
             }
@@ -808,6 +808,36 @@ namespace MilkMatrix.Api.Controllers.v1
                     StatusCode = (int)HttpStatusCode.InternalServerError,
                     ErrorMessage = "An error occurred while adding the record.",
                 });
+            }
+        }
+        [HttpPost("farmer-collection/export")]
+        public async Task<IActionResult> GetFarmerCollectionAll([FromBody] ListsRequest request)
+        {
+            var result = await farmerstgollectionservice.GetFarmerCollectionExport(request);
+            return Ok(result);
+        }
+
+        // Get Farmer Collection by Id
+        [HttpGet("farmer-collection/export/{id}")]
+        public async Task<ActionResult<FarmerCollectionResponse?>> GetFarmerCollectionExportById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for FarmerCollection ID: {id}");
+                var result = await farmerstgollectionservice.GetFarmerCollectionExportById(id);
+                if (result == null)
+                {
+                    logger.LogInfo($"FarmerCollectionStg with ID {id} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"FarmerCollectionStg with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving FarmerCollectionStg with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record." + ex.Message);
             }
         }
         #endregion

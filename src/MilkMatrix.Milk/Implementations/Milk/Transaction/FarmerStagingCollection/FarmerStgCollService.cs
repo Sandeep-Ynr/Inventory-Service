@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
 using Microsoft.Extensions.Options;
@@ -48,36 +49,36 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
         }
 
       
-        public async Task DeleteFarmerCollection(long id, int userId)
-        {
-            try
-            {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-                var requestParams = new Dictionary<string, object>
-                {
-                    { "ActionType", (int)CrudActionType.Delete },
-                    { "CollecionID", id },   // 🔹 Changed from DockDataUpdateId
-                    { "ModifiedBy", userId }
-                };
+        //public async Task DeleteFarmerCollection(long id, int userId)
+        //{
+        //    try
+        //    {
+        //        var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+        //        var requestParams = new Dictionary<string, object>
+        //        {
+        //            { "ActionType", (int)CrudActionType.Delete },
+        //            { "CollecionID", id },   // 🔹 Changed from DockDataUpdateId
+        //            { "ModifiedBy", userId }
+        //        };
 
-                var result = await repository.DeleteAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
+        //        var result = await repository.DeleteAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
                 
-                if (result.StartsWith("Error"))
-                {
-                    throw new Exception($"Stored Procedure Error: {result}");
-                }
+        //        if (result.StartsWith("Error"))
+        //        {
+        //            throw new Exception($"Stored Procedure Error: {result}");
+        //        }
 
-                logging.LogInfo($"FarmerStg with ID {id} deleted successfully.");
-            }
-            catch (Exception ex)
-            {
-                logging.LogError($"Error in DeleteFarmerStg for ID: {id}", ex);
-                throw;
-            }
-        }
+        //        logging.LogInfo($"FarmerStg with ID {id} deleted successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logging.LogError($"Error in DeleteFarmerStg for ID: {id}", ex);
+        //        throw;
+        //    }
+        //}
 
 
-        public async Task InsertFarmerCollection(FarmerCollStgInsertRequest request)
+        public async Task ImportFarmerCollection(FarmerCollStgInsertRequest request)
         {
             try
             {
@@ -100,7 +101,6 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                     { "IsProcess", request.IsProcess },
                     { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
                     { "BusinessId", request.BusinessId },
-                    { "IsDeleted", request.IsDeleted },
                     { "CreatedOn", request.CreatedOn ?? DateTime.Now },
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
                     { "ModifyOn", request.ModifyOn ?? (object)DBNull.Value },
@@ -165,66 +165,66 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                 throw;
             }
         }
-        public async Task UpdateFarmerCollection(FarmerCollStgUpdateRequest request)
-        {
-            try
-            {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+        //public async Task UpdateFarmerCollection(FarmerCollStgUpdateRequest request)
+        //{
+        //    try
+        //    {
+        //        var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
-                var parameters = new Dictionary<string, object>
-                {
-                    { "ActionType", (int)CrudActionType.Update },
-                    { "CollecionID", request.CollecionID },   // Primary key for update
-                    { "DumpDate", request.DumpDate },
-                    { "DumpTime", request.DumpTime ?? (object)DBNull.Value },
-                    { "FarmerId", request.FarmerId ?? (object)DBNull.Value },
-                    { "Fat", request.Fat ?? (object)DBNull.Value },
-                    { "Snf", request.Snf ?? (object)DBNull.Value },
-                    { "LR", request.LR ?? (object)DBNull.Value },
-                    { "WeightLiter", request.WeightLiter ?? (object)DBNull.Value },
-                    { "Type", request.Type ?? (object)DBNull.Value },
-                    { "Rtpl", request.Rtpl ?? (object)DBNull.Value },
-                    { "TotalAmount", request.TotalAmount ?? (object)DBNull.Value },
-                    { "SampleId", request.SampleId ?? (object)DBNull.Value },
-                    { "BatchNo", request.BatchNo ?? (object)DBNull.Value },
-                    { "FarmerName", request.FarmerName ?? (object)DBNull.Value },
-                    { "Mobile", request.Mobile ?? (object)DBNull.Value },
-                    { "InsertMode", request.InsertMode ?? "IMP" },
-                    { "Status", request.Status ?? "PENDING" },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
-                    { "MppID", request.MppID },
-                    { "BmcID", request.BmcID },
-                    { "RefranceId", request.RefranceId ?? (object)DBNull.Value },
-                    { "Can", request.Can ?? (object)DBNull.Value },
-                    { "IsValidated", request.IsValidated },
-                    { "IsProcess", request.IsProcess },
-                    { "CId", request.CId },
-                    { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
-                    //{ "CompanyID", request.CompanyCode ?? (object)DBNull.Value },
-                    { "IMEI_No", request.IMEINo ?? (object)DBNull.Value },
-                    { "is_status", request.IsStatus ?? (object)DBNull.Value },
-                    // System fields for update
-                    { "ModifiedBy", request.ModifiedBy ?? 0 },
-                    { "BusinessId", request.BusinessId  },
-                };
+        //        var parameters = new Dictionary<string, object>
+        //        {
+        //            { "ActionType", (int)CrudActionType.Update },
+        //            { "CollecionID", request.CollecionID },   // Primary key for update
+        //            { "DumpDate", request.DumpDate },
+        //            { "DumpTime", request.DumpTime ?? (object)DBNull.Value },
+        //            { "FarmerId", request.FarmerId ?? (object)DBNull.Value },
+        //            { "Fat", request.Fat ?? (object)DBNull.Value },
+        //            { "Snf", request.Snf ?? (object)DBNull.Value },
+        //            { "LR", request.LR ?? (object)DBNull.Value },
+        //            { "WeightLiter", request.WeightLiter ?? (object)DBNull.Value },
+        //            { "Type", request.Type ?? (object)DBNull.Value },
+        //            { "Rtpl", request.Rtpl ?? (object)DBNull.Value },
+        //            { "TotalAmount", request.TotalAmount ?? (object)DBNull.Value },
+        //            { "SampleId", request.SampleId ?? (object)DBNull.Value },
+        //            { "BatchNo", request.BatchNo ?? (object)DBNull.Value },
+        //            { "FarmerName", request.FarmerName ?? (object)DBNull.Value },
+        //            { "Mobile", request.Mobile ?? (object)DBNull.Value },
+        //            { "InsertMode", request.InsertMode ?? "IMP" },
+        //            { "Status", request.Status ?? "PENDING" },
+        //            { "Shift", request.Shift ?? (object)DBNull.Value },
+        //            { "MppID", request.MppID },
+        //            { "BmcID", request.BmcID },
+        //            { "RefranceId", request.RefranceId ?? (object)DBNull.Value },
+        //            { "Can", request.Can ?? (object)DBNull.Value },
+        //            { "IsValidated", request.IsValidated },
+        //            { "IsProcess", request.IsProcess },
+        //            { "CId", request.CId },
+        //            { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
+        //            //{ "CompanyID", request.CompanyCode ?? (object)DBNull.Value },
+        //            { "IMEI_No", request.IMEINo ?? (object)DBNull.Value },
+        //            { "is_status", request.IsStatus ?? (object)DBNull.Value },
+        //            // System fields for update
+        //            { "ModifiedBy", request.ModifiedBy ?? 0 },
+        //            { "BusinessId", request.BusinessId  },
+        //        };
 
-                var message = await repository.UpdateAsync(FarmerStgQueries.AddFarmerStg, parameters, CommandType.StoredProcedure);
-                if (message.StartsWith("Error"))
-                {
-                    throw new Exception($"Stored Procedure Error: {message}");
-                }
+        //        var message = await repository.UpdateAsync(FarmerStgQueries.AddFarmerStg, parameters, CommandType.StoredProcedure);
+        //        if (message.StartsWith("Error"))
+        //        {
+        //            throw new Exception($"Stored Procedure Error: {message}");
+        //        }
 
-                logging.LogInfo($"FarmerStg with ID {request.CollecionID} updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                logging.LogError($"Error updating FarmerCollStg record with ID: {request.CollecionID}", ex);
-                throw;
-            }
-        }
+        //        logging.LogInfo($"FarmerStg with ID {request.CollecionID} updated successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logging.LogError($"Error updating FarmerCollStg record with ID: {request.CollecionID}", ex);
+        //        throw;
+        //    }
+        //}
 
 
-        public async Task<FarmerCollResponse?> GetFarmerCollectionById(long id)
+        public async Task<FarmerCollResponse?> GetFarmerCollectionExportById(long id)
         {
             try
             {
@@ -235,7 +235,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                     new Dictionary<string, object>
                     {
                 { "ActionType", (int)ReadActionType.Individual },
-                { "CollecionID", id }
+                { "HeaderId", id }
                     },
                     null);
 
@@ -253,7 +253,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
             }
         }
 
-        public async Task<IListsResponse<FarmerCollResponse>> GetFarmerCollectionAll(IListsRequest request)
+        public async Task<IListsResponse<FarmerCollResponse>> GetFarmerCollectionExport(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -276,6 +276,8 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
             var paged = sorted.ApplyPaging(paging);
 
             var filteredCount = filtered.Count();
+
+            //var list = JsonSerializer.Deserialize<List<FarmerCollectionStagingDetail>>();
 
             return new ListsResponse<FarmerCollResponse>
             {

@@ -16,11 +16,6 @@ namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection
         public bool IsProcess { get; set; }
         public DateTime? ProcessDate { get; set; }
         public string? BusinessId { get; set; }
-        public bool? IsDeleted { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public int? ModifyBy { get; set; }
-        public DateTime? ModifyOn { get; set; }
         public List<FarmerCollectionStagingDetailModel> Details { get; set; } = new();
 
     }

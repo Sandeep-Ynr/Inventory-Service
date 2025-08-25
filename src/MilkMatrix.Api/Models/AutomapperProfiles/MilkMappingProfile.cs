@@ -188,10 +188,10 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(dest => dest.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
                         .ForMember(dest => dest.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
                         .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
-                        .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
-                        .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => src.CreatedOn ?? DateTime.Now))
-                        .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom(src => src.ModifyBy))
-                        .ForMember(dest => dest.ModifyOn, opt => opt.MapFrom(src => src.ModifyOn))
+                        //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+                        //.ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => src.CreatedOn ?? DateTime.Now))
+                        //.ForMember(dest => dest.ModifyBy, opt => opt.MapFrom(src => src.ModifyBy))
+                        //.ForMember(dest => dest.ModifyOn, opt => opt.MapFrom(src => src.ModifyOn))
                         .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
                         .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
 
