@@ -47,7 +47,7 @@ namespace MilkMatrix.Milk.Models.Queries
         {
             public const string AddFarmerStg = "usp_farmer_collection_staging_header_insupd";
             public const string AddFarmerStgDetail = "usp_farmer_collection_staging_detail_insupd";
-            public const string GetFarmerStgList = "usp_farmerstg_list";
+            public const string GetFarmerStgList = "usp_farmer_export_collection_list";
         }
 
         public static class FarmerCollectionQueries
