@@ -12,7 +12,7 @@ namespace MilkMatrix.Milk.Models.Request.Mcc
         public string? MccCode { get; set; }
         public string? MccName { get; set; }
         public int? BusinessId { get; set; }
-        public int? PlantId { get; set; }
+        public string? PlantId { get; set; }
         public string? Capacity { get; set; }
         public string? FSSSINumber { get; set; }
         public string? Description { get; set; }

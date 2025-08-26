@@ -79,6 +79,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "ActionType", (int)CrudActionType.Update },
                     { "RouteID", request.RouteID },
                     { "Name", request.Name },
+                    { "BmcId", request.BmcId },
                     { "RouteCode", request.RouteCode },
                     { "CompanyCode", request.CompanyCode },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },

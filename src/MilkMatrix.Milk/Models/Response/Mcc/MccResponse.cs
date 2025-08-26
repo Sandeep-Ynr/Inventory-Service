@@ -10,7 +10,7 @@ namespace MilkMatrix.Milk.Models.Response.Mcc
     {
         public int? Id { get; set; }
 
-        public string? PlantId { get; set; }
+        public string? plant_id { get; set; }
         public string? Name { get; set; }
         public string? MccCode { get; set; }
         public string? Capacity { get; set; }
