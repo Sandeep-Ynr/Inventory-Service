@@ -12,7 +12,7 @@ namespace MilkMatrix.Milk.Models.Queries
         public static class BmcQuery
         {
             public const string GetBmcList = "usp_bmc_list";
-            public const string AddBmc = "usp_bmc_insupd";
+            public const string AddBmc = "usp_bmc_insupd_new";
         }
     }
 }

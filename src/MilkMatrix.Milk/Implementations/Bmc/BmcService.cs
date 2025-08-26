@@ -75,10 +75,15 @@ namespace MilkMatrix.Milk.Implementations.Bmc
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
                 };
-                var response = await repository.AddAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
-                // Return the inserted StateId or Name, etc. depending on your SP response
-                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
-                logging.LogInfo($"BMC {request.BmcName} added successfully.");
+                var message = await repository.AddAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"BMC {message} added successfully.");
+                }
             }
             catch (Exception ex)
             {
