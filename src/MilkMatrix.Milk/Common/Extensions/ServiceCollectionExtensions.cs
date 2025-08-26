@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilkMatrix.Milk.Contracts.Accounts.AccountGroups;
 using MilkMatrix.Milk.Contracts.Admin.GlobleSetting;
 using MilkMatrix.Milk.Contracts.Animal;
 using MilkMatrix.Milk.Contracts.Bank;
@@ -102,7 +103,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<ISequenceService, SequenceService>()
                     .AddScoped<IFarmerStagingCollectionService, FarmerStgCollService>()
                     .AddScoped< IFarmerCollectionService,  FarmerCollectionService>()
-                    .AddScoped<IConfigSettingService, ConfigSettingService>();
+                    .AddScoped<IConfigSettingService, ConfigSettingService>()
+                    .AddScoped<IAccountGroupsService, AccountGroupsService>();
 
        
 
