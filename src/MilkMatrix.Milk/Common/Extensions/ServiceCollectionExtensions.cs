@@ -104,7 +104,9 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IFarmerStagingCollectionService, FarmerStgCollService>()
                     .AddScoped< IFarmerCollectionService,  FarmerCollectionService>()
                     .AddScoped<IConfigSettingService, ConfigSettingService>()
-                    .AddScoped<IAccountGroupsService, AccountGroupsService>();
+                    .AddScoped<IAccountGroupsService, AccountGroupsService>()
+                    .AddScoped<IAccountLedgerService, AccountLedgerService>();
+
 
        
 
