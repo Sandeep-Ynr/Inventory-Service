@@ -48,5 +48,32 @@ namespace MilkMatrix.Milk.Models.Response.Accounts.AccountGroups
 
     }
 
+    public class AccountHeadsResponse
+    {
+        public long id { get; set; }
+        public long business_id { get; set; }
+        public string code { get; set; }
+        public string name { get; set; }
+        public long group_id { get; set; }
+        public string group_name { get; set; }   // from join
+        public string ledger_type { get; set; }
+        public string cash_bank_type { get; set; }
+        public long? city_id { get; set; }
+        public string city_text { get; set; }
+        public string alternate_code { get; set; }
+        public bool budget_applicable { get; set; }
+        public bool cost_center_applicable { get; set; }
+        public bool tds_applicable { get; set; }
+        public bool is_active { get; set; }
+        public long? branch_id { get; set; }
+        public string notes { get; set; }
+        public long created_by { get; set; }
+        public DateTime created_on { get; set; }
+        public long? modify_by { get; set; }
+        public DateTime? modify_on { get; set; }
+        public bool is_deleted { get; set; }
+
+    }
+
 
 }
