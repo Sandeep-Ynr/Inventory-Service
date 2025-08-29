@@ -10,7 +10,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
         public PriceApplicabilityMappingProfile() 
         {
             CreateMap<PriceAppUpdateRequestModel, PriceAppUpdateRequest>()
-                        .ForMember(x => x.RateAppId, opt => opt.MapFrom(src => src.RateAppId))
+                        .ForMember(x => x.mappingid, opt => opt.MapFrom(src => src.mappingid))
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
                         .ForMember(x => x.RateCode, opt => opt.MapFrom(src => src.RateCode))
                         .ForMember(x => x.ModuleCode, opt => opt.MapFrom(src => src.ModuleCode))
@@ -46,6 +46,16 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
+
+            CreateMap<RateMappingTargetModel, RateMappingTarget>()
+                      .ForMember(x => x.PlantId, opt => opt.MapFrom(src => src.PlantId))
+                      .ForMember(x => x.MccId, opt => opt.MapFrom(src => src.MccId))
+                      .ForMember(x => x.BmcId, opt => opt.MapFrom(src => src.BmcId))
+                      .ForMember(x => x.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                      .ForMember(x => x.SocietyId, opt => opt.MapFrom(src => src.SocietyId))
+                      .ForMember(x => x.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
+                      .ForMember(x => x.ApplyToAllBelow, opt => opt.MapFrom(src => src.ApplyToAllBelow));
+
         }
     }
 }

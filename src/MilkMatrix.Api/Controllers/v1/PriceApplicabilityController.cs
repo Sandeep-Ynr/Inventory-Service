@@ -40,14 +40,14 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost]
-        [Route("list")]
+        [Route("rate-mapping—list")]
         public async Task<IActionResult> List([FromBody] ListsRequest request)
         {
             var result = await priceApplicabilityService.GetAllAsync(request);
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("rate-mapping{id}")]
         public async Task<ActionResult<PriceAppInsertResponse?>> GetById(int id)
         {
             try
@@ -70,7 +70,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost]
-        [Route("add")]
+        [Route("rate-mapping-insert")]
         public async Task<IActionResult> AddAsync([FromBody] PriceAppInsertRequestModel request)
         {
             try
@@ -97,13 +97,13 @@ namespace MilkMatrix.Api.Controllers.v1
             }
             catch (Exception ex)
             {
-                logger.LogError("Error in Add Price Applicability", ex);
-                return StatusCode(500, "An error occurred while adding the Price Applicability.");
+                logger.LogError("Error in Add Price Applicability");
+                return StatusCode(500, $"An error occurred while adding the Price Applicability. {ex.Message}");
             }
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("rate-mapping-update/{id}")]
         public async Task<IActionResult> UpdateAsync(int id, [FromBody] PriceAppUpdateRequestModel request)
         {
             if (!ModelState.IsValid || id <= 0)
@@ -115,11 +115,11 @@ namespace MilkMatrix.Api.Controllers.v1
                             {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
                     });
             await priceApplicabilityService.UpdateAsync(requestParams);
-            logger.LogInfo($"Price Applicability with id {request.RateAppId} updated successfully.");
+            logger.LogInfo($"Price Applicability with id {request.Priority} updated successfully.");
             return Ok(new { message = "Price Applicability updated successfully." });
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("rate-mapping-delete/{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             try

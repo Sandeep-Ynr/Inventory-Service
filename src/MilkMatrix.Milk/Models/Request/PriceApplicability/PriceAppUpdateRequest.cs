@@ -8,7 +8,8 @@ namespace MilkMatrix.Milk.Models.Request.PriceApplicability
 {
     public class PriceAppUpdateRequest
     {
-        public int? RateAppId { get; set; }
+        public int? mappingid { get; set; }
+        public byte[]? RvOriginal { get; set; }
         public int? BusinessEntityId { get; set; }
         public string? RateCode { get; set; }
         public string? ModuleCode { get; set; }
@@ -17,6 +18,12 @@ namespace MilkMatrix.Milk.Models.Request.PriceApplicability
         public int? ShiftId { get; set; }
         public string? RateFor { get; set; }
         public bool? IsActive { get; set; }
+        public int? Priority { get; set; }
+        public string? Description { get; set; }
+        public string? cattleScope { get; set; }
+        public string? applied_for { get; set; }
+        public string? applied_shift_scope { get; set; }
         public int? ModifyBy { get; set; }
+        public List<RateMappingTarget>? Targets { get; set; }
     }
 }

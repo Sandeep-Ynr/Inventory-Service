@@ -35,6 +35,36 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
             this.queryMultipleData = queryMultipleData;
         }
 
+        private DataTable ConvertToDataTable(List<RateMappingTarget> targets)
+        {
+            var table = new DataTable();
+            table.Columns.Add("plant_id", typeof(long));
+            table.Columns.Add("mcc_id", typeof(long));
+            table.Columns.Add("bmc_id", typeof(long));
+            table.Columns.Add("route_id", typeof(long));
+            table.Columns.Add("society_id", typeof(long));
+            table.Columns.Add("farmer_id", typeof(long));
+            table.Columns.Add("apply_to_all_below", typeof(bool));
+
+            if (targets != null && targets.Any())
+            {
+                foreach (var t in targets)
+                {
+                    table.Rows.Add(
+                        t.PlantId ?? (object)DBNull.Value,
+                        t.MccId ?? (object)DBNull.Value,
+                        t.BmcId ?? (object)DBNull.Value,
+                        t.RouteId ?? (object)DBNull.Value,
+                        t.SocietyId ?? (object)DBNull.Value,
+                        t.FarmerId ?? (object)DBNull.Value,
+                        t.ApplyToAllBelow
+                    );
+                }
+            }
+
+            return table;
+        }
+
         public async Task AddAsync(PriceAppInsertRequest request)
         {
             try
@@ -43,24 +73,27 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create}, // 1 for insert
-                    { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
-                    { "RateCode", request.RateCode ?? (object)DBNull.Value },
-                    { "ModuleCode", request.ModuleCode ?? (object)DBNull.Value },
-                    { "ModuleName", request.ModuleName ?? (object)DBNull.Value },
-                    { "WithEffectDate", request.WithEffectDate ?? (object)DBNull.Value },
-                    { "ShiftId", request.ShiftId ?? (object)DBNull.Value },
-                    { "RateFor", request.RateFor ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
+                    { "company_id",request.BusinessEntityId ?? (object)DBNull.Value },
+                    { "with_effect_date", request.WithEffectDate ?? (object)DBNull.Value },
+                    { "shift_id", request.ShiftId ?? (object)DBNull.Value },
+                    { "applied_shift_scope", request.applied_shift_scope?? (object)DBNull.Value },
+                    { "cattle_scope", request.cattleScope?? (object)DBNull.Value },
+                    { "applied_for", request.applied_for?? (object)DBNull.Value },
+                    { "priority", request.Priority  ?? (object)DBNull.Value},
+                    { "notes", request.Description  ?? (object)DBNull.Value},
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
+                    { "rate_code", request.RateCode ?? (object)DBNull.Value },
+                    { "targets", ConvertToDataTable(request.Targets)  },
                 };
-                var response = await repository.AddAsync(PriceApplicabilityQuery.AddPriceApp, requestParams, CommandType.StoredProcedure);
-                // Return the inserted StateId or Name, etc. depending on your SP response
-                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
-                logging.LogInfo($"Price Applicability {request.ModuleName} added successfully.");
+                var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in AddAsync for Price Applicability: {request.ModuleName}", ex);
+                logging.LogError($"Error in AddAsync for Price Applicability: {request.ModuleName}");
                 throw;
             }
         }
@@ -74,21 +107,27 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
-                    { "RateAppId", request.RateAppId},
-                    { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
-                    { "RateCode", request.RateCode ?? (object)DBNull.Value },
-                    { "ModuleCode", request.ModuleCode ?? (object)DBNull.Value },
-                    { "ModuleName", request.ModuleName ?? (object)DBNull.Value },
-                    { "WithEffectDate", request.WithEffectDate ?? (object)DBNull.Value },
-                    { "ShiftId", request.ShiftId ?? (object)DBNull.Value },
-                    { "RateFor", request.RateFor ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
-                    { "ModifyBy", request.ModifyBy }
+                    { "id",request.mappingid ?? (object)DBNull.Value },
+                    { "company_id", request.BusinessEntityId ?? (object)DBNull.Value },
+                    { "rate_code", request.RateCode ?? (object)DBNull.Value },
+                    { "with_effect_date", request.WithEffectDate ?? (object)DBNull.Value },
+                    { "shift_id", request.ShiftId ?? (object)DBNull.Value },
+                    { "applied_shift_scope", request.applied_shift_scope ?? (object)DBNull.Value },
+                    { "cattle_scope", request.cattleScope ?? (object)DBNull.Value },
+                    { "applied_for", request.applied_for ?? (object)DBNull.Value },
+                    { "priority", request.Priority ?? (object)DBNull.Value },
+                    { "chart_type_id", 3 },
+                    { "is_active", 1 },
+                    { "notes", request.Description  ?? (object)DBNull.Value},
+                    { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
+                    //{ "rv_original", "0x0000000000248BA9"  },
+                    { "targets", ConvertToDataTable(request.Targets)  },
                 };
-
-                await repository.UpdateAsync(PriceApplicabilityQuery.AddPriceApp, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"Price Applicability {request.ModuleName} updated successfully.");
+                var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
             }
             catch (Exception ex)
             {
@@ -105,13 +144,16 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                 var requestParams = new Dictionary<string, object>
                 {
                     {"ActionType" , (int)CrudActionType.Delete },
-                    {"RateAppId", id },
-                    {"IsActive", false },
+                    {"id", id },
+                    {"company_id", id },
+                    {"is_active", false },
                     {"ModifyBy", userId }
-
                 };
-
-                var response = await repository.DeleteAsync(PriceApplicabilityQuery.AddPriceApp, requestParams, CommandType.StoredProcedure);
+                var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
 
                 logging.LogInfo($"Price Applicability with id {id} deleted successfully.");
 
@@ -168,7 +210,7 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                            .ConnectDapper<PriceAppInsertResponse>(DbConstants.Main);
                 var data = await repo.QueryAsync<PriceAppInsertResponse>(PriceApplicabilityQuery.GetPriceAppList, new Dictionary<string, object> {
                     { "ActionType", (int)ReadActionType.Individual },
-                    { "RateAppId", id }
+                    { "@mapping_id", id }
                 }, null);
 
                 var result = data.Any() ? data.FirstOrDefault() : new PriceAppInsertResponse();

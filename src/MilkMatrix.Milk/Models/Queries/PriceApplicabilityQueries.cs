@@ -10,8 +10,11 @@ namespace MilkMatrix.Milk.Models.Queries
     {
         public static class PriceApplicabilityQuery
         {
-            public const string GetPriceAppList = "usp_price_applicability_list";
+            //public const string GetPriceAppList = "usp_price_applicability_list";
+            public const string GetPriceAppList = "usp_rate_mapping_list";
+            
             public const string AddPriceApp = "usp_price_applicability_insupd";
+            public const string InsupRateMapping = "usp_rate_mapping_insupd";
         }
 
         public static class RateForQuery
