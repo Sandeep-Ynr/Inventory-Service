@@ -102,8 +102,21 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
         {
             try
             {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                string? hexValue = request.RvOriginal; // Example: "0x00000000000007D3"
+                byte[]? rvOriginalBytes = null;
 
+                if (!string.IsNullOrWhiteSpace(hexValue))
+                {
+                    // Remove "0x" prefix if present
+                    if (hexValue.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hexValue = hexValue.Substring(2);
+                    }
+
+                    // Convert to byte[]
+                    rvOriginalBytes = Convert.FromHexString(hexValue);
+                }
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
@@ -119,7 +132,7 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                     { "is_active", request.IsActive ?? (object)DBNull.Value},
                     { "notes", request.Description  ?? (object)DBNull.Value},
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                    //{ "rv_original", "0x0000000000248BA9"  },
+                    { "rv_original", rvOriginalBytes ?? (object)DBNull.Value },
                     { "targets", ConvertToDataTable(request.Targets)  },
                 };
                 var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);
