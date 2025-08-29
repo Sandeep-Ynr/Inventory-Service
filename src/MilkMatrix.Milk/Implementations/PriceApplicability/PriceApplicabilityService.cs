@@ -82,7 +82,7 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
                     { "priority", request.Priority  ?? (object)DBNull.Value},
                     { "notes", request.Description  ?? (object)DBNull.Value},
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
-                    { "rate_code", request.RateCode ?? (object)DBNull.Value },
+                    { "rate_code_id", request.RateCodeId ?? (object)DBNull.Value },
                     { "targets", ConvertToDataTable(request.Targets)  },
                 };
                 var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);
@@ -102,25 +102,37 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
         {
             try
             {
-                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                string? hexValue = request.RvOriginal; // Example: "0x00000000000007D3"
+                byte[]? rvOriginalBytes = null;
 
+                if (!string.IsNullOrWhiteSpace(hexValue))
+                {
+                    // Remove "0x" prefix if present
+                    if (hexValue.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    {
+                        hexValue = hexValue.Substring(2);
+                    }
+
+                    // Convert to byte[]
+                    rvOriginalBytes = Convert.FromHexString(hexValue);
+                }
+                var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
                     { "id",request.mappingid ?? (object)DBNull.Value },
                     { "company_id", request.BusinessEntityId ?? (object)DBNull.Value },
-                    { "rate_code", request.RateCode ?? (object)DBNull.Value },
+                    { "rate_code_id", request.RateCodeId ?? (object)DBNull.Value },
                     { "with_effect_date", request.WithEffectDate ?? (object)DBNull.Value },
                     { "shift_id", request.ShiftId ?? (object)DBNull.Value },
                     { "applied_shift_scope", request.applied_shift_scope ?? (object)DBNull.Value },
                     { "cattle_scope", request.cattleScope ?? (object)DBNull.Value },
                     { "applied_for", request.applied_for ?? (object)DBNull.Value },
                     { "priority", request.Priority ?? (object)DBNull.Value },
-                    { "chart_type_id", 3 },
-                    { "is_active", 1 },
+                    { "is_active", request.IsActive ?? (object)DBNull.Value},
                     { "notes", request.Description  ?? (object)DBNull.Value},
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value },
-                    //{ "rv_original", "0x0000000000248BA9"  },
+                    { "rv_original", rvOriginalBytes ?? (object)DBNull.Value },
                     { "targets", ConvertToDataTable(request.Targets)  },
                 };
                 var message = await repository.AddAsync(PriceApplicabilityQuery.InsupRateMapping, requestParams, CommandType.StoredProcedure);

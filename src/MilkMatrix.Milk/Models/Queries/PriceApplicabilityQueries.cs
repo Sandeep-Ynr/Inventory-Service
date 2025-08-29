@@ -14,7 +14,7 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetPriceAppList = "usp_rate_mapping_list";
             
             public const string AddPriceApp = "usp_price_applicability_insupd";
-            public const string InsupRateMapping = "usp_rate_mapping_insupd";
+            public const string InsupRateMapping = "usp_rate_mapping_insupd_v1";
         }
 
         public static class RateForQuery

@@ -9,9 +9,9 @@ namespace MilkMatrix.Milk.Models.Request.PriceApplicability
     public class PriceAppUpdateRequest
     {
         public int? mappingid { get; set; }
-        public byte[]? RvOriginal { get; set; }
+        public string? RvOriginal { get; set; }
         public int? BusinessEntityId { get; set; }
-        public string? RateCode { get; set; }
+        public int? RateCodeId { get; set; }
         public string? ModuleCode { get; set; }
         public string? ModuleName { get; set; }
         public DateTime? WithEffectDate { get; set; }

@@ -12,7 +12,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
             CreateMap<PriceAppUpdateRequestModel, PriceAppUpdateRequest>()
                         .ForMember(x => x.mappingid, opt => opt.MapFrom(src => src.mappingid))
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
-                        .ForMember(x => x.RateCode, opt => opt.MapFrom(src => src.RateCode))
+                        .ForMember(x => x.RateCodeId, opt => opt.MapFrom(src => src.RateCodeId))
                         .ForMember(x => x.ModuleCode, opt => opt.MapFrom(src => src.ModuleCode))
                         .ForMember(x => x.ModuleName, opt => opt.MapFrom(src => src.ModuleName))
                         .ForMember(x => x.WithEffectDate, opt => opt.MapFrom(src => src.WithEffectDate))
@@ -23,7 +23,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
             CreateMap<PriceAppInsertRequestModel, PriceAppInsertRequest>()
                         .ForMember(x => x.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
-                        .ForMember(x => x.RateCode, opt => opt.MapFrom(src => src.RateCode))
+                        .ForMember(x => x.RateCodeId, opt => opt.MapFrom(src => src.RateCodeId))
                         .ForMember(x => x.ModuleCode, opt => opt.MapFrom(src => src.ModuleCode))
                         .ForMember(x => x.ModuleName, opt => opt.MapFrom(src => src.ModuleName))
                         .ForMember(x => x.WithEffectDate, opt => opt.MapFrom(src => src.WithEffectDate))
