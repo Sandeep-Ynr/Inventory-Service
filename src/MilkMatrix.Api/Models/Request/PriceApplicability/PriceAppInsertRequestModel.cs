@@ -1,3 +1,5 @@
+using MilkMatrix.Milk.Models.Request.PriceApplicability;
+
 namespace MilkMatrix.Api.Models.Request.PriceApplicability
 {
     public class PriceAppInsertRequestModel
@@ -10,5 +12,10 @@ namespace MilkMatrix.Api.Models.Request.PriceApplicability
         public int? ShiftId { get; set; }
         public string? RateFor { get; set; }
         public bool? IsStatus { get; set; }
+        public int? Priority { get; set; }
+        public string? cattleScope { get; set; }
+        public string? applied_for { get; set; }
+        public string? applied_shift_scope { get; set; }
+        public List<RateMappingTarget>? Targets { get; set; }
     }
 }
