@@ -31,7 +31,7 @@ namespace MilkMatrix.Milk.Models.Request.Accounts.AccountGroups
         public string CashBankType { get; set; } // char(1)
         public long? CityId { get; set; }
         public string CityText { get; set; }
-        public string AlternateCode { get; set; }
+        public string? AlternateCode { get; set; }
         public bool BudgetApplicable { get; set; }
         public bool CostCenterApplicable { get; set; }
         public bool TdsApplicable { get; set; }
