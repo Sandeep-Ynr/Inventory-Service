@@ -1,3 +1,4 @@
+using MilkMatrix.Api.Models.Request.PriceApplicability;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Milk.Models.Request.PriceApplicability;
@@ -14,7 +15,7 @@ namespace MilkMatrix.Milk.Contracts.PriceApplicability
         Task DeleteAsync(int id, int userId);
 
         Task<IListsResponse<RateForInsertResponse>> GetAllRateForAsync(IListsRequest request);
-        Task<RateForInsertResponse?> GetRateForByIdAsync(int id);
+        Task<PriceActualRateResponse?> GetRateForByIdAsync(PriceAppRateforRequest request);
         Task AddRateForAsync(RateForInsertRequest request);
         Task UpdateRateForAsync(RateForUpdateRequest request);
         Task DeleteRateForAsync(int id, int userId);
