@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using MilkMatrix.Api.Models.Request.PriceApplicability;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
@@ -355,30 +356,42 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
             };
         }
 
-        public async Task<RateForInsertResponse?> GetRateForByIdAsync(int id)
+        public async Task<PriceActualRateResponse?> GetRateForByIdAsync(PriceAppRateforRequest request)
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Rate For id: {id}");
-                var repo = repositoryFactory
-                           .ConnectDapper<RateForInsertResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<RateForInsertResponse>(RateForQuery.GetRateForList, new Dictionary<string, object> {
-                    { "ActionType", (int)ReadActionType.Individual },
-                    { "RateForId", id }
-                }, null);
+                var repo = repositoryFactory.ConnectDapper<PriceActualRateResponse>(DbConstants.Main);
 
-                var result = data.Any() ? data.FirstOrDefault() : new RateForInsertResponse();
-                logging.LogInfo(result != null
-                    ? $"Rate For with id {id} retrieved successfully."
-                    : $"Rate For with id {id} not found.");
-                return result;
+                var parameters = new Dictionary<string, object>
+                {
+                    { "company_id", request.CompanyId },
+                    { "tx_date", request.TxDate },
+                    { "shift_id", request.ShiftId },
+                    { "cattle_scope", request.CattleScope },
+                    { "plant_id", request.PlantId },
+                    { "farmer_id", request.FarmerId },
+                    { "level", request.Level },
+                    { "view_type", request.ViewType },
+                    { "fat", request.Fat },
+                    { "snf", request.Snf },
+                    { "society_id", request.SocietyId ?? (object)DBNull.Value },
+                    { "route_id",   request.RouteId   ?? (object)DBNull.Value },
+                    { "bmc_id",     request.BmcId     ?? (object)DBNull.Value },
+                    { "mcc_id",     request.MccId     ?? (object)DBNull.Value }
+                };
+
+
+                var data = await repo.QueryAsync<PriceActualRateResponse>(
+                    RateForQuery.GetRateForList, parameters, null);
+
+                return data.FirstOrDefault();
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for Rate For id: {id}", ex);
                 throw;
             }
         }
+
 
     }
 }

@@ -19,7 +19,7 @@ namespace MilkMatrix.Milk.Models.Queries
 
         public static class RateForQuery
         {
-            public const string GetRateForList = "usp_rate_For_list";
+            public const string GetRateForList = "usp_get_actual_rate";
             public const string AddRateFor = "usp_rate_For_insupd";
         }
     }
