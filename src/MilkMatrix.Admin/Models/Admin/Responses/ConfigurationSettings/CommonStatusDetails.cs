@@ -1,3 +1,4 @@
+using MilkMatrix.Core.Attributes;
 using MilkMatrix.Core.Entities.Common;
 
 namespace MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
@@ -12,6 +13,7 @@ public class CommonStatusDetails : Audit
     /// <summary>
     /// Gets or sets the name of the status.
     /// </summary>
+    [GlobalSearch]
     public string Name { get; set; }
 
     /// <summary>
@@ -52,6 +54,7 @@ public class CommonStatusDetails : Audit
     /// <summary>
     /// Gets or sets the name of the business associated with this status.
     /// </summary>
+    [GlobalSearch]
     public string BusinessName { get; set; }
 
 }

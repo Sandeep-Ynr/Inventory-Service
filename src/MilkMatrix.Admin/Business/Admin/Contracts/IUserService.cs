@@ -22,21 +22,21 @@ public interface IUserService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddAsync(UserInsertRequest request);
+    Task<string> AddAsync(UserInsertRequest request);
 
     /// <summary>
     /// Updates an existing user based on the request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateAsync(UserUpdateRequest request);
+    Task<string> UpdateAsync(UserUpdateRequest request);
 
     /// <summary>
     /// Updates the user profile based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateProfileAsync(UserProfileUpdate request);
+    Task<string> UpdateProfileAsync(UserProfileUpdate request);
 
     /// <summary>
     /// Deletes a user by ID and user ID of the person performing the deletion.

@@ -104,9 +104,9 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.AddAsync(requestParams);
+            var response = await configService.AddAsync(requestParams);
             logging.LogInfo($"ConfigDetails {request.TagName} added successfully.");
-            return Ok(new { message = "ConfigDetails added successfully." });
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -140,9 +140,8 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.UpdateAsync(requestParams);
-            logging.LogInfo($"ConfigDetails with {request.Id} updated successfully.");
-            return Ok(new { message = "ConfigDetails updated successfully." });
+            var response = await configService.UpdateAsync(requestParams);
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -242,9 +241,9 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.AddSmtpDetailsAsync(requestParams);
+            var response = await configService.AddSmtpDetailsAsync(requestParams);
             logging.LogInfo($"SmtpDetails {request.SmtpServer} added successfully.");
-            return Ok(new { message = "SmtpDetails added successfully." });
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -278,9 +277,8 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.UpdateSmtpDetailsAsync(requestParams);
-            logging.LogInfo($"SmtpDetails with {request.SmtpServer} updated successfully.");
-            return Ok(new { message = "SmtpDetails updated successfully." });
+            var response = await configService.UpdateSmtpDetailsAsync(requestParams);
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -378,9 +376,8 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.AddMobileBlockAsync(requestParams);
-            logging.LogInfo($"details {request.MobileNumber} added successfully.");
-            return Ok(new { message = "Success." });
+            var response = await configService.AddMobileBlockAsync(requestParams);
+            return !string.IsNullOrEmpty(response) && response.ToLower().Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -413,9 +410,9 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.UpdateMobileBlockAsync(requestParams);
-            logging.LogInfo($"Details with {request.MobileNumber} updated successfully.");
-            return Ok(new { message = "Success." });
+            var response = await configService.UpdateMobileBlockAsync(requestParams);
+            logging.LogInfo($"Details with {request.ContactName} {response}.");
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -511,9 +508,9 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.AddSmsControlDetailsAsync(requestParams);
-            logging.LogInfo($"SmsMerchant {request.SmsMerchant} added successfully.");
-            return Ok(new { message = "Success." });
+
+            var response = await configService.AddSmsControlDetailsAsync(requestParams);
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -546,9 +543,9 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.UpdateSmsDetailsAsync(requestParams);
-            logging.LogInfo($"Sms control with {request.SmsMerchant} updated successfully.");
-            return Ok(new { message = "Sms control updated successfully." });
+            var response = await configService.UpdateSmsDetailsAsync(requestParams);
+
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {
@@ -646,9 +643,8 @@ public class SettingsController : ControllerBase
                 , new Dictionary<string, object> {
             { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
             });
-            await configService.AddStatusAsync(requestParams);
-            logging.LogInfo($"statusDetails {request.Name} added successfully.");
-            return Ok(new { message = "statusDetails added successfully." });
+            var response = await configService.AddStatusAsync(requestParams);
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
         }
         catch (Exception ex)
         {

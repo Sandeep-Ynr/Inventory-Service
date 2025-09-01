@@ -58,7 +58,7 @@ public class UserService : IUserService
     }
 
     ///<inheritdoc />
-    public async Task AddAsync(UserInsertRequest request)
+    public async Task<string> AddAsync(UserInsertRequest request)
     {
         try
         {
@@ -81,8 +81,7 @@ public class UserService : IUserService
                 ["Status"] = true,
                 ["ActionType"] = (int)CrudActionType.Create
             };
-            await repo.AddAsync(UserSpName.UserUpsert, parameters);
-            logger.LogInfo($"User {request.Username} added successfully.");
+            return await repo.AddAsync(UserSpName.UserUpsert, parameters);
         }
         catch (Exception ex)
         {
@@ -139,7 +138,7 @@ public class UserService : IUserService
     }
 
     ///<inheritdoc />
-    public async Task UpdateAsync(UserUpdateRequest request)
+    public async Task<string> UpdateAsync(UserUpdateRequest request)
     {
         try
         {
@@ -163,8 +162,7 @@ public class UserService : IUserService
                 ["Status"] = request.IsActive,
                 ["ActionType"] = (int)CrudActionType.Update
             };
-            await repo.UpdateAsync(UserSpName.UserUpsert, parameters);
-            logger.LogInfo($"User {request.UserName} updated successfully.");
+            return await repo.UpdateAsync(UserSpName.UserUpsert, parameters);
         }
         catch (Exception ex)
         {
@@ -213,7 +211,7 @@ public class UserService : IUserService
     }
 
     ///<inheritdoc />
-    public async Task UpdateProfileAsync(UserProfileUpdate request)
+    public async Task<string> UpdateProfileAsync(UserProfileUpdate request)
     {
         try
         {
@@ -228,8 +226,8 @@ public class UserService : IUserService
                 ["ModifyBy"] = request.ModifyBy,
                 ["ActionType"] = (int)CrudActionType.Update
             };
-            await repo.UpdateAsync(UserSpName.UserProfileUpdate, parameters);
-            logger.LogInfo($"User {request.UserName} updated successfully.");
+            return await repo.UpdateAsync(UserSpName.UserProfileUpdate, parameters);
+            //logger.LogInfo($"User {request.UserName} updated successfully.");
         }
         catch (Exception ex)
         {

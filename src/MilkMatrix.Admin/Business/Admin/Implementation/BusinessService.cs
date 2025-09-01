@@ -47,7 +47,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         /// <inheritdoc/>
-        public async Task AddAsync(BusinessInsertRequest request)
+        public async Task<string> AddAsync(BusinessInsertRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -81,11 +81,11 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["BranchCode"] = request.BranchCode,
                     ["CreatedBy"] = request.CreatedBy,
                     ["IsStatus"] = true,
+                    ["PanNo"] = request.PanNo,
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
-                logger.LogInfo($"Business {request.Name} added successfully.");
+                return await repo.AddAsync(BusinessSpName.BusinessUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -151,7 +151,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         /// <inheritdoc/>
-        public async Task UpdateAsync(BusinessUpdateRequest request)
+        public async Task<string> UpdateAsync(BusinessUpdateRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -161,7 +161,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 logger.LogInfo($"UpdateAsync called for business: {request.Name}");
 
                 var repo = repositoryFactory.ConnectDapper<BusinessUpdateRequest>(DbConstants.Main);
-
+                //kr3R9XJNvc4r2nxrjbD/fUPSU78DymggrLd4Alf9AcBC8O20M4G6GgdGFuRy3Onh95PJ0cgTgmDgBcgNUOSMOA==`d340f50e-fa39-4abc-871e-91c92cc67ba7
                 var parameters = new Dictionary<string, object>
                 {
                     ["BusinessId"] = request.Id,
@@ -178,6 +178,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["OpeningFinYear"] = request.OpFinancialYear,
                     ["OpeningFinDate"] = request.OpFromDate,
                     ["Pf"] = request.PfNo,
+                    ["PanNo"] = request.PanNo,
                     ["LockTransaction"] = request.LockData ?? false,
                     ["LockTransactionDate"] = request.LockBefore,
                     ["StateId"] = request.StateId,
@@ -189,8 +190,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.UpdateAsync(BusinessSpName.BusinessUpsert, parameters);
-                logger.LogInfo($"Business {request.Name} updated successfully.");
+                return await repo.UpdateAsync(BusinessSpName.BusinessUpsert, parameters);
             }
             catch (Exception ex)
             {

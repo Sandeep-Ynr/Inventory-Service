@@ -8,7 +8,6 @@ using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Request.Approval.Details;
-using MilkMatrix.Core.Entities.Response;
 
 namespace MilkMatrix.Admin.Business.Admin.Contracts;
 
@@ -30,14 +29,14 @@ public interface IConfigurationService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddAsync(ConfigurationInsertRequest request);
+    Task<string> AddAsync(ConfigurationInsertRequest request);
 
     /// <summary>
     /// Updates an existing configuration setting or tag in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateAsync(ConfigurationUpdateRequest request);
+    Task<string> UpdateAsync(ConfigurationUpdateRequest request);
 
     /// <summary>
     /// Deletes a configuration setting or tag from the system based on its unique identifier and the user who requested the deletion.
@@ -68,14 +67,14 @@ public interface IConfigurationService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddSmtpDetailsAsync(SmtpSettingsInsert request);
+    Task<string> AddSmtpDetailsAsync(SmtpSettingsInsert request);
 
     /// <summary>
     /// Updates an existing smtp setting in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateSmtpDetailsAsync(SmtpSettingsUpdate request);
+    Task<string> UpdateSmtpDetailsAsync(SmtpSettingsUpdate request);
 
     /// <summary>
     /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
@@ -106,14 +105,14 @@ public interface IConfigurationService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddMobileBlockAsync(BlockedMobilesInsert request);
+    Task<string> AddMobileBlockAsync(BlockedMobilesInsert request);
 
     /// <summary>
     /// Updates an existing smtp setting in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateMobileBlockAsync(BlockedMobilesUpdate request);
+    Task<string> UpdateMobileBlockAsync(BlockedMobilesUpdate request);
 
     /// <summary>
     /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
@@ -144,14 +143,14 @@ public interface IConfigurationService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddSmsControlDetailsAsync(SmsControlInsert request);
+    Task<string> AddSmsControlDetailsAsync(SmsControlInsert request);
 
     /// <summary>
     /// Updates an existing sms setting in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateSmsDetailsAsync(SmsControlUpdate request);
+    Task<string> UpdateSmsDetailsAsync(SmsControlUpdate request);
 
     /// <summary>
     /// Deletes a smtp setting from the system based on its unique identifier and the user who requested the deletion.
@@ -182,14 +181,14 @@ public interface IConfigurationService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddStatusAsync(CommonStatusInsert request);
+    Task<string> AddStatusAsync(CommonStatusInsert request);
 
     /// <summary>
     /// Updates an existing status in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateStatusAsync(CommonStatusUpdate request);
+    Task<string> UpdateStatusAsync(CommonStatusUpdate request);
 
     /// <summary>
     /// Deletes a status from the system based on its unique identifier and the user who requested the deletion.

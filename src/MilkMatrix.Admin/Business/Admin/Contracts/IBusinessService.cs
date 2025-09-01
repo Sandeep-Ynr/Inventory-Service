@@ -1,7 +1,6 @@
 using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
-using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Response.Business;
 
 namespace MilkMatrix.Admin.Business.Admin.Contracts;
@@ -23,14 +22,14 @@ public interface IBusinessService
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task AddAsync(BusinessInsertRequest request);
+    Task<string> AddAsync(BusinessInsertRequest request);
 
     /// <summary>
     /// Updates an existing business in the system based on the provided request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    Task UpdateAsync(BusinessUpdateRequest request);
+    Task<string> UpdateAsync(BusinessUpdateRequest request);
 
     /// <summary>
     /// Gets a list of businesses from the system.

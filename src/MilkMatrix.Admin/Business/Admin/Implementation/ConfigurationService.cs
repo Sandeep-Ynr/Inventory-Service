@@ -1,8 +1,5 @@
-using Azure.Core;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Common.Handlers.Approval;
-using MilkMatrix.Admin.Models.Admin.Requests.Business;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.BlockedMobiles;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.CommonStatus;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Configurations;
@@ -10,7 +7,6 @@ using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Email;
 using MilkMatrix.Admin.Models.Admin.Requests.ConfigurationSettings.Sms;
 using MilkMatrix.Admin.Models.Admin.Responses.ConfigurationSettings;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
-using MilkMatrix.Core.Abstractions.Approval.Factory;
 using MilkMatrix.Core.Abstractions.Approval.Service;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -19,14 +15,11 @@ using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Abstractions.Repository.Factories;
 using MilkMatrix.Core.Entities.Common;
 using MilkMatrix.Core.Entities.Config;
-using MilkMatrix.Core.Entities.Dtos;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Filters;
 using MilkMatrix.Core.Entities.Request.Approval.Details;
 using MilkMatrix.Core.Entities.Response;
-using MilkMatrix.Core.Entities.Response.Business;
 using MilkMatrix.Core.Extensions;
-using MilkMatrix.Infrastructure.Common.Utils;
 using static MilkMatrix.Admin.Models.Constants;
 
 namespace MilkMatrix.Admin.Business.Admin.Implementation
@@ -53,7 +46,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
         }
 
         #region Configuration Settings
-        public async Task AddAsync(ConfigurationInsertRequest request)
+        public async Task<string> AddAsync(ConfigurationInsertRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -75,8 +68,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.ConfigurationUpsert, parameters);
-                logger.LogInfo($"Configuration {request.TagName} added successfully.");
+                return await repo.AddAsync(ConfigurationSettingSpName.ConfigurationUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -106,7 +98,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                 logger.LogError($"Error in DeleteAsync for Configuration id: {id}", ex);
                 throw;
             }
-        }
+        } 
 
         public async Task<IListsResponse<ConfigurationDetails>> GetAllAsync(IListsRequest request, int userId)
         {
@@ -169,7 +161,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task UpdateAsync(ConfigurationUpdateRequest request)
+        public async Task<string> UpdateAsync(ConfigurationUpdateRequest request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -191,8 +183,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.ConfigurationUpsert, parameters);
-                logger.LogInfo($"Configuration {request.Id} updated successfully.");
+               return await repo.AddAsync(ConfigurationSettingSpName.ConfigurationUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -228,7 +219,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task AddSmtpDetailsAsync(SmtpSettingsInsert request)
+        public async Task<string> AddSmtpDetailsAsync(SmtpSettingsInsert request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -250,8 +241,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
-                logger.LogInfo($"Smtp {request.SmtpServer} added successfully.");
+                return await repo.AddAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -260,7 +250,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task UpdateSmtpDetailsAsync(SmtpSettingsUpdate request)
+        public async Task<string> UpdateSmtpDetailsAsync(SmtpSettingsUpdate request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -283,8 +273,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.UpdateAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
-                logger.LogInfo($"Smtp {request.SmtpServer} updated successfully.");
+                return await repo.UpdateAsync(ConfigurationSettingSpName.SmtpSettingsUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -369,7 +358,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task AddMobileBlockAsync(BlockedMobilesInsert request)
+        public async Task<string> AddMobileBlockAsync(BlockedMobilesInsert request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -388,8 +377,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
-                logger.LogInfo($"BlockedMobile {request.MobileNumber} added successfully.");
+                return await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -398,7 +386,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task UpdateMobileBlockAsync(BlockedMobilesUpdate request)
+        public async Task<string> UpdateMobileBlockAsync(BlockedMobilesUpdate request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -418,8 +406,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
-                logger.LogInfo($"BlockedMobile {request.Id} updated successfully.");
+                return await repo.UpdateAsync(ConfigurationSettingSpName.BlockedMobilesUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -504,7 +491,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task AddSmsControlDetailsAsync(SmsControlInsert request)
+        public async Task<string> AddSmsControlDetailsAsync(SmsControlInsert request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -526,8 +513,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
-                logger.LogInfo($"Sms merchant {request.SmsMerchant} added successfully.");
+                return await repo.AddAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -536,7 +522,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task UpdateSmsDetailsAsync(SmsControlUpdate request)
+        public async Task<string> UpdateSmsDetailsAsync(SmsControlUpdate request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -559,8 +545,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.UpdateAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
-                logger.LogInfo($"Sms merchant {request.SmsMerchant} updated successfully.");
+                return await repo.UpdateAsync(ConfigurationSettingSpName.SmsSettingsUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -648,7 +633,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task AddStatusAsync(CommonStatusInsert request)
+        public async Task<string> AddStatusAsync(CommonStatusInsert request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -670,8 +655,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Create
                 };
 
-                await repo.AddAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
-                logger.LogInfo($"Status {request.StatusName} added successfully.");
+                return await repo.AddAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
             }
             catch (Exception ex)
             {
@@ -680,7 +664,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
             }
         }
 
-        public async Task UpdateStatusAsync(CommonStatusUpdate request)
+        public async Task<string> UpdateStatusAsync(CommonStatusUpdate request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
@@ -703,8 +687,7 @@ namespace MilkMatrix.Admin.Business.Admin.Implementation
                     ["ActionType"] = (int)CrudActionType.Update
                 };
 
-                await repo.UpdateAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
-                logger.LogInfo($"Status {request.StatusName} added successfully.");
+                return await repo.UpdateAsync(ConfigurationSettingSpName.StatusUpsert, parameters);
             }
             catch (Exception ex)
             {

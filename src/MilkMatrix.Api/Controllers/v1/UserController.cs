@@ -5,9 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Admin.Business.Admin.Contracts;
-using MilkMatrix.Admin.Business.Admin.Implementation;
 using MilkMatrix.Admin.Models.Admin.Requests.User;
-using MilkMatrix.Admin.Models.Admin.Responses.Page;
 using MilkMatrix.Admin.Models.Admin.Responses.User;
 using MilkMatrix.Api.Models.Request.Admin.User;
 using MilkMatrix.Core.Abstractions.Logger;
@@ -67,20 +65,20 @@ public class UserController : ControllerBase
                     , new Dictionary<string, object> {
                 { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
                 });
-                await userService.UpdateAsync(requestParams);
+                var response = await userService.UpdateAsync(requestParams);
                 logger.LogInfo($"User with id {request.Id} updated successfully.");
-                return Ok(new { message = "User updated successfully." });
+                return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
             }
             else
             {
                 logger.LogInfo($"Upsert: Add called for user: {request.Name}");
                 var requestParams = mapper.MapWithOptions<UserInsertRequest, UserUpsertModel>(request
-                    , new Dictionary<string, object> {
+                , new Dictionary<string, object> {
                 { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
                 });
-                await userService.AddAsync(requestParams);
+                var response = await userService.AddAsync(requestParams);
                 logger.LogInfo($"User {request.Name} added successfully.");
-                return Ok(new { message = "User added successfully." });
+                return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
             }
         }
         catch (Exception ex)
@@ -163,9 +161,9 @@ public class UserController : ControllerBase
                 { Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)},
                 { Constants.AutoMapper.LoginId ,Convert.ToInt32(UserId)}
         });
-            await userService.UpdateProfileAsync(requestParams);
+            var response = await userService.UpdateProfileAsync(requestParams);
             logger.LogInfo($"User with {request.UserName} updated successfully.");
-            return Ok(new { message = "User updated successfully." });
+            return !string.IsNullOrEmpty(response) && response.Contains("successfully") ? Ok("Success") : BadRequest(new ProblemDetails { Status = (int)HttpStatusCode.BadRequest, Title = "Failed", Detail = response });
 
         }
         catch (Exception ex)
