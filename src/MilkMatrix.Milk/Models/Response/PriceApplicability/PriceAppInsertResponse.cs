@@ -11,6 +11,8 @@ namespace MilkMatrix.Milk.Models.Response.PriceApplicability
     {
         public int? MappingID { get; set; }
         public int? BusinessEntityId { get; set; }
+
+        public byte[] RvOriginal { get; set; }
         public string? RateCodeId { get; set; }
         public DateTime? WithEffectDate { get; set; }
         public int? ShiftId { get; set; }

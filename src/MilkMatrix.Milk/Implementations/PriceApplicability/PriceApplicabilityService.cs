@@ -103,7 +103,10 @@ namespace MilkMatrix.Milk.Implementations.PriceApplicability
         {
             try
             {
-                string? hexValue = request.RvOriginal; // Example: "0x00000000000007D3"
+                string base64 = request.RvOriginal;
+                byte[] bytes = Convert.FromBase64String(base64);
+                string hex = "0x" + BitConverter.ToString(bytes).Replace("-", "");
+                string? hexValue = hex; // Example: "0x00000000000007D3"
                 byte[]? rvOriginalBytes = null;
 
                 if (!string.IsNullOrWhiteSpace(hexValue))

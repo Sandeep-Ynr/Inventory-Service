@@ -11,6 +11,7 @@ namespace MilkMatrix.Milk.Models.Response.MPP
     {
         public string? Code { get; set; }
         public string? CompanyCode { get; set; }
+        public int BmcId { get; set; }
         public string? ShortName { get; set; }
         public string? RegionalName { get; set; }
         public string? MPPExCode { get; set; }
