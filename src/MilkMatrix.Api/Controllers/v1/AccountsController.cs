@@ -6,22 +6,25 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Accounts.Accountgroups;
+using MilkMatrix.Api.Models.Request.Accounts.HSN;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
 using MilkMatrix.Core.Entities.Request;
 using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Infrastructure.Common.Utils;
-using MilkMatrix.Milk.Contracts.Accounts.AccountGroups;
 using MilkMatrix.Milk.Contracts.Accounts;
+using MilkMatrix.Milk.Contracts.Accounts.AccountGroups;
+using MilkMatrix.Milk.Contracts.Accounts.HSN;
+using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
 using MilkMatrix.Milk.Models.Request.Accounts.AccountGroups;
+using MilkMatrix.Milk.Models.Request.Accounts.HSN;
 using MilkMatrix.Milk.Models.Response.Accounts.AccountGroups;
 using static MilkMatrix.Api.Common.Constants.Constants;
-using MilkMatrix.Milk.Implementations;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -32,15 +35,18 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMapper mapper;
         private readonly IAccountGroupsService AccountGroupsService;
         private readonly IAccountLedgerService AccountLedgerService;
+        private readonly IHSNService HSNService;
 
 
-        public AccountsController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IAccountGroupsService AccountGroupsService,IAccountLedgerService AccountLedgerService)
+
+        public AccountsController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IAccountGroupsService AccountGroupsService,IAccountLedgerService AccountLedgerService,IHSNService HSNService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(AccountsController)) ?? throw new ArgumentNullException(nameof(logger));
             this.mapper = mapper;
             this.AccountGroupsService = AccountGroupsService;
             this.AccountLedgerService = AccountLedgerService;
+            this.HSNService= HSNService;
         }
 
         [HttpPost]
@@ -248,6 +254,113 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost]
+        [Route("add-hsn")]
+        public async Task<IActionResult> AddHSN([FromBody] HSNInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                logger.LogInfo($"Add called for HSN Code: {request.HSNCode}");
+                var requestParams = mapper.MapWithOptions<HSNInsertRequest, HSNInsertRequestModel>(request
+                    , new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.CreatedBy ,Convert.ToInt32(UserId)}
+                });
+                await HSNService.InsertHSN(requestParams);
+                logger.LogInfo($"HSN Code {request.HSNCode} added successfully.");
+                return Ok(new { message = "HSN Code added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in HSN Code", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("update-hsn/{id}")]
+        public async Task<IActionResult> UpdateHSN(int id, [FromBody] HSNUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || id <= 0)
+                    return BadRequest("Invalid request.");
+
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<HSNUpdateRequest, HSNUpdateRequestModel>(request
+                            , new Dictionary<string, object> {
+                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                        });
+                await HSNService.UpdateHSN(id, requestParams);
+                logger.LogInfo($"HSN Code with id {request.HSNCode} updated successfully.");
+                return Ok(new { message = "HSN Code  updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving HSN Code  with id: {id}", ex);
+                return StatusCode(500, ex.Message);
+
+            }
+        }
+
+        [HttpDelete("delete-hsn/{id}")]
+        public async Task<IActionResult> DeleteHSNById(int id)
+        {
+            try
+            {
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await HSNService.DeleteHSNById(id, Convert.ToInt32(UserId));
+                logger.LogInfo($"HSN Code with id {id} deleted successfully.");
+                return Ok(new { message = "HSN Code  deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting HSN Code  with id: {id}", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("list-hsn")]
+        public async Task<IActionResult> GetHSNList([FromBody] ListsRequest request)
+        {
+            var result = await HSNService.GetHSNList(request);
+            return Ok(result);
+        }
+
+        [HttpGet("hsn_list_by_id{id}")]
+        public async Task<ActionResult<AccountGroupsResponse?>> GetHSNById(int id)
+        {
+            try
+            {
+                logger.LogInfo($"Get HSN Code by id called for id: {id}");
+                var mcc = await HSNService.GetHSNById(id);
+                if (mcc == null)
+                {
+                    logger.LogInfo($"HSN Code with id {id} not found.");
+                    return NotFound();
+                }
+                logger.LogInfo($"HSN Code with id {id} retrieved successfully.");
+                return Ok(mcc);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving HSN Code with id: {id}", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
 
     }
 }

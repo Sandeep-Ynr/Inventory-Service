@@ -13,6 +13,8 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string InsupdAccountGroup = "usp_account_group_insupd";
             public const string GetAccountHeadsList = "usp_account_ledger_list";
             public const string InsupdAccountHeads = "usp_account_ledger_insupd";
+            public const string InsupdHSN = "usp_hsn_master_insupd";
+            public const string GetHSNList = "usp_hsn_master_list";
 
     }
 }
