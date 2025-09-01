@@ -12,6 +12,7 @@ namespace MilkMatrix.Milk.Models.Request.MPP
         public string Code { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
         public string MPPName { get; set; } = string.Empty;
+        public int BmcId { get; set; }
         public string? ShortName { get; set; }
         public string? RegionalName { get; set; }
         public string MPPExCode { get; set; } = string.Empty;

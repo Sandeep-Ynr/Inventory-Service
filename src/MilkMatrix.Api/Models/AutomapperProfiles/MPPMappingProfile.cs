@@ -8,10 +8,12 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
     {
         public MPPMappingProfile()
         {
+            
             CreateMap<SaleInsertRequestModel, MPPInsertRequest>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
                 .ForMember(dest => dest.MPPName, opt => opt.MapFrom(src => src.MPPName))
+                .ForMember(dest => dest.BmcId, opt => opt.MapFrom(src => src.BmcId))
                 .ForMember(dest => dest.ShortName, opt => opt.MapFrom(src => src.ShortName))
                 .ForMember(dest => dest.RegionalName, opt => opt.MapFrom(src => src.RegionalName))
                 .ForMember(dest => dest.MPPExCode, opt => opt.MapFrom(src => src.MPPExCode))
@@ -48,6 +50,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
                 .ForMember(dest => dest.MPPName, opt => opt.MapFrom(src => src.MPPName))
+                .ForMember(dest => dest.BmcId, opt => opt.MapFrom(src => src.BmcId))
                 .ForMember(dest => dest.ShortName, opt => opt.MapFrom(src => src.ShortName))
                 .ForMember(dest => dest.RegionalName, opt => opt.MapFrom(src => src.RegionalName))
                 .ForMember(dest => dest.MPPExCode, opt => opt.MapFrom(src => src.MPPExCode))
