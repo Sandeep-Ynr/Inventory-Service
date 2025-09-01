@@ -1,8 +1,10 @@
 using AutoMapper;
-using MilkMatrix.Milk.Models;
 using MilkMatrix.Api.Models.Request.Accounts.Accountgroups;
-using MilkMatrix.Milk.Models.Request.Accounts.AccountGroups;
+using MilkMatrix.Api.Models.Request.Accounts.HSN;
 using MilkMatrix.Milk.Implementations;
+using MilkMatrix.Milk.Models;
+using MilkMatrix.Milk.Models.Request.Accounts.AccountGroups;
+using MilkMatrix.Milk.Models.Request.Accounts.HSN;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -70,6 +72,60 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Notes, opt => opt.MapFrom(src => src.Notes))
                         .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) =>
                             context.Items[Constants.AutoMapper.ModifiedBy]));
+
+                    // Insert Mapping
+                         CreateMap<HSNInsertRequestModel, HSNInsertRequest>()
+                        .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                        .ForMember(x => x.HSNCode, opt => opt.MapFrom(src => src.HSNCode))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+
+                        .ForMember(x => x.IgstRate, opt => opt.MapFrom(src => src.IgstRate))
+                        .ForMember(x => x.CgstRate, opt => opt.MapFrom(src => src.CgstRate))
+                        .ForMember(x => x.SgstRate, opt => opt.MapFrom(src => src.SgstRate))
+                        .ForMember(x => x.CessRate, opt => opt.MapFrom(src => src.CessRate))
+
+                        .ForMember(x => x.CgstInputLedgerId, opt => opt.MapFrom(src => src.CgstInputLedgerId))
+                        .ForMember(x => x.CgstOutputLedgerId, opt => opt.MapFrom(src => src.CgstOutputLedgerId))
+                        .ForMember(x => x.SgstInputLedgerId, opt => opt.MapFrom(src => src.SgstInputLedgerId))
+                        .ForMember(x => x.SgstOutputLedgerId, opt => opt.MapFrom(src => src.SgstOutputLedgerId))
+                        .ForMember(x => x.IgstInputLedgerId, opt => opt.MapFrom(src => src.IgstInputLedgerId))
+                        .ForMember(x => x.IgstOutputLedgerId, opt => opt.MapFrom(src => src.IgstOutputLedgerId))
+                        .ForMember(x => x.CessInputLedgerId, opt => opt.MapFrom(src => src.CessInputLedgerId))
+                        .ForMember(x => x.CessOutputLedgerId, opt => opt.MapFrom(src => src.CessOutputLedgerId))
+
+                        .ForMember(x => x.WefDate, opt => opt.MapFrom(src => src.WefDate))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                        .ForMember(x => x.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
+
+                        .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) =>
+                            context.Items[Constants.AutoMapper.CreatedBy]));
+
+                    // Update Mapping
+                    CreateMap<HSNUpdateRequestModel, HSNUpdateRequest>()
+                        .ForMember(x => x.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                        .ForMember(x => x.HSNCode, opt => opt.MapFrom(src => src.HSNCode))
+                        .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+
+                        .ForMember(x => x.IgstRate, opt => opt.MapFrom(src => src.IgstRate))
+                        .ForMember(x => x.CgstRate, opt => opt.MapFrom(src => src.CgstRate))
+                        .ForMember(x => x.SgstRate, opt => opt.MapFrom(src => src.SgstRate))
+                        .ForMember(x => x.CessRate, opt => opt.MapFrom(src => src.CessRate))
+
+                        .ForMember(x => x.CgstInputLedgerId, opt => opt.MapFrom(src => src.CgstInputLedgerId))
+                        .ForMember(x => x.CgstOutputLedgerId, opt => opt.MapFrom(src => src.CgstOutputLedgerId))
+                        .ForMember(x => x.SgstInputLedgerId, opt => opt.MapFrom(src => src.SgstInputLedgerId))
+                        .ForMember(x => x.SgstOutputLedgerId, opt => opt.MapFrom(src => src.SgstOutputLedgerId))
+                        .ForMember(x => x.IgstInputLedgerId, opt => opt.MapFrom(src => src.IgstInputLedgerId))
+                        .ForMember(x => x.IgstOutputLedgerId, opt => opt.MapFrom(src => src.IgstOutputLedgerId))
+                        .ForMember(x => x.CessInputLedgerId, opt => opt.MapFrom(src => src.CessInputLedgerId))
+                        .ForMember(x => x.CessOutputLedgerId, opt => opt.MapFrom(src => src.CessOutputLedgerId))
+
+                        .ForMember(x => x.WefDate, opt => opt.MapFrom(src => src.WefDate))
+                        .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsActive))
+
+                        .ForMember(x => x.ModifyBy, opt => opt.MapFrom((src, dest, destMember, context) =>
+                            context.Items[Constants.AutoMapper.ModifiedBy]));
+
 
 
         }
