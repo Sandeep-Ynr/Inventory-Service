@@ -6,7 +6,8 @@ namespace MilkMatrix.Api.Models.Request.MPP
         public string Code { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
         public string MPPName { get; set; } = string.Empty;
-
+        
+        public int RouteID { get; set; }
         public int BmcId { get; set; }
         public string? ShortName { get; set; }
         public string? RegionalName { get; set; }

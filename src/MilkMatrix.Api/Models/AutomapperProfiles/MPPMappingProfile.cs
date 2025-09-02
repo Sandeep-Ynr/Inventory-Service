@@ -9,7 +9,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
         public MPPMappingProfile()
         {
             
-            CreateMap<SaleInsertRequestModel, MPPInsertRequest>()
+            CreateMap<MPPInsertRequestModel, MPPInsertRequest>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.CompanyCode, opt => opt.MapFrom(src => src.CompanyCode))
                 .ForMember(dest => dest.MPPName, opt => opt.MapFrom(src => src.MPPName))
@@ -42,6 +42,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.PouringMethod, opt => opt.MapFrom(src => src.PouringMethod))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
+                .ForMember(dest => dest.RouteID, opt => opt.MapFrom(src => src.RouteID))
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
 
@@ -79,6 +80,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.PouringMethod, opt => opt.MapFrom(src => src.PouringMethod))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.Business_entity_id, opt => opt.MapFrom(src => src.Business_entity_id))
+                .ForMember(dest => dest.RouteID, opt => opt.MapFrom(src => src.RouteID))
                 .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
         }
     }

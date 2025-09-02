@@ -9,11 +9,14 @@ namespace MilkMatrix.Milk.Models.Request.Logistics.Route
     public class RouteInsertRequest
     {
         public string Name { get; set; } = string.Empty;
+
+        
         public string RouteCode { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
         public string? RegionalName { get; set; }
         public int VehicleID { get; set; }
-        public string BmcId { get; set; }
+        public int BmcId { get; set; }
+        public int? RouteContractorId { get; set; }
         public int VehicleCapacity { get; set; }
         public TimeSpan? MorningStartTime { get; set; }
         public TimeSpan? MorningEndTime { get; set; }
