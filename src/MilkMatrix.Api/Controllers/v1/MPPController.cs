@@ -19,7 +19,7 @@ using MilkMatrix.Milk.Models.Response.MPP;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -69,7 +69,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> Add([FromBody] SaleInsertRequestModel request)
+        public async Task<IActionResult> Add([FromBody] MPPInsertRequestModel request)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
                 logger.LogInfo($"Add called for MPP: {request.MPPName}");
 
-                var mappedRequest = mapper.MapWithOptions<MPPInsertRequest, SaleInsertRequestModel>(
+                var mappedRequest = mapper.MapWithOptions<MPPInsertRequest, MPPInsertRequestModel>(
                     request,
                     new Dictionary<string, object>
                     {

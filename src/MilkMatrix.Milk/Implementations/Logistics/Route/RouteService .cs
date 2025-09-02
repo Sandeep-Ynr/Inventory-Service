@@ -17,6 +17,7 @@ using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.Logistics.Route;
 using MilkMatrix.Milk.Models.Response.Logistics.Route;
 using static MilkMatrix.Milk.Models.Queries.BankQueries;
+using static MilkMatrix.Milk.Models.Queries.PriceApplicabilityQueries;
 
 namespace MilkMatrix.Milk.Implementations.Logistics.Route
 {
@@ -48,6 +49,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "CompanyCode", request.CompanyCode },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
                     { "BmcId", request.BmcId },
+                    { "RouteContractorId", request.RouteContractorId ?? (object)DBNull.Value },
                     { "VehicleID", request.VehicleID },
                     { "VehicleCapacity", request.VehicleCapacity },
                     { "MorningStartTime", request.MorningStartTime },
@@ -58,8 +60,11 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "IsStatus", request.IsActive },
                     { "CreatedBy", request.CreatedBy }
                 };
-
-                var response = await repository.AddAsync(RouteQueries.AddRoute, requestParams, CommandType.StoredProcedure);
+                var message = await repository.AddAsync(RouteQueries.AddRoute, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
                 logging.LogInfo($"Route {request.Name} added successfully.");
             }
             catch (Exception ex)
@@ -80,6 +85,7 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "RouteID", request.RouteID },
                     { "Name", request.Name },
                     { "BmcId", request.BmcId },
+                    { "RouteContractorId", request.RouteContractorId ?? (object)DBNull.Value },
                     { "RouteCode", request.RouteCode },
                     { "CompanyCode", request.CompanyCode },
                     { "RegionalName", request.RegionalName ?? (object)DBNull.Value },
@@ -93,8 +99,11 @@ namespace MilkMatrix.Milk.Implementations.Logistics.Route
                     { "IsStatus", request.IsActive },
                     { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
                 };
-
-                await repository.UpdateAsync(RouteQueries.AddRoute, requestParams, CommandType.StoredProcedure);
+                var message = await repository.UpdateAsync(RouteQueries.AddRoute, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
                 logging.LogInfo($"Route {request.Name} updated successfully.");
             }
             catch (Exception ex)

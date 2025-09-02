@@ -48,7 +48,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -257,26 +257,37 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add Route", ex);
-                return StatusCode(500, "An error occurred while adding the Route.");
+                return StatusCode(500, $"An error occurred while adding {ex.Message}");
             }
         }
 
         [HttpPut("update-route")]
         public async Task<IActionResult> UpdateRoute([FromBody] RouteUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || request.RouteID <= 0)
-                return BadRequest("Invalid request.");
+            try
+            {
 
-            var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                if (!ModelState.IsValid || request.RouteID <= 0)
+                    return BadRequest("Invalid request.");
 
-            var mappedRequest = mapper.MapWithOptions<RouteUpdateRequest, RouteUpdateRequestModel>(request,
-                new Dictionary<string, object> {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<RouteUpdateRequest, RouteUpdateRequestModel>(request,
+                    new Dictionary<string, object> {
                     { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
-                });
+                    });
 
-            await routeService.UpdateRoute(mappedRequest);
-            logger.LogInfo($"Route with ID {request.RouteID} updated successfully.");
-            return Ok(new { message = "Route updated successfully." });
+                await routeService.UpdateRoute(mappedRequest);
+                logger.LogInfo($"Route with ID {request.RouteID} updated successfully.");
+                return Ok(new { message = "Route updated successfully." });
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError("Error in Add Route", ex);
+                return StatusCode(500, $"An error occurred while updating {ex.Message}");
+            }
+
         }
 
         [HttpDelete("route-delete/{id}")]

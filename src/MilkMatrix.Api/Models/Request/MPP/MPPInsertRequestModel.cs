@@ -1,11 +1,12 @@
 namespace MilkMatrix.Api.Models.Request.MPP
 {
-    public class SaleInsertRequestModel
+    public class MPPInsertRequestModel
     {
         public string Code { get; set; } = string.Empty;
         public string CompanyCode { get; set; } = string.Empty;
         public string MPPName { get; set; } = string.Empty;
         public int BmcId { get; set; }
+        public int RouteID { get; set; }
         public string? ShortName { get; set; }
         public string? RegionalName { get; set; }
         public string MPPExCode { get; set; } = string.Empty;
@@ -13,7 +14,6 @@ namespace MilkMatrix.Api.Models.Request.MPP
         public DateTime? RegistrationDate { get; set; }
         public string? Logo { get; set; }
         public string? PunchLine { get; set; }
-
         public int? StateID { get; set; }
         public int? DistrictID { get; set; }
         public int? TehsilID { get; set; }
