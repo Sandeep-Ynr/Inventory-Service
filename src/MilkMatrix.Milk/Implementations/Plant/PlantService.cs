@@ -18,6 +18,7 @@ using MilkMatrix.Milk.Contracts.Plant;
 using MilkMatrix.Milk.Models.Request.Plant;
 using MilkMatrix.Milk.Models.Response.Plant;
 using static MilkMatrix.Milk.Models.Queries.PlantQueries;
+using static MilkMatrix.Milk.Models.Queries.PriceApplicabilityQueries;
 
 namespace MilkMatrix.Milk.Implementations.Plant
 {
@@ -69,9 +70,11 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
                 };
-                var response = await repository.AddAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
-                // Return the inserted StateId or Name, etc. depending on your SP response
-                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
+                var message = await repository.AddAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
                 logging.LogInfo($"Plant {request.PlantName} added successfully.");
             }
             catch (Exception ex)

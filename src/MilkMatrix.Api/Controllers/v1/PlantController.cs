@@ -22,7 +22,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -101,7 +101,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add Plant", ex);
-                return StatusCode(500, "An error occurred while adding the Plant.");
+                return StatusCode(500, $"An error occurred while adding the Plant{ex.Message}");
             }
         }
 
