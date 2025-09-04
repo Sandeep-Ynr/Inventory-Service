@@ -76,7 +76,7 @@ namespace MilkMatrix.Milk.Implementations
                     { "CreatedBy", request.CreatedBy ?? 0 }
                 };
 
-             var message = await repository.AddAsync("usp_mppmaster_insupd", requestParams, CommandType.StoredProcedure);
+             var message = await repository.AddAsync(MPPQueries.AddMPP, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
                 {
                     throw new Exception($"Stored Procedure Error: {message}");
@@ -166,12 +166,12 @@ namespace MilkMatrix.Milk.Implementations
                     {"MPPID", id },
                 };
 
-                var response = await repository.DeleteAsync(
-                   MPPQueries.AddMPP, requestParams, CommandType.StoredProcedure
-                );
-
+                var message = await repository.DeleteAsync(MPPQueries.AddMPP, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
                 logging.LogInfo($"MPP Type with id {id} deleted successfully.");
-
             }
             catch (Exception ex)
             {

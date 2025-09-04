@@ -98,7 +98,8 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add MPP", ex);
-                return StatusCode(500, "An error occurred while adding the record." + ex);
+                return StatusCode(500, $"An error occurred while adding the MPP. {ex.Message}");
+
             }
         }
 
@@ -126,7 +127,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in updating MPP", ex);
-                return StatusCode(500, "An error occurred while updating the record." + ex);
+                return StatusCode(500, $"An error occurred while updating the MPP. {ex.Message}");
             }
 
         }
@@ -144,7 +145,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting MPP with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the record." + ex);
+                return StatusCode(500, $"An error occurred while deleting the MPP. {ex.Message}");
             }
         }
     }
