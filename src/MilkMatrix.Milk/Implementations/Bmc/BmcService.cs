@@ -15,6 +15,7 @@ using MilkMatrix.Core.Entities.Response;
 using MilkMatrix.Core.Extensions;
 using MilkMatrix.Infrastructure.Common.DataAccess.Dapper;
 using MilkMatrix.Milk.Contracts.Bmc;
+using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.Bmc;
 using MilkMatrix.Milk.Models.Response.Bmc;
 using static MilkMatrix.Milk.Models.Queries.BmcQueries;
@@ -134,13 +135,19 @@ namespace MilkMatrix.Milk.Implementations.Bmc
                     { "ModifyBy", request.ModifyBy }
                 };
 
-                await repository.UpdateAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"BMC {request.BmcName} updated successfully.");
+                var message = await repository.UpdateAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"MPP {message} updated successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in UpdateAsync for BMC: {request.BmcName}", ex);
+                logging.LogError($"Error in updating {request.BmcName}", ex);
                 throw;
             }
         }
@@ -159,10 +166,12 @@ namespace MilkMatrix.Milk.Implementations.Bmc
 
                 };
 
-                var response = await repository.DeleteAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"BMC with id {id} deleted successfully.");
-
+                var message = await repository.DeleteAsync(BmcQuery.AddBmc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                logging.LogInfo($"BMC Type with id {id} deleted successfully.");
             }
             catch (Exception ex)
             {

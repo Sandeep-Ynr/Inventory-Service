@@ -70,7 +70,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error retrieving BMC with id: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the BMC.");
+                return StatusCode(500, "An error occurred while retrieving the BMC." + ex);
             }
         }
 
@@ -103,26 +103,40 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add BMC", ex);
-                return StatusCode(500, "An error occurred while adding the BMC.");
+                return StatusCode(500, $"An error occurred while adding the BMC. {ex.Message}");
             }
         }
 
-        [HttpPut]
-        [Route("update/{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateBmcAsync(int id, [FromBody] BmcUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
-                return BadRequest("Invalid request.");
+            try
+            {
+                if (!ModelState.IsValid || id <= 0 || request.BmcId != id)
+                    return BadRequest("Invalid request.");
 
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            var requestParams = mapper.MapWithOptions<BmcUpdateRequest, BmcUpdateRequestModel>(request
-                        , new Dictionary<string, object> {
-                            {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var requestParams = mapper.MapWithOptions<BmcUpdateRequest, BmcUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
                     });
-            await bmcService.UpdateAsync(requestParams);
-            logger.LogInfo($"BMC with id {request.BmcId} updated successfully.");
-            return Ok(new { message = "BMC updated successfully." });
+
+                await bmcService.UpdateAsync(requestParams);
+                logger.LogInfo($"BMC with ID {id} updated successfully.");
+                return Ok(new { message = "BMC updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating BMC", ex);
+                return StatusCode(500, $"An error occurred while updating the BMC. {ex.Message}");
+            }
+
+
         }
+
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeletePlant(int id)
@@ -137,7 +151,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting BMC with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the BMC.");
+                return StatusCode(500, $"An error occurred while deleting the BMC. {ex.Message}");
             }
         }
 
