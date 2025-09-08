@@ -4,20 +4,82 @@ namespace MilkMatrix.Milk.Models.Request.Party
 {
     public class PartyInsertRequest
     {
-        public long GroupId { get; set; }
-        public string PartyCode { get; set; } = string.Empty;
-        public string PartyName { get; set; } = string.Empty;
-        public string? PartyEmail { get; set; }
-        public string? PartyShortName { get; set; }
-        public string? PartyAddress { get; set; }
-        public string? PartyPinCode { get; set; }
-        public string? PartyPhoneNo { get; set; }
-        public string? PartyLicenceNo { get; set; }
-        public string? PartyGstNo { get; set; }
-        public string? PartyOwnerName { get; set; }
-        public string? PartyOwnerEmail { get; set; }
-        public string? PartyOwnerPhoneNo { get; set; }
-        public bool IsActive { get; set; }
-        public long CreatedBy { get; set; }
+        public int BusinessId { get; set; }          // business_id
+        public long? GroupId { get; set; }           // group_id (nullable bigint)
+        public string? PartyCode { get; set; }       // varchar(30)
+        public string PartyName { get; set; } = "";  // varchar(200), NOT NULL
+        public string? Gender { get; set; }          // varchar(10)
+        public string? Mobile { get; set; }          // varchar(15)
+        public string? Pan { get; set; }             // varchar(10)
+        public string? Gstin { get; set; }           // varchar(15)
+        public bool Is_Status { get; set; }           // bit
+        public int created_by { get; set; }
+
+
+        public List<PartyBankAccountInsertRequest>? BankAccounts { get; set; }
+        public List<PartyLocationInsertRequest>? Location { get; set; }
+        public List<MemberProfileInsertRequest>? memberProfiles { get; set; }
+        public List<PartyRoleInsertRequest>? Role { get; set; }
+
     }
+
+    public class PartyBankAccountInsertRequest
+    {
+        public int BusinessId { get; set; }             // business_id
+        public string AccountHolder { get; set; } = ""; // account_holder (NOT NULL)
+        public string AccountNumber { get; set; } = ""; // account_number (NOT NULL)
+        public int BankId { get; set; }                 // bank_id (FK → tbl_BankMaster)
+        public int BankBranchId { get; set; }           // bank_branch_id (FK → tbl_BranchMaster)
+        public bool Is_Primary { get; set; }             // is_primary
+        public bool Is_Status { get; set; }           // bit
+        public int created_by { get; set; }
+
+    }
+
+    public class PartyLocationInsertRequest
+    {
+        public int BusinessId { get; set; }             // business_id
+        public string? AddressType { get; set; }        // varchar(20)
+        public string Line1 { get; set; } = "";         // varchar(150), NOT NULL
+        public string? Line2 { get; set; }              // varchar(150)
+        public string City { get; set; } = "";          // varchar(80), NOT NULL
+        public int Stateid { get; set; }          // varchar(80), NOT NULL
+        public string Pincode { get; set; } = "";       // varchar(10), NOT NULL
+        public int Countryid { get; set; }  // varchar(60), default 'India'
+        public string? ContactName { get; set; }        // varchar(150)
+        public string? Mobile { get; set; }             // varchar(15)
+        public string? Email { get; set; }              // varchar(120)
+        public bool Is_Primary { get; set; }             // is_primary (default 0)
+        public bool Is_Status { get; set; }           // bit
+        public int created_by { get; set; }
+
+    }
+
+    public class MemberProfileInsertRequest
+    {
+        public int BusinessId { get; set; }             // business_id (FK → tbl_business_details)
+        public string MemberCode { get; set; } = "";    // member_code (NOT NULL)
+        public int? MppId { get; set; }                 // mpp_id
+        public int? SocietyId { get; set; }             // society_id
+        public int? RouteId { get; set; }               // route_id
+        public int? PreferredShiftId { get; set; }      // preferred_shift_id
+        public DateTime? PouringStartDate { get; set; } // pouring_start_date
+        public string? PaymentMode { get; set; }        // payment_mode
+        public int? BankAccountId { get; set; }         // bank_account_id (FK → party_bank_account)
+        public bool Is_Status { get; set; }           // bit
+        public int created_by { get; set; }
+
+    }
+
+    public class PartyRoleInsertRequest
+    {
+        public int BusinessId { get; set; }
+        public int RoleStatusId { get; set; }  // FK → Status
+        public DateTime EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
+        public bool Is_Status { get; set; }           // bit
+        public int created_by { get; set; }
+
+    }
+
 }
