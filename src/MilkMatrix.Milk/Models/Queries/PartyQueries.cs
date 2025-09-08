@@ -8,7 +8,7 @@ namespace MilkMatrix.Milk.Models.Queries
 {
     public static class PartyQueries
     {
-        public const string AddParty = "usp_party_insupd";
+        public const string AddParty = "usp_party_insupd_new";
         public const string GetPartyList = "usp_party_list";
 
         public const string AddPartyGroup = "usp_partygroup_insupd";

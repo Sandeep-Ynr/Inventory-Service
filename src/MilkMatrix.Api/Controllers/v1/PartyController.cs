@@ -19,7 +19,7 @@ using MilkMatrix.Milk.Models.Response.Party;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -162,7 +162,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpGet("id/{id}")]
-        public async Task<ActionResult<PartyResponse?>> GetById(int id)
+        public async Task<ActionResult<PartyDetailResponse?>> GetById(int id)
         {
             try
             {
@@ -214,12 +214,12 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] PartyUpdateRequestModel request)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> Update(int id,[FromBody] PartyUpdateRequestModel request)
         {
             try
             {
-                if (!ModelState.IsValid || request.PartyID <= 0)
+                if (!ModelState.IsValid || request.PartyId <= 0)
                     return BadRequest("Invalid request.");
 
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
@@ -231,8 +231,8 @@ namespace MilkMatrix.Api.Controllers.v1
                         { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
                     });
 
-                await partyService.UpdateParty(mappedRequest);
-                logger.LogInfo($"Party with ID {request.PartyID} updated successfully.");
+                await partyService.UpdateParty(id,mappedRequest);
+                logger.LogInfo($"Party with ID {request.PartyId} updated successfully.");
                 return Ok(new { message = "Party updated successfully." });
             }
             catch (Exception ex)
@@ -242,22 +242,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await partyService.Delete(id, Convert.ToInt32(userId));
-                logger.LogInfo($"Party with ID {id} deleted successfully.");
-                return Ok(new { message = "Party deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error deleting Party with ID: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the record." + ex);
-            }
-        }
+      
         #endregion
 
     }

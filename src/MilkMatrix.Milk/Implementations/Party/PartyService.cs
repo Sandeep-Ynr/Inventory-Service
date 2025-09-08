@@ -1,4 +1,6 @@
 using System.Data;
+using System.IO;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
@@ -37,25 +39,15 @@ namespace MilkMatrix.Milk.Implementations
         {
             try
             {
+
+                string json = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create },
-                    { "GroupID", request.GroupId },
-                    { "PartyCode", request.PartyCode },
-                    { "PartyName", request.PartyName },
-                    { "PartyEmail", request.PartyEmail ?? (object)DBNull.Value },
-                    { "PartyShortName", request.PartyShortName ?? (object)DBNull.Value },
-                    { "PartyAddress", request.PartyAddress ?? (object)DBNull.Value },
-                    { "PartyPinCode", request.PartyPinCode ?? (object)DBNull.Value },
-                    { "PartyPhoneNo", request.PartyPhoneNo ?? (object)DBNull.Value },
-                    { "PartyLicenceNo", request.PartyLicenceNo ?? (object)DBNull.Value },
-                    { "PartyGstNo", request.PartyGstNo ?? (object)DBNull.Value },
-                    { "PartyOwnerName", request.PartyOwnerName ?? (object)DBNull.Value },
-                    { "PartyOwnerEmail", request.PartyOwnerEmail ?? (object)DBNull.Value },
-                    { "PartyOwnerPhoneNo", request.PartyOwnerPhoneNo ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive },
-                    { "CreatedBy", request.CreatedBy }
+                    { "PartyJSON", json}
+                    
                 };
                 var message = await repository.AddAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
@@ -75,30 +67,32 @@ namespace MilkMatrix.Milk.Implementations
 
         }
 
-        public async Task UpdateParty(PartyUpdateRequest request)
+        public async Task UpdateParty(long id,PartyUpdateRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+                string json = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
-                    { "PartyID", request.PartyID },
-                    { "GroupID", request.GroupId },
-                    { "PartyCode", request.PartyCode },
-                    { "PartyName", request.PartyName },
-                    { "PartyEmail", request.PartyEmail ?? (object)DBNull.Value },
-                    { "PartyShortName", request.PartyShortName ?? (object)DBNull.Value },
-                    { "PartyAddress", request.PartyAddress ?? (object)DBNull.Value },
-                    { "PartyPinCode", request.PartyPinCode ?? (object)DBNull.Value },
-                    { "PartyPhoneNo", request.PartyPhoneNo ?? (object)DBNull.Value },
-                    { "PartyLicenceNo", request.PartyLicenceNo ?? (object)DBNull.Value },
-                    { "PartyGstNo", request.PartyGstNo ?? (object)DBNull.Value },
-                    { "PartyOwnerName", request.PartyOwnerName ?? (object)DBNull.Value },
-                    { "PartyOwnerEmail", request.PartyOwnerEmail ?? (object)DBNull.Value },
-                    { "PartyOwnerPhoneNo", request.PartyOwnerPhoneNo ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive },
-                    { "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
+                    { "PartyJSON", json},
+                    { "Partyid",id}
+                    //{ "GroupID", request.GroupId },
+                    //{ "PartyCode", request.PartyCode },
+                    //{ "PartyName", request.PartyName },
+                    //{ "PartyEmail", request.PartyEmail ?? (object)DBNull.Value },
+                    //{ "PartyShortName", request.PartyShortName ?? (object)DBNull.Value },
+                    //{ "PartyAddress", request.PartyAddress ?? (object)DBNull.Value },
+                    //{ "PartyPinCode", request.PartyPinCode ?? (object)DBNull.Value },
+                    //{ "PartyPhoneNo", request.PartyPhoneNo ?? (object)DBNull.Value },
+                    //{ "PartyLicenceNo", request.PartyLicenceNo ?? (object)DBNull.Value },
+                    //{ "PartyGstNo", request.PartyGstNo ?? (object)DBNull.Value },
+                    //{ "PartyOwnerName", request.PartyOwnerName ?? (object)DBNull.Value },
+                    //{ "PartyOwnerEmail", request.PartyOwnerEmail ?? (object)DBNull.Value },
+                    //{ "PartyOwnerPhoneNo", request.PartyOwnerPhoneNo ?? (object)DBNull.Value },
+                    //{ "IsActive", request.IsActive },
+                    //{ "ModifyBy", request.ModifyBy ?? (object)DBNull.Value }
                 };
                 var message = await repository.AddAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
                 if (message.StartsWith("Error"))
@@ -139,37 +133,76 @@ namespace MilkMatrix.Milk.Implementations
             }
         }
 
-        public async Task<PartyResponse?> GetById(long id)
+        public async Task<PartyDetailResponse?> GetById(long id)
         {
-            var repo = repositoryFactory.ConnectDapper<PartyResponse>(DbConstants.Main);
-            var data = await repo.QueryAsync<PartyResponse>(PartyQueries.GetPartyList, new Dictionary<string, object>
+            var repo = repositoryFactory.ConnectDapper<PartyDetailResponseraw>(DbConstants.Main);
+            var data = await repo.QueryAsync<PartyDetailResponseraw>(PartyQueries.GetPartyList, new Dictionary<string, object>
             {
                 { "ActionType", (int)ReadActionType.Individual },
                 { "PartyID", id }
             }, null);
 
-            return data.FirstOrDefault();
-        }
 
-        public async Task<IEnumerable<PartyResponse>> GetParties(PartyRequest request)
+            var record = data.FirstOrDefault();
+            if (record == null) return null;
+
+            // Deserialize JSON inline
+            var accounts = string.IsNullOrEmpty(record.BankAccounts)
+                ? new List<PartyBankAccount>()
+                : JsonSerializer.Deserialize<List<PartyBankAccount>>(record.BankAccounts);
+
+            var locations = string.IsNullOrEmpty(record.Locations)
+                ? new List<PartyLocation>()
+                : JsonSerializer.Deserialize<List<PartyLocation>>(record.Locations);
+
+            var profiles = string.IsNullOrEmpty(record.MemberProfiles)
+                ? new List<MemberProfiles>()
+                : JsonSerializer.Deserialize<List<MemberProfiles>>(record.MemberProfiles);
+
+            var roles = string.IsNullOrEmpty(record.Roles)
+                ? new List<PartyRoles>()
+                : JsonSerializer.Deserialize<List<PartyRoles>>(record.Roles);
+
+            // Return new object with parsed lists
+            return new PartyDetailResponse
+            {
+                BusinessId = record.BusinessId,
+                PartyId = record.PartyId,
+                GroupId = record.GroupId,
+                PartyCode = record.PartyCode,
+                PartyName = record.PartyName,
+                Gender = record.Gender,
+                Mobile = record.Mobile,
+                Pan = record.Pan,
+                Gstin = record.Gstin,
+                IsActive = record.IsActive,
+                CreatedBy = record.CreatedBy,
+                BankAccounts = accounts,
+                Location = locations,
+                MemberProfiles = profiles,
+                Role = roles
+            };
+         }
+
+        public async Task<IEnumerable<PartyResponse>> GetParties(PartyInsertRequest request)
         {
             var repository = repositoryFactory.Connect<PartyResponse>(DbConstants.Main);
             var requestParams = new Dictionary<string, object>
             {
-                { "PartyID", request.PartyID ?? 0 },
-                { "ActionType", (int)request.ActionType },
-                { "IsStatus", request.IsStatus }
+                //{ "PartyID", request.PartyID ?? 0 },
+                //{ "ActionType", (int)request.ActionType },
+                //{ "IsStatus", request.IsStatus }
             };
             return await repository.QueryAsync<PartyResponse>(PartyQueries.GetPartyList, requestParams, null, CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<CommonLists>> GetSpecificLists(PartyRequest request)
+        public async Task<IEnumerable<CommonLists>> GetSpecificLists(PartyInsertRequest request)
         {
             var repository = repositoryFactory.Connect<PartyResponse>(DbConstants.Main);
             var requestParams = new Dictionary<string, object>
             {
-                { "ActionType", (int)request.ActionType },
-                { "IsStatus", request.IsStatus }
+                //{ "ActionType", (int)request.ActionType },
+                //{ "IsStatus", request.IsStatus }
             };
             return await repository.QueryAsync<CommonLists>(PartyQueries.GetPartyList, requestParams, null, CommandType.StoredProcedure);
         }

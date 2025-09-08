@@ -12,11 +12,9 @@ namespace MilkMatrix.Milk.Contracts.Party
     public interface IPartyService
     {
         Task<IListsResponse<PartyResponse>> GetAll(IListsRequest request);
-        Task<PartyResponse?> GetById(long id);
-        Task<IEnumerable<PartyResponse>> GetParties(PartyRequest request);
-        Task<IEnumerable<CommonLists>> GetSpecificLists(PartyRequest request);
+        Task<PartyDetailResponse?> GetById(long id);
+       
         Task AddParty(PartyInsertRequest request);
-        Task UpdateParty(PartyUpdateRequest request);
-        Task Delete(long id, long userId);
+        Task UpdateParty(long id,PartyUpdateRequest request);
     }
 }
