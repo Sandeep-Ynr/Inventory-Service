@@ -69,16 +69,22 @@ namespace MilkMatrix.Milk.Implementations.Mcc
                     { "IsActive", request.IsActive ?? (object)DBNull.Value },
                     { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
                 };
-                var response = await repository.AddAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
-                // Return the inserted StateId or Name, etc. depending on your SP response
-                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
-                logging.LogInfo($"MCC {request.MccName} added successfully.");
+                var message = await repository.AddAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"MCC {message} added successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in AddAsync for MCC: {request.MccName}", ex);
+                logging.LogError($"Error in AddMcc: {request.MccName}", ex);
                 throw;
             }
+
         }
 
         public async Task UpdateAsync(MccUpdateRequest request)
@@ -118,15 +124,22 @@ namespace MilkMatrix.Milk.Implementations.Mcc
                     { "ModifyBy", request.ModifyBy }
                 };
 
-                await repository.UpdateAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"MCC {request.MccName} updated successfully.");
+                var message = await repository.UpdateAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"MCC {request.MccName} updated successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in UpdateAsync for MCC: {request.MccName}", ex);
+                logging.LogError($"Error in UpdateMcc: {request.MccName}", ex);
                 throw;
             }
+
         }
 
         public async Task DeleteAsync(int id, int userId)
@@ -143,16 +156,22 @@ namespace MilkMatrix.Milk.Implementations.Mcc
 
                 };
 
-                var response = await repository.DeleteAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"MCC with id {id} deleted successfully.");
-
+                var message = await repository.DeleteAsync(MccQuery.AddMcc, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"MCC with id {id} deleted successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in DeleteAsync for MCC id: {id}", ex);
+                logging.LogError($"Error in DeleteMcc: {id}", ex);
                 throw;
             }
+
 
         }
 

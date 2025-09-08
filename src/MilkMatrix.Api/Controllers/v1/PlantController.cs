@@ -68,7 +68,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error retrieving Plant with id: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the Plant.");
+                return StatusCode(500, "An error occurred while retrieving the Plant."+ ex);
             }
         }
 
@@ -109,19 +109,28 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("update/{id}")]
         public async Task<IActionResult> UpdatePlantAsync(int id, [FromBody] PlantUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
-                return BadRequest("Invalid request.");
+            try
+            {
+                if (!ModelState.IsValid || id <= 0)
+                    return BadRequest("Invalid request.");
 
-            // Ensure the route ID is used
-            //request.VillageId = id;
-            var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-            var requestParams = mapper.MapWithOptions<PlantUpdateRequest, PlantUpdateRequestModel>(request
-                        , new Dictionary<string, object> {
+                // Ensure the route ID is used
+                //request.VillageId = id;
+                var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<PlantUpdateRequest, PlantUpdateRequestModel>(request
+                            , new Dictionary<string, object> {
                             {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
-                    });
-            await plantService.UpdatePlantAsync(requestParams);
-            logger.LogInfo($"Update called for Plant: {request.PlantName}, Code: {request.PlantCode}");
-            return Ok(new { message = "Plant updated successfully." });
+                        });
+                await plantService.UpdatePlantAsync(requestParams);
+                logger.LogInfo($"Plant with Name: {request.PlantName}, Code: {request.PlantCode} updated successfully.");
+                return Ok(new { message = "Plant updated successfully." });
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating Plant", ex);
+                return StatusCode(500, $"An error occurred while updating the Plant. {ex.Message}");
+            }
         }
 
         [HttpDelete("delete/{id}")]
@@ -137,7 +146,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting Plant with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the Plant.");
+                return StatusCode(500, $"An error occurred while deleting the Plant.{ex.Message}");
             }
         }
 
