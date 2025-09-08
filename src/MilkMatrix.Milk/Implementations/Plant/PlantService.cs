@@ -75,13 +75,16 @@ namespace MilkMatrix.Milk.Implementations.Plant
                 {
                     throw new Exception($"Stored Procedure Error: {message}");
                 }
-                logging.LogInfo($"Plant {request.PlantName} added successfully.");
+                else
+                {
+                    logging.LogInfo($"Plant {request.PlantName} added successfully.");
+                }
             }
             catch (Exception ex)
-            {
-                logging.LogError($"Error in AddAsync for Plant: {request.PlantName}", ex);
-                throw;
-            }
+                {
+                    logging.LogError($"Error in AddPlant: {request.PlantName}", ex);
+                    throw;
+                }
         }
 
         public async Task UpdatePlantAsync(PlantUpdateRequest request)
@@ -120,13 +123,19 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     { "ModifyBy", request.ModifyBy }
                 };
 
-                await repository.UpdateAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
-
-                logging.LogInfo($"Plant {request.PlantName} updated successfully.");
+                var message = await repository.UpdateAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logging.LogInfo($"Plant {request.PlantName} updated successfully.");
+                }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in UpdateAsync for Plant: {request.PlantName}", ex);
+                logging.LogError($"Error in UpdatePlant: {request.PlantName}", ex);
                 throw;
             }
         }
@@ -145,14 +154,16 @@ namespace MilkMatrix.Milk.Implementations.Plant
                     
                 };
 
-                var response = await repository.DeleteAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
-
+                var message = await repository.DeleteAsync(PlantQuery.AddPlant, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
                 logging.LogInfo($"Plant with id {id} deleted successfully.");
-
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in DeleteAsync for Plant id: {id}", ex);
+                logging.LogError($"Error in DeletePlant for id: {id}", ex);
                 throw;
             }
 

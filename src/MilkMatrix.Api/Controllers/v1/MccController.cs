@@ -21,7 +21,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -66,7 +66,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error retrieving MCC with id: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the MCC.");
+                return StatusCode(500, "An error occurred while retrieving the MCC." + ex);
             }
         }
 
@@ -99,7 +99,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add MCC", ex);
-                return StatusCode(500, "An error occurred while adding the MCC.");
+                return StatusCode(500, $"An error occurred while adding the MCC.{ex.Message}");
             }
         }
 
@@ -107,7 +107,9 @@ namespace MilkMatrix.Api.Controllers.v1
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateMccAsync(int id, [FromBody] MccUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
+            try
+            {
+                if (!ModelState.IsValid || id <= 0)
                 return BadRequest("Invalid request.");
 
             var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
@@ -116,11 +118,18 @@ namespace MilkMatrix.Api.Controllers.v1
                             {Constants.AutoMapper.ModifiedBy ,Convert.ToInt32(UserId)}
                     });
             await mccService.UpdateAsync(requestParams);
+
             logger.LogInfo($"MCC with id {request.MccId} updated successfully.");
             return Ok(new { message = "MCC updated successfully." });
         }
+         catch (Exception ex)
+        {
+            logger.LogError("Error in updating MCC", ex);
+            return StatusCode(500, $"An error occurred while updating the MCC. {ex.Message}");
+        }
+}
 
-        [HttpDelete("delete/{id}")]
+[HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeletePlant(int id)
         {
             try
@@ -133,7 +142,7 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError($"Error deleting MCC with id: {id}", ex);
-                return StatusCode(500, "An error occurred while deleting the MCC.");
+                return StatusCode(500, $"An error occurred while deleting the MCC. {ex.Message}");
             }
         }
 
