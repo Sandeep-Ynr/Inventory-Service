@@ -41,7 +41,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -633,7 +633,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
         #endregion
-    
+
         #region DockData
 
         [HttpPost("DockData-list")]
@@ -789,7 +789,6 @@ namespace MilkMatrix.Api.Controllers.v1
                         ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
                     });
                 }
-
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
                 var requestParams = mapper.MapWithOptions<FarmerCollStgInsertRequest, FarmerCollStgInsertRequestModel>(request,
                     new Dictionary<string, object> {
@@ -803,14 +802,10 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error adding FarmerStaging", ex);
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponse
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError,
-                    ErrorMessage = "An error occurred while adding the record.",
-                });
+                return StatusCode(500, $"An error occurred while import. {ex.Message}");
             }
         }
-        [HttpPost("farmer-collection/export")]
+        [HttpPost("farmer-collection/export-list")]
         public async Task<IActionResult> GetFarmerCollectionAll([FromBody] ListsRequest request)
         {
             var result = await farmerstgollectionservice.GetFarmerCollectionExport(request);
@@ -875,7 +870,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        
+
         [HttpPost("Insert-FarmerCollection")]
         public async Task<IActionResult> Add([FromBody] FarmerCollectionInsertRequestModel request)
         {
@@ -910,7 +905,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        
+
         [HttpPut("update-FarmerCollection")]
         public async Task<IActionResult> Update([FromBody] FarmerCollectionUpdateRequestModel request)
         {
@@ -938,7 +933,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        
+
         [HttpDelete("delete-FarmerCollection/{id}")]
         public async Task<IActionResult> DeleteFarmerCollection(int id)
         {

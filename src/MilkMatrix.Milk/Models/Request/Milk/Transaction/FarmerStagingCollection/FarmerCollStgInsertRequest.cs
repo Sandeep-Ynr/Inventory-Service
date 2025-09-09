@@ -8,7 +8,7 @@ namespace MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollectio
         public string Shift { get; set; } = string.Empty;
         public string? BatchNo { get; set; }
         public long MppId { get; set; }
-        public long BmcId { get; set; }
+        public long BmcID { get; set; }
         public string InsertMode { get; set; } = string.Empty;   // IMP / MANUAL
         public string Status { get; set; } = string.Empty;       // PENDING / APPROVED
         public long? CompanyCode { get; set; }
@@ -30,15 +30,14 @@ namespace MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollectio
     public class FarmerCollectionStagingDetail
     {
         public long HeaderId { get; set; }  // Foreign Key
-        public long? FarmerId { get; set; }
-        public string? FarmerName { get; set; }
+        public string? FarmerCode { get; set; }
         public string? Mobile { get; set; }
         public decimal? Fat { get; set; }
         public decimal? Snf { get; set; }
-        public decimal? Lr { get; set; }
+        public decimal? LR { get; set; }
         public decimal? WeightLiter { get; set; }
         public string? Type { get; set; }          // Cow / Buffalo
-        public decimal? RatePerLiter { get; set; } // RTPL
+        public decimal? Rtpl { get; set; } // RTPL
         public decimal? TotalAmount { get; set; }
         public int? SampleId { get; set; }
         public int? Can { get; set; }
