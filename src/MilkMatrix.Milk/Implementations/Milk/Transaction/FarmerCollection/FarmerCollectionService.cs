@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core;
 using MilkMatrix.Core.Abstractions.DataProvider;
 using MilkMatrix.Core.Abstractions.Listings.Request;
 using MilkMatrix.Core.Abstractions.Listings.Response;
@@ -156,12 +157,14 @@ namespace MilkMatrix.Milk.Implementations.Milk.FarmerCollection
                     { "FarmerCollectionId", id }
                 };
 
-                var response = await repository.DeleteAsync(
+                var message = await repository.DeleteAsync(
                     FarmerCollectionQueries.AddFarmerCollection,
                     requestParams,
                     CommandType.StoredProcedure);
-
-                logging.LogInfo($"FarmerCollection with id {id} deleted successfully.");
+                if (message.StartsWith("Error"))
+                    throw new Exception($"Stored Procedure Error: {message}");
+                else
+                   logging.LogInfo($"FarmerCollection with id {id} deleted successfully.");
             }
             catch (Exception ex)
             {
