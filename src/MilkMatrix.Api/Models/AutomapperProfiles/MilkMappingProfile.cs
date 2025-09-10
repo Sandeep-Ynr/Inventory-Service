@@ -215,6 +215,8 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                     .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
                     .ForMember(dest => dest.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
                     .ForMember(dest => dest.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
+                    .ForMember(dest => dest.MPPID, opt => opt.MapFrom(src => src.MPPID))
+                    .ForMember(dest => dest.RouteID, opt => opt.MapFrom(src => src.RouteID))
                     .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
                     .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
                     .ForMember(dest => dest.LR, opt => opt.MapFrom(src => src.LR))
