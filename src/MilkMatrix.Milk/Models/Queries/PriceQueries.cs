@@ -9,8 +9,8 @@ namespace MilkMatrix.Milk.Models.Queries
     public static partial class PriceQueries
     {
         public static class PriceQuery       {
-            public const string MilkPriceList = "usp_milk_price_list"; //usp_price_list
-            public const string InsupdMilkPrice = "usp_milk_price_insupd"; //usp_price_insupd
+            public const string MilkPriceList = "usp_milk_price_listDetail"; //usp_price_list
+            public const string InsupdMilkPrice = "usp_milk_price_chart_insupd"; //usp_price_insupd
             public const string InsupdMilkPriceDetail = "usp_milk_price_detail_insupd";
             public const string MilkRateChart = "usp_milk_price_chart";
 

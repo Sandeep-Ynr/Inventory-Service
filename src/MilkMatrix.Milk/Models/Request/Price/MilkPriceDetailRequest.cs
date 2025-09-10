@@ -8,8 +8,8 @@ namespace MilkMatrix.Milk.Models.Request.Price
 {
     public class MilkPriceDetailRequest
     {
-        public string? Fat { get; set; }
-        public double? Price { get; set; }
-        public string? SNF { get; set; }
+        public string? fat { get; set; }
+        public double? rate { get; set; }
+        public string? snf { get; set; }
     }
 }

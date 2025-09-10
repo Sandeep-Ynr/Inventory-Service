@@ -24,7 +24,7 @@ using static MilkMatrix.Milk.Models.Queries.PriceQueries;
 
 namespace MilkMatrix.Milk.Implementations.Price
 {
-    public class PriceService :IPriceService
+    public class PriceService : IPriceService
     {
         private ILogging logger;
 
@@ -46,57 +46,35 @@ namespace MilkMatrix.Milk.Implementations.Price
             this.repositoryFactory = repositoryFactory;
             this.fileConfig = fileConfig.Value ?? throw new ArgumentNullException(nameof(fileConfig), "FileConfig cannot be null");
             this.queryMultipleData = queryMultipleData;
-            
+
         }
 
         public async Task AddAsync(MilkPriceInsertRequest request)
         {
             try
             {
+                // Serialize request into JSON
+                string json = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
+                // Parameters for stored procedure
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", (int)CrudActionType.Create}, // 1 for insert
-                    { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
-                    { "WithEffectDate", request.WithEffectDate ?? (object)DBNull.Value },
-                    { "ShiftId", request.ShiftId ?? (object)DBNull.Value },
-                    { "MilkTypeId", request.MilkTypeId ?? (object)DBNull.Value },
-                    { "RateTypeId", request.RateTypeId ?? (object)DBNull.Value },
-                    { "Description", request.Description ?? (object)DBNull.Value },
-                    { "RateGenType", request.RateGenType ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
-                    { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
-                    //{"PriceDetail" , request.PriceDetails ?? (object)DBNull.Value }, 
+                    { "ActionType", (int)CrudActionType.Create },
+                    { "HeaderJSON", json }
                 };
-                var response = await repository.AddAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
-                // Return the inserted StateId or Name, etc. depending on your SP response
-                //return response?.FirstOrDefault()?.Name ?? "Insert failed or no response";
 
+                // Call SP
+                var message = await repository.AddAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
 
-                var milkPriceCode = Convert.ToInt32(response);
-
-                // 2. Loop through details and insert one-by-one
-                foreach (var detail in request.PriceDetails)
+                if (message.StartsWith("Error"))
                 {
-                    var detailParams = new Dictionary<string, object>
-                    {
-                        { "ActionType", (int)CrudActionType.Create}, // 1 for insert
-                        { "RateCode", milkPriceCode },
-                        { "FAT", detail.Fat ?? (object)DBNull.Value },
-                        { "Price", detail.Price ?? (object)DBNull.Value },
-                        { "SNF", detail.SNF ?? (object)DBNull.Value },
-                        { "IsActive", request.IsActive ?? (object)DBNull.Value },
-                        { "CreatedBy", request.CreatedBy ?? (object)DBNull.Value },
-                    };
-                      await repository.AddAsync(PriceQuery.InsupdMilkPriceDetail, detailParams, CommandType.StoredProcedure);
-                    //await repository.AddAsync("InsertMilkPriceDetail", detailParams, CommandType.StoredProcedure);
+                    throw new Exception($"Stored Procedure Error: {message}");
                 }
-
-                logger.LogInfo($"Milk Price {request.WithEffectDate} added with {request.PriceDetails?.Count ?? 0} detail records.");
-
-
-
-                logger.LogInfo($"Milk Price {request.WithEffectDate} added successfully.");
+                else
+                {
+                    logger.LogInfo($"Milk Price {message} added successfully.");
+                }
             }
             catch (Exception ex)
             {
@@ -105,30 +83,35 @@ namespace MilkMatrix.Milk.Implementations.Price
             }
         }
 
+
         public async Task UpdateAsync(MilkPriceUpdateRequest request)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
 
+                // Serialize request into JSON
+                string json = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+
+                // Build request parameters
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Update },
-                    { "RateCode", request.RateCode},
-                    { "BusinessEntityId",request.BusinessEntityId ?? (object)DBNull.Value },
-                    { "WithEffectDate", request.WithEffectDate ?? (object)DBNull.Value },
-                    { "ShiftId", request.ShiftId ?? (object)DBNull.Value },
-                    { "MilkTypeId", request.MilkTypeId ?? (object)DBNull.Value },
-                    { "RateTypeId", request.RateTypeId ?? (object)DBNull.Value },
-                    { "Description", request.Description ?? (object)DBNull.Value },
-                    { "RateGenType", request.RateGenType ?? (object)DBNull.Value },
-                    { "IsActive", request.IsActive ?? (object)DBNull.Value },
-                    { "ModifyBy", request.ModifyBy }
+                    { "HeaderJSON", json },
+                    { "RateCode", request.RateCode }
                 };
 
-                await repository.UpdateAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
+                // Call stored procedure
+                var message = await repository.AddAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
 
-                logger.LogInfo($"Milk Price {request.WithEffectDate} updated successfully.");
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logger.LogInfo($"Milk Price {message} updated successfully.");
+                }
             }
             catch (Exception ex)
             {
@@ -137,61 +120,72 @@ namespace MilkMatrix.Milk.Implementations.Price
             }
         }
 
-        public async Task DeleteAsync(int id, int userId)
+
+        public async Task DeleteAsync(string ratecode, int userId)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
+
                 var requestParams = new Dictionary<string, object>
                 {
-                    {"ActionType" , (int)CrudActionType.Delete },
-                    {"RateCode", id },
-                    {"IsActive", false },
-                    {"ModifyBy", userId }
-
+                    { "ActionType", (int)CrudActionType.Delete },
+                    { "HeaderJSON", null },
+                    { "RateCode", ratecode }
                 };
+                var message = await repository.DeleteAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
+                if (message.StartsWith("Error"))
+                {
+                    throw new Exception($"Stored Procedure Error: {message}");
+                }
+                else
+                {
+                    logger.LogInfo($"Milk Price {message} updated successfully.");
+                }
 
-                var response = await repository.DeleteAsync(PriceQuery.InsupdMilkPrice, requestParams, CommandType.StoredProcedure);
 
-                logger.LogInfo($"Milk Price with id {id} deleted successfully.");
-
+                logger.LogInfo($"Milk Price with ID {ratecode} deleted successfully.");
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error in DeleteAsync for Milk Price id: {id}", ex);
+                logger.LogError($"Error in DeleteAsync for Milk Price ID: {ratecode}", ex);
                 throw;
             }
-
         }
 
-        public async Task<IListsResponse<MilkPriceInsertResponse>> GetAllAsync(IListsRequest request)
+
+        public async Task<IListsResponse<MilkPriceInsertResp>> GetAllAsync(IListsRequest request)
         {
-            var parameters = new Dictionary<string, object>() {
-                { "ActionType", (int)ReadActionType.All },
-                { "Start", request.Limit },
-                { "End", request.Offset }
-            };
+            // 1. Prepare parameters
+            var parameters = new Dictionary<string, object>
+                {
+                    { "ActionType", (int)ReadActionType.All },
+                    { "Start", request.Limit },
+                    { "End", request.Offset }
+                };
 
-            // 1. Fetch all results, count, and filter meta from stored procedure
+            // 2. Fetch results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<MilkPriceInsertResponse, int, FiltersMeta>(PriceQuery.MilkPriceList,
-                    DbConstants.Main, parameters, null);
+                .GetMultiDetailsAsync<MilkPriceInsertResp, int, FiltersMeta>(
+                    PriceQuery.MilkPriceList,
+                    DbConstants.Main,
+                    parameters,
+                    null);
 
-            // 2. Build criteria from client request and filter meta
+            // 3. Apply filters, sorting, and paging
             var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
             var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
             var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
 
-            // 3. Apply filtering, sorting, and paging
             var filtered = allResults.AsQueryable().ApplyFilters(filters);
             var sorted = filtered.ApplySorting(sorts);
             var paged = sorted.ApplyPaging(paging);
 
-            // 4. Get count after filtering (before paging)
+            // 4. Get count after filtering
             var filteredCount = filtered.Count();
 
-            // 5. Return result
-            return new ListsResponse<MilkPriceInsertResponse>
+            // 5. Return response object
+            return new ListsResponse<MilkPriceInsertResp>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),
@@ -199,31 +193,52 @@ namespace MilkMatrix.Milk.Implementations.Price
             };
         }
 
-        public async Task<MilkPriceInsertResponse?> GetByIdAsync(int id)
+
+        public async Task<MilkPriceInsertResponse?> GetByIdAsync(string ratecode)
         {
             try
             {
-                logger.LogInfo($"GetByIdAsync called for Milk Price id: {id}");
-                var repo = repositoryFactory
-                           .ConnectDapper<MilkPriceInsertResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<MilkPriceInsertResponse>(PriceQuery.MilkPriceList, new Dictionary<string, object> {
-                    { "ActionType", (int)ReadActionType.Individual },
-                    { "RateCode", id }
-                }, null);
+                var repo = repositoryFactory.ConnectDapper<MilkPriceInsertResp>(DbConstants.Main);
+                var data = await repo.QueryAsync<MilkPriceInsertResp>(
+                    PriceQuery.MilkPriceList, // make sure your SP supports Individual fetch
+                    new Dictionary<string, object>
+                    {
+                { "ActionType", (int)ReadActionType.Individual },
+                { "RateCode", ratecode }
+                    },
+                    null
+                );
+                var record = data.FirstOrDefault();
+                if (record == null) return null;
 
-                var result = data.Any() ? data.FirstOrDefault() : new MilkPriceInsertResponse();
-                logger.LogInfo(result != null
-                    ? $"Milk Price with id {id} retrieved successfully."
-                    : $"Milk Price with id {id} not found.");
-                return result;
+                // Deserialize PriceDetails JSON inline
+                var priceDetails = string.IsNullOrEmpty(record.PriceDetails)
+                    ? new List<MilkPriceDetailResponse>()
+                    : JsonSerializer.Deserialize<List<MilkPriceDetailResponse>>(record.PriceDetails);
+
+                // Return clean object
+                return new MilkPriceInsertResponse
+                {
+                    Id = record.Id,
+                    BusinessEntityId = record.BusinessEntityId,
+                    WithEffectDate = record.WithEffectDate,
+                    ShiftId = record.ShiftId,
+                    MilkTypeId = record.MilkTypeId,
+                    RateTypeId = record.RateTypeId,
+                    Description = record.Description,
+                    RateGenType = record.RateGenType,
+                    IsActive = record.IsActive,
+                    CreatedBy = record.CreatedBy,
+                    PriceDetails = priceDetails
+                };
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error in GetByIdAsync for Milk Price id: {id}", ex);
+
                 throw;
             }
-        }
 
+        }
         public async Task<object> GetMilkFatChartJsonAsync(int rateCode)
         {
             try
@@ -293,6 +308,5 @@ namespace MilkMatrix.Milk.Implementations.Price
                 throw;
             }
         }
-
     }
 }
