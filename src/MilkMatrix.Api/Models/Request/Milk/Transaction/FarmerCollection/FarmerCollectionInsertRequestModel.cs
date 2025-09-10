@@ -6,6 +6,8 @@ namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerCollection
         public DateTime DumpDate { get; set; }
         public string? DumpTime { get; set; }
         public long FarmerId { get; set; }
+        public int MPPID { get; set; }
+        public int RouteID { get; set; }
         public decimal? Fat { get; set; }
         public decimal? Snf { get; set; }
         public decimal? LR { get; set; }
