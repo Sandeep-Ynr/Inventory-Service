@@ -11,5 +11,7 @@ namespace MilkMatrix.Api.Models.Request.Price
         public string? Description { get; set; }
         public string? RateGenType { get; set; }
         public bool? IsStatus { get; set; }
+
+        public List<MilkPriceDetailModel> PriceDetails { get; set; } = new();
     }
 }

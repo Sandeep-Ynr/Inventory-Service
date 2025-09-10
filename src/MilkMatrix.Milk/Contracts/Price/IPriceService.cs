@@ -13,7 +13,7 @@ namespace MilkMatrix.Milk.Contracts.Price
         Task<object> GetMilkFatChartJsonAsync(int rateCode);
         Task AddAsync(MilkPriceInsertRequest request);
         Task UpdateAsync(MilkPriceUpdateRequest request);
-        Task DeleteAsync(int id, int userId);
+        Task DeleteAsync(string ratecode, int userId);
 
     }
 }

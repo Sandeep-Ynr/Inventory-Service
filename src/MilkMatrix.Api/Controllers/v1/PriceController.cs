@@ -88,7 +88,6 @@ namespace MilkMatrix.Api.Controllers.v1
                     });
                 }
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-
                 logger.LogInfo($"Add called for Milk Price: {request.WithEffectDate}");
                 var requestParams = mapper.MapWithOptions<MilkPriceInsertRequest, MilkPriceInsertRequestModel>(request
                     , new Dictionary<string, object>
@@ -102,15 +101,15 @@ namespace MilkMatrix.Api.Controllers.v1
             catch (Exception ex)
             {
                 logger.LogError("Error in Add Milk Price", ex);
-                return StatusCode(500, "An error occurred while adding the Milk Price.");
+                return StatusCode(500, "An error occurred while retrieving the Milk Price." + ex);
             }
         }
 
         [HttpPut]
-        [Route("update/{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] MilkPriceUpdateRequestModel request)
+        [Route("update")]
+        public async Task<IActionResult> UpdateAsync([FromBody] MilkPriceUpdateRequestModel request)
         {
-            if (!ModelState.IsValid || id <= 0)
+            if (!ModelState.IsValid)
                 return BadRequest("Invalid request.");
 
             var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
@@ -123,19 +122,19 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(new { message = "Milk Price updated successfully." });
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeletePlant(int id)
+        [HttpDelete("delete/{ratecode}")]
+        public async Task<IActionResult> DeleteAsync(string ratecode)
         {
             try
             {
                 var UserId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                await priceService.DeleteAsync(id, Convert.ToInt32(UserId));
-                logger.LogInfo($"Milk Price with id {id} deleted successfully.");
+                await priceService.DeleteAsync(ratecode, Convert.ToInt32(UserId));
+                logger.LogInfo($"Milk Price with id {ratecode} deleted successfully.");
                 return Ok(new { message = "Milk Price deleted successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error deleting Milk Price with id: {id}", ex);
+                logger.LogError($"Error deleting Milk Price with id: {ratecode}", ex);
                 return StatusCode(500, "An error occurred while deleting the Milk Price.");
             }
         }
