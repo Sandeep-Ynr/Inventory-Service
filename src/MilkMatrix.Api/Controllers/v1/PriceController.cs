@@ -51,24 +51,24 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<MilkPriceInsertResponse?>> GetById(int id)
+        [HttpGet("list-by-id{ratecode}")]
+        public async Task<ActionResult<MilkPriceInsertResponse?>> GetById(string ratecode)
         {
             try
             {
-                logger.LogInfo($"Get Milk Price by id called for id: {id}");
-                var mcc = await priceService.GetByIdAsync(id);
+                logger.LogInfo($"Get Milk Price by id called for id: {ratecode}");
+                var mcc = await priceService.GetByIdAsync(ratecode);
                 if (mcc == null)
                 {
-                    logger.LogInfo($"Milk Price with id {id} not found.");
+                    logger.LogInfo($"Milk Price with id {ratecode} not found.");
                     return NotFound();
                 }
-                logger.LogInfo($"Milk Price with id {id} retrieved successfully.");
+                logger.LogInfo($"Milk Price with id {ratecode} retrieved successfully.");
                 return Ok(mcc);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error retrieving Milk Price with id: {id}", ex);
+                logger.LogError($"Error retrieving Milk Price with id: {ratecode}", ex);
                 return StatusCode(500, "An error occurred while retrieving the Milk Price.");
             }
         }
@@ -138,25 +138,5 @@ namespace MilkMatrix.Api.Controllers.v1
                 return StatusCode(500, "An error occurred while deleting the Milk Price.");
             }
         }
-
-        [HttpGet("milk-chart{id}")]
-        public async Task<ActionResult> GetMilkChartByRateCode(int id)
-        {
-            try
-            {
-                var result = await priceService.GetMilkFatChartJsonAsync(id);
-                if (result == null)
-                    return NotFound();
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error retrieving Milk Chart with id: {id}", ex);
-                return StatusCode(500, "An error occurred while retrieving the Milk Chart.");
-            }
-        }
-
-
     }
 }

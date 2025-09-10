@@ -154,7 +154,7 @@ namespace MilkMatrix.Milk.Implementations.Price
         }
 
 
-        public async Task<IListsResponse<MilkPriceInsertResponse>> GetAllAsync(IListsRequest request)
+        public async Task<IListsResponse<MilkPriceInsertResp>> GetAllAsync(IListsRequest request)
         {
             // 1. Prepare parameters
             var parameters = new Dictionary<string, object>
@@ -166,7 +166,7 @@ namespace MilkMatrix.Milk.Implementations.Price
 
             // 2. Fetch results, count, and filter meta from stored procedure
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<MilkPriceInsertResponse, int, FiltersMeta>(
+                .GetMultiDetailsAsync<MilkPriceInsertResp, int, FiltersMeta>(
                     PriceQuery.MilkPriceList,
                     DbConstants.Main,
                     parameters,
@@ -185,7 +185,7 @@ namespace MilkMatrix.Milk.Implementations.Price
             var filteredCount = filtered.Count();
 
             // 5. Return response object
-            return new ListsResponse<MilkPriceInsertResponse>
+            return new ListsResponse<MilkPriceInsertResp>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),
@@ -194,76 +194,51 @@ namespace MilkMatrix.Milk.Implementations.Price
         }
 
 
-        //public async Task<MilkPriceInsertResponse?> GetByIdAsync(int id)
-        //{
-        //    try
-        //    {
-        //        logger.LogInfo($"GetByIdAsync called for Milk Price id: {id}");
-        //        var repo = repositoryFactory
-        //                   .ConnectDapper<MilkPriceInsertResponse>(DbConstants.Main);
-        //        var data = await repo.QueryAsync<MilkPriceInsertResponse>(PriceQuery.MilkPriceList, new Dictionary<string, object> {
-        //            { "ActionType", (int)ReadActionType.Individual },
-        //            { "RateCode", id }
-        //        }, null);
-
-        //        var result = data.Any() ? data.FirstOrDefault() : new MilkPriceInsertResponse();
-        //        logger.LogInfo(result != null
-        //            ? $"Milk Price with id {id} retrieved successfully."
-        //            : $"Milk Price with id {id} not found.");
-        //        return result;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError($"Error in GetByIdAsync for Milk Price id: {id}", ex);
-        //        throw;
-        //    }
-        //}
-        public Task<MilkPriceInsertResponse?> GetByIdAsync(int id)
+        public async Task<MilkPriceInsertResponse?> GetByIdAsync(string ratecode)
         {
-            throw new NotImplementedException();
-        }
-
-        public async Task<MilkPriceInsertResponse?> GetById(int id)
-        {
-            var repo = repositoryFactory.ConnectDapper<MilkPriceInsertResponse>(DbConstants.Main);
-            var data = await repo.QueryAsync<MilkPriceInsertResponse>(
-                PriceQuery.MilkPriceList, // make sure your SP supports Individual fetch
-                new Dictionary<string, object>
-                {
-                { "ActionType", (int)ReadActionType.Individual },
-                { "RateCode", id }
-                },
-                null
-            );
-
-            var record = data.FirstOrDefault();
-            if (record == null) return null;
-
-            // Deserialize PriceDetails JSON inline
-            var priceDetails = string.IsNullOrEmpty(record.PriceDetails)
-                ? new List<MilkChartRow>()
-                : JsonSerializer.Deserialize<List<MilkChartRow>>(record.PriceDetails);
-
-            // Return clean object
-            return new MilkPriceInsertResponse
+            try
             {
-                Id = record.Id,
-                BusinessEntityId = record.BusinessEntityId,
-                WithEffectDate = record.WithEffectDate,
-                ShiftId = record.ShiftId,
-                MilkTypeId = record.MilkTypeId,
-                RateTypeId = record.RateTypeId,
-                Description = record.Description,
-                RateGenType = record.RateGenType,
-                IsActive = record.IsActive,
-                CreatedBy = record.CreatedBy,
-                PriceDetails = record.PriceDetails // keep raw JSON
-                                                   // if you want deserialized details, extend the model like below 👇
-            };
+                var repo = repositoryFactory.ConnectDapper<MilkPriceInsertResp>(DbConstants.Main);
+                var data = await repo.QueryAsync<MilkPriceInsertResp>(
+                    PriceQuery.MilkPriceList, // make sure your SP supports Individual fetch
+                    new Dictionary<string, object>
+                    {
+                { "ActionType", (int)ReadActionType.Individual },
+                { "RateCode", ratecode }
+                    },
+                    null
+                );
+                var record = data.FirstOrDefault();
+                if (record == null) return null;
+
+                // Deserialize PriceDetails JSON inline
+                var priceDetails = string.IsNullOrEmpty(record.PriceDetails)
+                    ? new List<MilkPriceDetailResponse>()
+                    : JsonSerializer.Deserialize<List<MilkPriceDetailResponse>>(record.PriceDetails);
+
+                // Return clean object
+                return new MilkPriceInsertResponse
+                {
+                    Id = record.Id,
+                    BusinessEntityId = record.BusinessEntityId,
+                    WithEffectDate = record.WithEffectDate,
+                    ShiftId = record.ShiftId,
+                    MilkTypeId = record.MilkTypeId,
+                    RateTypeId = record.RateTypeId,
+                    Description = record.Description,
+                    RateGenType = record.RateGenType,
+                    IsActive = record.IsActive,
+                    CreatedBy = record.CreatedBy,
+                    PriceDetails = priceDetails
+                };
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
         }
-
-
-
         public async Task<object> GetMilkFatChartJsonAsync(int rateCode)
         {
             try
@@ -333,7 +308,5 @@ namespace MilkMatrix.Milk.Implementations.Price
                 throw;
             }
         }
-
-       
     }
 }

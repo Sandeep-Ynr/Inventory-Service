@@ -8,8 +8,8 @@ namespace MilkMatrix.Milk.Contracts.Price
 {
     public interface IPriceService
     {
-        Task<IListsResponse<MilkPriceInsertResponse>> GetAllAsync(IListsRequest request);
-        Task<MilkPriceInsertResponse?> GetByIdAsync(int id);
+        Task<IListsResponse<MilkPriceInsertResp>> GetAllAsync(IListsRequest request);
+        Task<MilkPriceInsertResponse?> GetByIdAsync(string ratecode);
         Task<object> GetMilkFatChartJsonAsync(int rateCode);
         Task AddAsync(MilkPriceInsertRequest request);
         Task UpdateAsync(MilkPriceUpdateRequest request);
