@@ -28,6 +28,8 @@ namespace MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerCollection
         public string? IMEINo { get; set; }
         public int BmcId { get; set; }
         public int MccId { get; set; }
+        public int RouteId { get; set; }
+        public int MppId { get; set; }
         public string? BmcCode { get; set; }
         public string? MccCode { get; set; }
         public string? Shift { get; set; }
