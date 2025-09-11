@@ -41,7 +41,7 @@ using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -811,6 +811,40 @@ namespace MilkMatrix.Api.Controllers.v1
             var result = await farmerstgollectionservice.GetFarmerCollectionExport(request);
             return Ok(result);
         }
+
+        [HttpPut]
+        [Route("farmer-collection/update")]
+        public async Task<IActionResult> UpdateFarmerCollection([FromBody] FarmerCollStgUpdateRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid) || request.RowId <= 0)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                var requestParams = mapper.MapWithOptions<FarmerCollStgUpdateRequest, FarmerCollStgUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
+                    });
+
+                await farmerstgollectionservice.UpdateFarmerCollection(requestParams);
+                logger.LogInfo($"FarmerStaging record with ID {request.RowId} updated successfully.");
+                return Ok(new { message = "FarmerStaging record updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error updating FarmerStaging", ex);
+                return StatusCode(500, $"An error occurred while updating FarmerStaging. {ex.Message}");
+            }
+        }
+
 
         // Get Farmer Collection by Id
         [HttpGet("farmer-collection/export/{id}")]

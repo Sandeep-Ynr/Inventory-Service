@@ -11,9 +11,9 @@ namespace MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection
     public interface IFarmerStagingCollectionService
     {
         Task ImportFarmerCollection(FarmerCollStgInsertRequest request);
-        //Task UpdateFarmerCollection(FarmerCollStgUpdateRequest request);
-        //Task DeleteFarmerCollection(long id, int userId);
+        Task UpdateFarmerCollection(FarmerCollStgUpdateRequest request);
+        Task DeleteFarmerCollection(long id, int userId);
         Task<FarmerCollResponse?> GetFarmerCollectionExportById(long id);
-        Task<IListsResponse<FarmerstagingCollResponse>> GetFarmerCollectionExport(IListsRequest request);
+        Task<IListsResponse<FarmerCollResponse>> GetFarmerCollectionExport(IListsRequest request);
     }
 }
