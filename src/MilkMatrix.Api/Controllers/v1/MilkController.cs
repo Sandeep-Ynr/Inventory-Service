@@ -811,64 +811,48 @@ namespace MilkMatrix.Api.Controllers.v1
             var result = await farmerstgollectionservice.GetFarmerCollectionExport(request);
             return Ok(result);
         }
-
-        [HttpPut]
-        [Route("farmer-collection/update")]
-        public async Task<IActionResult> UpdateFarmerCollection([FromBody] FarmerCollStgUpdateRequestModel request)
-        {
-            try
-            {
-                if ((request == null) || (!ModelState.IsValid) || request.RowId <= 0)
-                {
-                    return BadRequest(new ErrorResponse
-                    {
-                        StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
-                    });
-                }
-
-                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                var requestParams = mapper.MapWithOptions<FarmerCollStgUpdateRequest, FarmerCollStgUpdateRequestModel>(
-                    request,
-                    new Dictionary<string, object> {
-                { Constants.AutoMapper.ModifiedBy, Convert.ToInt32(userId) }
-                    });
-
-                await farmerstgollectionservice.UpdateFarmerCollection(requestParams);
-                logger.LogInfo($"FarmerStaging record with ID {request.RowId} updated successfully.");
-                return Ok(new { message = "FarmerStaging record updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error updating FarmerStaging", ex);
-                return StatusCode(500, $"An error occurred while updating FarmerStaging. {ex.Message}");
-            }
-        }
-
-
         // Get Farmer Collection by Id
-        [HttpGet("farmer-collection/export/{id}")]
-        public async Task<ActionResult<FarmerCollectionResponse?>> GetFarmerCollectionExportById(int id)
+        [HttpGet("farmer-collection/export/{batchno}")]
+        public async Task<ActionResult<FarmerCollectionResponse?>> GetFarmerCollectionExportById(string batchno)
         {
             try
             {
-                logger.LogInfo($"GetById called for FarmerCollection ID: {id}");
-                var result = await farmerstgollectionservice.GetFarmerCollectionExportById(id);
+                logger.LogInfo($"GetById called for FarmerCollection ID: {batchno}");
+                var result = await farmerstgollectionservice.GetFarmerCollectionExportById(batchno);
                 if (result == null)
                 {
-                    logger.LogInfo($"FarmerCollectionStg with ID {id} not found.");
+                    logger.LogInfo($"FarmerCollectionStg with ID {batchno} not found.");
                     return NotFound();
                 }
 
-                logger.LogInfo($"FarmerCollectionStg with ID {id} retrieved successfully.");
+                logger.LogInfo($"FarmerCollectionStg with ID {batchno} retrieved successfully.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error retrieving FarmerCollectionStg with ID: {id}", ex);
+                logger.LogError($"Error retrieving FarmerCollectionStg with ID: {batchno}", ex);
                 return StatusCode(500, "An error occurred while retrieving the record." + ex.Message);
             }
         }
+
+
+
+        [HttpDelete("delete-farmer-collection/export/{batchno}")]
+        public async Task<IActionResult> DeleteFarmerCollectionByBatchNo(string batchno)
+        {            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await farmerstgollectionservice.DeleteFarmerCollectionExportById(batchno, Convert.ToInt32(userId));
+                logger.LogInfo($"FarmerCollection Stg with ID {batchno} deleted successfully.");
+                return Ok(new { message = "FarmerCollection Stg deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting FarmerCollection with ID: {batchno}", ex);
+                return StatusCode(500, "An error occurred while deleting the record." + ex.Message);
+            }
+        }
+
         #endregion
 
         #region FarmerCollection

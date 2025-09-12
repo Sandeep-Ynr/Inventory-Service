@@ -18,7 +18,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
     public class MilkMappingProfile : Profile
     {
-        public MilkMappingProfile() 
+        public MilkMappingProfile()
         {
             CreateMap<MilkTypeUpdateRequestModel, MilkTypeUpdateRequest>()
                         .ForMember(x => x.MilkTypeId, opt => opt.MapFrom(src => src.MilkTypeId))
@@ -32,7 +32,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
                         .ForMember(x => x.IsActive, opt => opt.MapFrom(src => src.IsStatus))
                         .ForMember(x => x.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items[Constants.AutoMapper.CreatedBy]));
-                    
+
             CreateMap<RateTypeUpdateRequestModel, RateTypeUpdateRequest>()
                         .ForMember(x => x.RateTypeId, opt => opt.MapFrom(src => src.RateTypeId))
                         .ForMember(x => x.RateTypeName, opt => opt.MapFrom(src => src.RateTypeName))
@@ -81,7 +81,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                          .ForMember(dest => dest.BusinessID, opt => opt.MapFrom(src => src.BusinessID))
                          .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
 
-           
+
 
 
             CreateMap<DeviceSettingInsertRequestModel, DeviceSettingInsertRequest>()
@@ -146,17 +146,17 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                         .ForMember(dest => dest.IsMaCalibration, opt => opt.MapFrom(src => src.IsMaCalibration))
                         .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.is_status))
                         .ForMember(dest => dest.ModifiedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["ModifiedBy"]));
-        
 
-                    CreateMap<DockDataInsertRequestModel, DockDataInsertRequest>()
-                        .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
-                        .ForMember(dest => dest.BmcId, opt => opt.MapFrom(src => src.BmcId))
-                        .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
-                        .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
-                        .ForMember(dest => dest.UpdateStatus, opt => opt.MapFrom(src => src.UpdateStatus))
-                        .ForMember(dest => dest.UpdatedRecords, opt => opt.MapFrom(src => src.UpdatedRecords))
-                        .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks))
-                        .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive));
+
+            CreateMap<DockDataInsertRequestModel, DockDataInsertRequest>()
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.BmcId, opt => opt.MapFrom(src => src.BmcId))
+                .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
+                .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+                .ForMember(dest => dest.UpdateStatus, opt => opt.MapFrom(src => src.UpdateStatus))
+                .ForMember(dest => dest.UpdatedRecords, opt => opt.MapFrom(src => src.UpdatedRecords))
+                .ForMember(dest => dest.Remarks, opt => opt.MapFrom(src => src.Remarks))
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsActive));
 
 
 
@@ -174,7 +174,10 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
 
             // Insert Mapping
             CreateMap<FarmerCollStgInsertRequestModel, FarmerCollStgInsertRequest>()
-                //.ForMember(dest => dest.RowId, opt => opt.MapFrom(src => src.RowId))
+              .ForMember(dest => dest.Import, opt => opt.MapFrom(src => src.Import));
+
+
+            CreateMap<FarmerCollStgInsertRequestListModel, FarmerCollStgInsertListRequest>()
                 .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
                 .ForMember(dest => dest.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
                 .ForMember(dest => dest.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
@@ -190,7 +193,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
                 .ForMember(dest => dest.LR, opt => opt.MapFrom(src => src.LR))
                 .ForMember(dest => dest.Can, opt => opt.MapFrom(src => src.Can))
-                .ForMember(dest => dest.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                .ForMember(dest => dest.Rtpl, opt => opt.MapFrom(src => src.Rtpl))   
                 .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
                 .ForMember(dest => dest.SampleId, opt => opt.MapFrom(src => src.SampleId))
                 .ForMember(dest => dest.IsQltyAuto, opt => opt.MapFrom(src => src.IsQltyAuto))
@@ -200,48 +203,8 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
                 .ForMember(dest => dest.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
                 .ForMember(dest => dest.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus));
-            //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
-            //.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
-            //.ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => src.CreatedOn))
-            //.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
-            //.ForMember(dest => dest.DeletedOn, opt => opt.MapFrom(src => src.DeletedOn));
-
-            // Update Mapping
-            CreateMap<FarmerCollStgUpdateRequestModel, FarmerCollStgUpdateRequest>()
-                .ForMember(dest => dest.RowId, opt => opt.MapFrom(src => src.RowId))
-                .ForMember(dest => dest.DumpDate, opt => opt.MapFrom(src => src.DumpDate))
-                .ForMember(dest => dest.DumpTime, opt => opt.MapFrom(src => src.DumpTime))
-                .ForMember(dest => dest.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
-                .ForMember(dest => dest.Mppcode, opt => opt.MapFrom(src => src.Mppcode))
-                .ForMember(dest => dest.BatchNo, opt => opt.MapFrom(src => src.BatchNo))
-                .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId))
-                .ForMember(dest => dest.FarmerId, opt => opt.MapFrom(src => src.FarmerId))
-                .ForMember(dest => dest.FName, opt => opt.MapFrom(src => src.FName))
-                .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
-                .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
-                .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
-                .ForMember(dest => dest.LR, opt => opt.MapFrom(src => src.LR))
-                .ForMember(dest => dest.Can, opt => opt.MapFrom(src => src.Can))
-                .ForMember(dest => dest.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
-                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
-                .ForMember(dest => dest.SampleId, opt => opt.MapFrom(src => src.SampleId))
-                .ForMember(dest => dest.IsQltyAuto, opt => opt.MapFrom(src => src.IsQltyAuto))
-                .ForMember(dest => dest.IsQtyAuto, opt => opt.MapFrom(src => src.IsQtyAuto))
-                .ForMember(dest => dest.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
-                .ForMember(dest => dest.IMEI_No, opt => opt.MapFrom(src => src.IMEI_No))
-                .ForMember(dest => dest.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
-                .ForMember(dest => dest.IsProcess, opt => opt.MapFrom(src => src.IsProcess))
-                .ForMember(dest => dest.ProcessDate, opt => opt.MapFrom(src => src.ProcessDate))
-                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus));
-                //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted))
-                //.ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
-                //.ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => src.CreatedOn))
-                //.ForMember(dest => dest.DeletedBy, opt => opt.MapFrom(src => src.DeletedBy))
-                //.ForMember(dest => dest.DeletedOn, opt => opt.MapFrom(src => src.DeletedOn))
-
+                .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => context.Items["CreatedBy"]));
 
             CreateMap<FarmerCollectionInsertRequestModel, FarmerCollectionInsertRequest>()
                     .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
@@ -275,7 +238,7 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                     .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                     .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
-            
+
             CreateMap<FarmerCollectionUpdateRequestModel, FarmerCollectionUpdateRequest>()
                 .ForMember(dest => dest.FarmerCollectionId, opt => opt.MapFrom(src => src.FarmerCollectionId))
                 .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))

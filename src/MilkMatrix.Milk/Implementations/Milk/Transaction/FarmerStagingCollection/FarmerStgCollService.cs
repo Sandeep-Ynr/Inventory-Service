@@ -28,7 +28,6 @@ using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Models.Response.Milk.DockData;
-using MilkMatrix.Milk.Models.Response.MPP;
 using static MilkMatrix.Milk.Models.Queries.MilkQueries;
 using static MilkMatrix.Milk.Models.Queries.PriceQueries;
 
@@ -48,9 +47,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
             this.repositoryFactory = repositoryFactory ?? throw new ArgumentNullException(nameof(repositoryFactory));
             this.queryMultipleData = queryMultipleData;
         }
-
-
-        public async Task DeleteFarmerCollection(long id, int userId)
+        public async Task DeleteFarmerCollection(long id, long userId)
         {
             try
             {
@@ -58,252 +55,136 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.FarmerStagingCollecti
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Delete },
-                    { "CollecionID", id },   // 🔹 Changed from DockDataUpdateId
-                    { "ModifiedBy", userId }
+                    { "CollectionId", id },
+                    { "ModifyBy", userId }
                 };
 
-                var result = await repository.DeleteAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
-
-                if (result.StartsWith("Error"))
-                {
-                    throw new Exception($"Stored Procedure Error: {result}");
-                }
-
+                await repository.DeleteAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
                 logging.LogInfo($"FarmerStg with ID {id} deleted successfully.");
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in DeleteFarmerStg for ID: {id}", ex);
+                logging.LogError($"Error in DeleteFarmerCollection for ID: {id}", ex);
                 throw;
             }
         }
-
-
         public async Task ImportFarmerCollection(FarmerCollStgInsertRequest request)
         {
             try
             {
+                // Serialize request into JSON (like Party)
+                string json = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Create },
-                    { "RowId", request.RowId },
-                    { "DumpDate", request.DumpDate },
-                    { "DumpTime", request.DumpTime ?? (object)DBNull.Value },
-                    { "BusinessEntityId", request.BusinessEntityId },
-                    { "Mppcode", request.Mppcode ?? (object)DBNull.Value },
-                    { "BatchNo", request.BatchNo ?? (object)DBNull.Value },
-                    { "ReferenceId", request.ReferenceId ?? (object)DBNull.Value },
-                    { "FarmerId", request.FarmerId ?? (object)DBNull.Value },
-                    { "FName", request.FName ?? (object)DBNull.Value },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
-                    { "Type", request.Type ?? (object)DBNull.Value },
-                    { "WeightLiter", request.WeightLiter },
-                    { "Fat", request.Fat ?? (object)DBNull.Value },
-                    { "Snf", request.Snf ?? (object)DBNull.Value },
-                    { "LR", request.LR ?? (object)DBNull.Value },
-                    { "Can", request.Can ?? (object)DBNull.Value },
-                    { "Rtpl", request.Rtpl ?? (object)DBNull.Value },
-                    { "TotalAmount", request.TotalAmount ?? (object)DBNull.Value },
-                    { "SampleId", request.SampleId ?? (object)DBNull.Value },
-                    { "IsQltyAuto", request.IsQltyAuto ?? (object)DBNull.Value },
-                    { "IsQtyAuto", request.IsQtyAuto ?? (object)DBNull.Value },
-                    { "InsertMode", request.InsertMode ?? "IMP" },
-                    { "IMEI_No", request.IMEI_No ?? (object)DBNull.Value },
-                    { "IsValidated", request.IsValidated },
-                    { "IsProcess", request.IsProcess },
-                    { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
-                    { "is_status", request.IsStatus ?? (object)DBNull.Value },
-                    { "is_deleted", request.IsDeleted ?? (object)DBNull.Value },
-                    { "created_by", request.CreatedBy ?? 0 },
-                    { "created_on", request.CreatedOn ?? DateTime.Now },
-                    { "deleted_by", request.DeletedBy ?? (object)DBNull.Value },
-                    { "deleted_on", request.DeletedOn ?? (object)DBNull.Value }
+                    { "@JsonData", json }
                 };
 
                 var message = await repository.AddAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
-
                 if (message.StartsWith("Error"))
                 {
                     throw new Exception($"Stored Procedure Error: {message}");
                 }
                 else
                 {
-                    logging.LogInfo($"Farmer Collection {message} added successfully.");
+                    logging.LogInfo($"FarmerStg {message} added successfully.");
                 }
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in AddFarmerCollection", ex);
+                logging.LogError($"Error occurred while adding FarmerStg Exception: {ex.Message}", ex);
                 throw;
             }
         }
-        public async Task UpdateFarmerCollection(FarmerCollStgUpdateRequest request)
+        public async Task<FarmerCollResponse?> GetFarmerCollectionExportById(string batchno)
+        {
+            try
+            {
+                logging.LogInfo($"GetById called for FarmerCollection ID: {batchno}");
+                var repo = repositoryFactory.ConnectDapper<FarmerstagingCollResponse>(DbConstants.Main);
+                var data = await repo.QueryAsync<FarmerstagingCollResponse>(
+                    FarmerStgQueries.GetFarmerStgList,
+                    new Dictionary<string, object>
+                    {
+                        { "ActionType", (int)ReadActionType.Individual },
+                        { "BatchNumber",batchno }
+                    },
+                    null);
+
+                var record = data.FirstOrDefault();
+                if (record == null) return null;
+                var ExportDetail = string.IsNullOrEmpty(record.ExportList)
+                      ? new List<FarmerCollectionStagingDetailModel>()
+                      : JsonSerializer.Deserialize<List<FarmerCollectionStagingDetailModel>>(record.ExportList);
+                return new FarmerCollResponse
+                {
+                    ExportList = ExportDetail,
+                };
+            }
+            catch (Exception ex)
+            {
+                logging.LogError($"Error in GetById for FarmerCollection ID: {batchno}", ex);
+                throw;
+            }
+        }
+        public async Task<IListsResponse<FarmerstagingCollResponse>> GetFarmerCollectionExport(IListsRequest request)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                 { "ActionType", (int)ReadActionType.All },
+                 { "BatchNumber", "" }
+            };
+
+            var (allResults, countResult, filterMetas) = await queryMultipleData
+                .GetMultiDetailsAsync<FarmerstagingCollResponse, int, FiltersMeta>(
+                    FarmerStgQueries.GetFarmerStgList,
+                    DbConstants.Main,
+                    parameters,
+                    null);
+
+            var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
+            var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
+            var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
+
+            var filtered = allResults.AsQueryable().ApplyFilters(filters);
+            var sorted = filtered.ApplySorting(sorts);
+            var paged = sorted.ApplyPaging(paging);
+            var filteredCount = filtered.Count();
+            return new ListsResponse<FarmerstagingCollResponse>
+            {
+                Count = filteredCount,
+                Results = paged.ToList(),
+                Filters = filterMetas
+            };
+        }
+
+        public async  Task DeleteFarmerCollectionExportById(string BatchNo, int userId)
         {
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", (int)CrudActionType.Update },
-                    { "RowId", request.RowId },
-                    { "DumpDate", request.DumpDate },
-                    { "DumpTime", request.DumpTime ?? (object)DBNull.Value },
-                    { "BusinessEntityId", request.BusinessEntityId },
-                    { "Mppcode", request.Mppcode ?? (object)DBNull.Value },
-                    { "BatchNo", request.BatchNo ?? (object)DBNull.Value },
-                    { "ReferenceId", request.ReferenceId ?? (object)DBNull.Value },
-                    { "FarmerId", request.FarmerId ?? (object)DBNull.Value },
-                    { "FName", request.FName ?? (object)DBNull.Value },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
-                    { "Type", request.Type ?? (object)DBNull.Value },
-                    { "WeightLiter", request.WeightLiter },
-                    { "Fat", request.Fat ?? (object)DBNull.Value },
-                    { "Snf", request.Snf ?? (object)DBNull.Value },
-                    { "LR", request.LR ?? (object)DBNull.Value },
-                    { "Can", request.Can ?? (object)DBNull.Value },
-                    { "Rtpl", request.Rtpl ?? (object)DBNull.Value },
-                    { "TotalAmount", request.TotalAmount ?? (object)DBNull.Value },
-                    { "SampleId", request.SampleId ?? (object)DBNull.Value },
-                    { "IsQltyAuto", request.IsQltyAuto ?? (object)DBNull.Value },
-                    { "IsQtyAuto", request.IsQtyAuto ?? (object)DBNull.Value },
-                    { "InsertMode", request.InsertMode ?? "IMP" },
-                    { "IMEI_No", request.IMEI_No ?? (object)DBNull.Value },
-                    { "IsValidated", request.IsValidated },
-                    { "IsProcess", request.IsProcess },
-                    { "ProcessDate", request.ProcessDate ?? (object)DBNull.Value },
-                    { "is_status", request.IsStatus ?? (object)DBNull.Value },
-                    { "is_deleted", request.IsDeleted ?? (object)DBNull.Value },
-                    { "created_by", request.CreatedBy ?? 0 },
-                    { "created_on", request.CreatedOn ?? DateTime.Now },
-                    { "deleted_by", request.DeletedBy ?? (object)DBNull.Value },
-                    { "deleted_on", request.DeletedOn ?? (object)DBNull.Value }
+                    { "ActionType", (int)CrudActionType.Delete },
+                    { "BatchNumber",BatchNo }
                 };
-
-                var message = await repository.UpdateAsync(FarmerStgQueries.AddFarmerStg, requestParams, CommandType.StoredProcedure);
-
+                var message = await repository.DeleteAsync(
+                    FarmerStgQueries.AddFarmerStg,
+                    requestParams,
+                    CommandType.StoredProcedure);
+                
                 if (message.StartsWith("Error"))
-                {
                     throw new Exception($"Stored Procedure Error: {message}");
-                }
-
-                logging.LogInfo($"Farmer Collection with RowId {request.RowId} updated successfully.");
+                else
+                    logging.LogInfo($"FarmerCollection with id  deleted successfully.");
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error updating FarmerCollStg record with RowId: {request.RowId}", ex);
+                logging.LogError($"Error in DeleteAsync for FarmerCollection id:", ex);
                 throw;
             }
         }
-
-
-        public async Task<FarmerCollResponse?> GetFarmerCollectionExportById(long id)
-        {
-            try
-            {
-                logging.LogInfo($"GetById called for FarmerCollection ID: {id}");
-                var repo = repositoryFactory.ConnectDapper<FarmerCollResponse>(DbConstants.Main);
-                var data = await repo.QueryAsync<FarmerCollResponse>(
-                    FarmerStgQueries.GetFarmerStgList,
-                    new Dictionary<string, object>
-                    {
-                    { "ActionType", (int)ReadActionType.Individual },
-                    { "RowId", id }
-                    },
-                    null);
-
-                var result = data.FirstOrDefault();
-                logging.LogInfo(result != null
-                    ? $"FarmerCollection with ID {id} retrieved successfully."
-                    : $"FarmerCollection with ID {id} not found.");
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                logging.LogError($"Error in GetById for FarmerCollection ID: {id}", ex);
-                throw;
-            }
-        }
-
-        public async Task<IListsResponse<FarmerCollResponse>> GetFarmerCollectionExport(IListsRequest request)
-        {
-   
-                logging.LogInfo("GetFarmerCollectionExport called.");
-
-                var repository = repositoryFactory.Connect<FarmerCollResponse>(DbConstants.Main);
-
-                var parameters = new Dictionary<string, object>
-                {
-                    { "ActionType", (int)ReadActionType.All }
-                    //{ "Start", request.Start },
-                    //{ "End", request.End }
-                };
-
-                // 1. Fetch all results, count, and filter meta from stored procedure
-                var (allResults, countResult, filterMetas) = await queryMultipleData
-                    .GetMultiDetailsAsync<FarmerCollResponse, int, FiltersMeta>(FarmerStgQueries.GetFarmerStgList,
-                        DbConstants.Main,
-                        parameters,
-                        null);
-
-                // 2. Build criteria from client request and filter meta
-                var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
-                var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
-                var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
-
-                // 3. Apply filtering, sorting, and paging
-                var filtered = allResults.AsQueryable().ApplyFilters(filters);
-                var sorted = filtered.ApplySorting(sorts);
-                var paged = sorted.ApplyPaging(paging);
-
-                // 4. Get count after filtering (before paging)
-                var filteredCount = filtered.Count();
-
-                // 5. Return result
-                return new ListsResponse<FarmerCollResponse>
-                {
-                    Count = filteredCount,
-                    Results = paged.ToList(),
-                    Filters = filterMetas
-                };
-        }
-        //public async Task<IListsResponse<FarmerCollResponse>> GetFarmerCollectionExport(IListsRequest request)
-        //{
-        //    var parameters = new Dictionary<string, object>
-        //    {
-        //        { "ActionType", (int)ReadActionType.All }
-        //    };
-
-            //    var (allResults, countResult, filterMetas) = await queryMultipleData
-            //        .GetMultiDetailsAsync<FarmerCollResponse, int, FiltersMeta>(
-            //            FarmerStgQueries.GetFarmerStgList,
-            //            DbConstants.Main,
-            //            parameters,
-            //            null);
-
-            //    var filters = filterMetas.BuildFilterCriteriaFromRequest(request.Filters, request.Search);
-            //    var sorts = filterMetas.BuildSortCriteriaFromRequest(request.Sort);
-            //    var paging = new PagingCriteria { Offset = request.Offset, Limit = request.Limit };
-
-            //    var filtered = allResults.AsQueryable().ApplyFilters(filters);
-            //    var sorted = filtered.ApplySorting(sorts);
-            //    var paged = sorted.ApplyPaging(paging);
-
-            //    var filteredCount = filtered.Count();
-
-            //    //var list = JsonSerializer.Deserialize<List<FarmerCollectionStagingDetail>>();
-
-            //    return new ListsResponse<FarmerCollResponse>
-            //    {
-            //        Count = filteredCount,
-            //        Results = paged.ToList(),
-            //        Filters = filterMetas
-            //    };
-            //}
-
-
-   }
- }
-
+    }
+}
