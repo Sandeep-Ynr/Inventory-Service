@@ -2,17 +2,21 @@ namespace MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollectio
 {
     public class FarmerCollStgInsertRequest
     {
-        public decimal RowId { get; set; }
+        public List<FarmerCollStgInsertListRequest>? Import { get; set; }
+    }
+
+    public class FarmerCollStgInsertListRequest
+    {
         public DateTime DumpDate { get; set; }
         public string? DumpTime { get; set; }
         public int BusinessEntityId { get; set; }
-        public string Mppcode { get; set; }
-        public string BatchNo { get; set; }
+        public string? Mppcode { get; set; }
+        public string? BatchNo { get; set; }
         public long? ReferenceId { get; set; }
         public long? FarmerId { get; set; }
         public string? FName { get; set; }
-        public string Shift { get; set; }
-        public string Type { get; set; }
+        public string? Shift { get; set; }
+        public string? Type { get; set; }
         public decimal WeightLiter { get; set; }
         public decimal? Fat { get; set; }
         public decimal? Snf { get; set; }
@@ -23,7 +27,7 @@ namespace MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollectio
         public int? SampleId { get; set; }
         public string? IsQltyAuto { get; set; }
         public string? IsQtyAuto { get; set; }
-        public string InsertMode { get; set; }
+        public string? InsertMode { get; set; }
         public string? IMEI_No { get; set; }
         public bool IsValidated { get; set; }
         public bool IsProcess { get; set; }

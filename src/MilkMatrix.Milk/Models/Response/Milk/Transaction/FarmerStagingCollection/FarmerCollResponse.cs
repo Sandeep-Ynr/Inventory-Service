@@ -7,19 +7,27 @@ using MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerStagingCollection;
 
 namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection
 {
-    public class FarmerCollResponse 
+    public class FarmerCollResponse
     {
-        public decimal RowId { get; set; }
+        public List<FarmerCollectionStagingDetailModel>? ExportList { get; set; }
+    }
+    public class FarmerstagingCollResponse
+    {
+        public string? ExportList { get; set; }
+
+    }
+    public class FarmerCollectionStagingDetailModel
+    {
+        public string? BatchNo { get; set; }
         public DateTime DumpDate { get; set; }
         public string? DumpTime { get; set; }
         public int BusinessEntityId { get; set; }
-        public string Mppcode { get; set; }
-        public string BatchNo { get; set; }
+        public string? Mppcode { get; set; }
         public long? ReferenceId { get; set; }
         public long? FarmerId { get; set; }
         public string? FName { get; set; }
-        public string Shift { get; set; }
-        public string Type { get; set; }
+        public string? Shift { get; set; }
+        public string? Type { get; set; }
         public decimal WeightLiter { get; set; }
         public decimal? Fat { get; set; }
         public decimal? Snf { get; set; }
@@ -30,16 +38,11 @@ namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection
         public int? SampleId { get; set; }
         public string? IsQltyAuto { get; set; }
         public string? IsQtyAuto { get; set; }
-        public string InsertMode { get; set; }
+        public string? InsertMode { get; set; }
         public string? IMEI_No { get; set; }
         public bool IsValidated { get; set; }
         public bool IsProcess { get; set; }
         public DateTime? ProcessDate { get; set; }
         public bool? IsStatus { get; set; }
-        public bool? IsDeleted { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public int? DeletedBy { get; set; }
-        public DateTime? DeletedOn { get; set; }
     }
 }
