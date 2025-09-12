@@ -1,0 +1,18 @@
+using MilkMatrix.Core.Entities.Enums;
+namespace MilkMatrix.Api.Models.Request.Inventory.ItemCategory
+{
+    public class ItemCatgInsertRequestModel
+    {
+        //public int Id { get; set; }
+        public int? BusinessId { get; set; }
+        public int? ParentId { get; set; }
+        public string? Code { get; set; } = null!;
+        public string? Name { get; set; } = null!;
+        public bool? IsActive { get; set; }
+        //public bool? IsDeleted { get; set; }
+        //public int? CreatedBy { get; set; }
+        //public DateTime? CreatedOn { get; set; }
+        //public int? ModifyBy { get; set; }
+        //public DateTime? ModifyOn { get; set; }
+    }
+}
