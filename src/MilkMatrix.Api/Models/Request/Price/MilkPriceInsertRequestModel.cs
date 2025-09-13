@@ -8,6 +8,7 @@ namespace MilkMatrix.Api.Models.Request.Price
         public string? MilkTypeId { get; set; }
         public string? RateTypeId { get; set; }
         public string? Description { get; set; }
+        public decimal? stdrate { get; set; }
         public string? RateGenType { get; set; }
         public bool? IsStatus { get; set; }
         public List<MilkPriceDetailModel> PriceDetails { get; set; } = new();

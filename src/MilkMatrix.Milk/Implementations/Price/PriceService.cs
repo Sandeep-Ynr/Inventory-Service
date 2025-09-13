@@ -223,6 +223,7 @@ namespace MilkMatrix.Milk.Implementations.Price
                     BusinessEntityId = record.BusinessEntityId,
                     WithEffectDate = record.WithEffectDate,
                     ShiftId = record.ShiftId,
+                    stdrate = record.stdrate,
                     MilkTypeId = record.MilkTypeId,
                     RateTypeId = record.RateTypeId,
                     Description = record.Description,
