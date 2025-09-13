@@ -13,6 +13,8 @@ namespace MilkMatrix.Milk.Models.Response.Price
         public int? BusinessEntityId { get; set; }
         public DateTime? WithEffectDate { get; set; }
         public string? ShiftId { get; set; }
+
+        public decimal? stdrate { get; set; }
         public string? MilkTypeId { get; set; }
         public string? RateTypeId { get; set; }
         public string? Description { get; set; }
@@ -26,6 +28,7 @@ namespace MilkMatrix.Milk.Models.Response.Price
     public class MilkPriceInsertResp
     {
         public string? Id { get; set; }
+        public decimal? stdrate { get; set; }
         public int? BusinessEntityId { get; set; }
         public DateTime? WithEffectDate { get; set; }
         public string? ShiftId { get; set; }
