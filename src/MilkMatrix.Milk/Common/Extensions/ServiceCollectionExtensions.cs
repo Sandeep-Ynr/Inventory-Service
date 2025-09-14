@@ -8,6 +8,7 @@ using MilkMatrix.Milk.Contracts.Bank;
 using MilkMatrix.Milk.Contracts.Bmc;
 using MilkMatrix.Milk.Contracts.ConfigSettings;
 using MilkMatrix.Milk.Contracts.Geographical;
+using MilkMatrix.Milk.Contracts.Inventory.Item;
 using MilkMatrix.Milk.Contracts.Inventory.ItemCategory;
 using MilkMatrix.Milk.Contracts.Logistics.Route;
 using MilkMatrix.Milk.Contracts.Logistics.Transporter;
@@ -39,6 +40,7 @@ using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Implementations.Animal;
 using MilkMatrix.Milk.Implementations.Bmc;
 using MilkMatrix.Milk.Implementations.ConfigSettings;
+using MilkMatrix.Milk.Implementations.Inventory.Item;
 using MilkMatrix.Milk.Implementations.Logistics.Route;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleBillingType;
 using MilkMatrix.Milk.Implementations.Logistics.VehicleType;
@@ -109,9 +111,10 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IAccountGroupsService, AccountGroupsService>()
                     .AddScoped<IAccountLedgerService, AccountLedgerService>()
                     .AddScoped<IHSNService, HSNService>()
-                    .AddScoped<IItemCatgService, ItemCatgService>();
+                    .AddScoped<IItemCatgService, ItemCatgService>()
+                    .AddScoped<IItemService, ItemService>();
 
 
-       
+
     }
 }
