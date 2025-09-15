@@ -12,4 +12,13 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string GetCatgList = "usp_item_category_list";
 
     }
+
+    public class ItemQueries
+    {
+        public const string AddItem = "usp_item_insupd";
+        public const string GetItemList = "usp_item_list";
+
+    }
 }
+
+
