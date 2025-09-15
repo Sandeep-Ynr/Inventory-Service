@@ -55,9 +55,41 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.Brand))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
                 .ForMember(dest => dest.Is_Active, opt => opt.MapFrom(src => src.Is_Active))
-                //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)) // Usually handled internally
-                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]))
-                .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => DateTime.Now));
+                .ForMember(dest => dest.DairySpecs, opt => opt.MapFrom(src => src.DairySpecs))
+                .ForMember(dest => dest.Locations, opt => opt.MapFrom(src => src.Locations))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+            CreateMap<DairySpecInsertRequestModel, DairySpecInsertRequest>()
+                 .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                 .ForMember(dest => dest.MilkType, opt => opt.MapFrom(src => src.MilkType))
+                 .ForMember(dest => dest.Standardization, opt => opt.MapFrom(src => src.Standardization))
+                 .ForMember(dest => dest.FatPct, opt => opt.MapFrom(src => src.FatPct))
+                 .ForMember(dest => dest.SnfPct, opt => opt.MapFrom(src => src.SnfPct))
+                 .ForMember(dest => dest.Density, opt => opt.MapFrom(src => src.Density))
+                 .ForMember(dest => dest.PackSizeValue, opt => opt.MapFrom(src => src.PackSizeValue))
+                 .ForMember(dest => dest.PackSizeUom, opt => opt.MapFrom(src => src.PackSizeUom))
+                 .ForMember(dest => dest.PackType, opt => opt.MapFrom(src => src.PackType))
+                 .ForMember(dest => dest.StorageClass, opt => opt.MapFrom(src => src.StorageClass))
+                 .ForMember(dest => dest.TempMin, opt => opt.MapFrom(src => src.TempMin))
+                 .ForMember(dest => dest.TempMax, opt => opt.MapFrom(src => src.TempMax))
+                 .ForMember(dest => dest.ShelfLife, opt => opt.MapFrom(src => src.ShelfLife))
+                 .ForMember(dest => dest.BatchPattern, opt => opt.MapFrom(src => src.BatchPattern))
+                 .ForMember(dest => dest.ProductionShiftId, opt => opt.MapFrom(src => src.ProductionShiftId))
+                 .ForMember(dest => dest.SourceLevel, opt => opt.MapFrom(src => src.SourceLevel))
+                 .ForMember(dest => dest.SourceCode, opt => opt.MapFrom(src => src.SourceCode))
+                 .ForMember(dest => dest.Is_Active, opt => opt.MapFrom(src => src.Is_Active));
+
+            CreateMap<ItemLocationInsertRequestModel, ItemLocationInsertRequest>()
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.LocationCode))
+                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.LocationName))
+                .ForMember(dest => dest.LocationId, opt => opt.MapFrom(src => src.LocationId))
+                .ForMember(dest => dest.MaxCapacity, opt => opt.MapFrom(src => src.MaxCapacity))
+                .ForMember(dest => dest.OpeningBalance, opt => opt.MapFrom(src => src.OpeningBalance))
+                .ForMember(dest => dest.CurrentBalance, opt => opt.MapFrom(src => src.CurrentBalance))
+                .ForMember(dest => dest.ReorderLevel, opt => opt.MapFrom(src => src.ReorderLevel))
+                .ForMember(dest => dest.MinQty, opt => opt.MapFrom(src => src.MinQty))
+                .ForMember(dest => dest.MaxQty, opt => opt.MapFrom(src => src.MaxQty));
 
             // Mapping for Update
             CreateMap<ItemUpdateRequestModel, ItemUpdateRequest>()
@@ -86,6 +118,37 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]))
                 .ForMember(dest => dest.ModifyOn, opt => opt.MapFrom(src => DateTime.Now));
 
+            CreateMap<DairySpecUpdateRequestModel, DairySpecUpdateRequest>()
+                 .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                 .ForMember(dest => dest.MilkType, opt => opt.MapFrom(src => src.MilkType))
+                 .ForMember(dest => dest.Standardization, opt => opt.MapFrom(src => src.Standardization))
+                 .ForMember(dest => dest.FatPct, opt => opt.MapFrom(src => src.FatPct))
+                 .ForMember(dest => dest.SnfPct, opt => opt.MapFrom(src => src.SnfPct))
+                 .ForMember(dest => dest.Density, opt => opt.MapFrom(src => src.Density))
+                 .ForMember(dest => dest.PackSizeValue, opt => opt.MapFrom(src => src.PackSizeValue))
+                 .ForMember(dest => dest.PackSizeUom, opt => opt.MapFrom(src => src.PackSizeUom))
+                 .ForMember(dest => dest.PackType, opt => opt.MapFrom(src => src.PackType))
+                 .ForMember(dest => dest.StorageClass, opt => opt.MapFrom(src => src.StorageClass))
+                 .ForMember(dest => dest.TempMin, opt => opt.MapFrom(src => src.TempMin))
+                 .ForMember(dest => dest.TempMax, opt => opt.MapFrom(src => src.TempMax))
+                 .ForMember(dest => dest.ShelfLife, opt => opt.MapFrom(src => src.ShelfLife))
+                 .ForMember(dest => dest.BatchPattern, opt => opt.MapFrom(src => src.BatchPattern))
+                 .ForMember(dest => dest.ProductionShiftId, opt => opt.MapFrom(src => src.ProductionShiftId))
+                 .ForMember(dest => dest.SourceLevel, opt => opt.MapFrom(src => src.SourceLevel))
+                 .ForMember(dest => dest.SourceCode, opt => opt.MapFrom(src => src.SourceCode))
+                 .ForMember(dest => dest.Is_Active, opt => opt.MapFrom(src => src.Is_Active));
+
+            CreateMap<ItemLocationUpdateRequestModel, ItemLocationUpdateRequest>()
+              .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+              .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.LocationCode))
+              .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.LocationName))
+              .ForMember(dest => dest.LocationId, opt => opt.MapFrom(src => src.LocationId))
+              .ForMember(dest => dest.MaxCapacity, opt => opt.MapFrom(src => src.MaxCapacity))
+              .ForMember(dest => dest.OpeningBalance, opt => opt.MapFrom(src => src.OpeningBalance))
+              .ForMember(dest => dest.CurrentBalance, opt => opt.MapFrom(src => src.CurrentBalance))
+              .ForMember(dest => dest.ReorderLevel, opt => opt.MapFrom(src => src.ReorderLevel))
+              .ForMember(dest => dest.MinQty, opt => opt.MapFrom(src => src.MinQty))
+              .ForMember(dest => dest.MaxQty, opt => opt.MapFrom(src => src.MaxQty));
         }
     }
 }

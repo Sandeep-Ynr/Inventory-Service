@@ -17,7 +17,9 @@ using MilkMatrix.Milk.Contracts.Inventory.Item;
 using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.Inventory.Item;
 using MilkMatrix.Milk.Models.Response.Inventory.Item;
+using MilkMatrix.Milk.Models.Response.Price;
 using static MilkMatrix.Milk.Models.Queries.MilkQueries;
+using static MilkMatrix.Milk.Models.Queries.PriceQueries;
 
 namespace MilkMatrix.Milk.Implementations.Inventory.Item
 {
@@ -175,35 +177,80 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
         {
             try
             {
-                logging.LogInfo($"GetByIdAsync called for Item id: {id}");
-                var repo = repositoryFactory.ConnectDapper<ItemResponse>(DbConstants.Main);
+                var repo = repositoryFactory.ConnectDapper<ItemResp>(DbConstants.Main);
 
-                // Create minimal JSON for SP
-                var json = JsonSerializer.Serialize(new
-                {
-                    Item_Id = id
-                });
+                var data = await repo.QueryAsync<ItemResp>(
+                    ItemQueries.GetItemList, // make sure your SP supports Individual fetch
+                     new Dictionary<string, object>
+                     {
+                        { "ActionType", (int)ReadActionType.Individual },
+                        { "ItemId ", id }
+                     },
+                     null
+                 );
+              
 
-                var parameters = new Dictionary<string, object>
+                var record = data.FirstOrDefault();
+                if (record == null) return null;
+
+                // Deserialize JSON safely
+                List<DairySpecResponse> dairySpecs = new();
+                if (!string.IsNullOrEmpty(record.DairySpecs))
                 {
-                    { "ActionType", (int)ReadActionType.Individual }, // Separate ActionType
-                    { "@ItemJSON", json } // JSON containing ID
+                    try
+                    {
+                        dairySpecs = JsonSerializer.Deserialize<List<DairySpecResponse>>(record.DairySpecs) ?? new();
+                    }
+                    catch (JsonException jex)
+                    {
+                        //_logger.LogWarning(jex, "Invalid DairySpecs JSON for ItemId {ItemId}", itemId);
+                    }
+                }
+
+                List<ItemLocationResponse> locations = new();
+                if (!string.IsNullOrEmpty(record.Locations))
+                {
+                    try
+                    {
+                        locations = JsonSerializer.Deserialize<List<ItemLocationResponse>>(record.Locations) ?? new();
+                    }
+                    catch (JsonException jex)
+                    {
+                        //. _logger.LogWarning(jex, "Invalid Locations JSON for ItemId {ItemId}", itemId);
+                    }
+                }
+
+                return new ItemResponse
+                {
+                    BusinessId = record.BusinessId,
+                    ItemId = record.ItemId,
+                    ItemTypeId = record.ItemTypeId,
+                    LifecycleStatusId = record.LifecycleStatusId,
+                    CategoryId = record.CategoryId,
+                    SubCategoryId = record.SubCategoryId,
+                    ItemCode = record.ItemCode,
+                    ItemName = record.ItemName,
+                    BaseUomId = record.BaseUomId,
+                    //IsPerishable = record.IsPerishable,
+                    //IsBatchTracked = record.IsBatchTracked,
+                    //IsSerialTracked = record.IsSerialTracked,
+                    //HsnSac = record.HsnSac,
+                    Mrp = record.Mrp,
+                    //PurchaseRate = record.PurchaseRate,
+                    //SaleRate = record.SaleRate,
+                    //AvgRate = record.AvgRate,
+                    Barcode = record.Barcode,
+                    Brand = record.Brand,
+                    Notes = record.Notes,
+                    //IsActive = record.IsActive,
+                    CreatedBy = record.CreatedBy,
+                    DairySpecs = dairySpecs,
+                    Locations = locations
                 };
-
-                var data = await repo.QueryAsync<ItemResponse>(
-                    ItemQueries.GetItemList,
-                    parameters,
-                    null);
-
-                var result = data.FirstOrDefault();
-                logging.LogInfo(result != null
-                    ? $"Item with id {id} retrieved successfully."
-                    : $"Item with id {id} not found.");
-                return result;
             }
             catch (Exception ex)
             {
-                logging.LogError($"Error in GetByIdAsync for Item id: {id}", ex);
+                // _logger.LogError(ex, "Error fetching ItemId {ItemId}", itemId);
                 throw;
             }
         }
