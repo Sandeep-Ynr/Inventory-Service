@@ -5,7 +5,6 @@ namespace MilkMatrix.Api.Models.Request.Inventory.Item
 {
     public class ItemInsertRequestModel
     {
-        public long? ItemId { get; set; }
         public int? BusinessId { get; set; }
         public int? ItemTypeId { get; set; }
         public int? LifecycleStatusId { get; set; }
@@ -26,11 +25,6 @@ namespace MilkMatrix.Api.Models.Request.Inventory.Item
         public string? Brand { get; set; }
         public string? Notes { get; set; }
         public bool? Is_Active { get; set; }
-        public bool? is_deleted { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public int? ModifyBy { get; set; }
-        public DateTime? ModifyOn { get; set; }
         public List<DairySpecInsertRequest> DairySpecs { get; set; } = new();
         public List<ItemLocationInsertRequest> Locations { get; set; } = new();
     }

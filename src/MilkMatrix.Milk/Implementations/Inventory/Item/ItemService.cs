@@ -104,19 +104,13 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
             try
             {
                 var repository = repositoryFactory.Connect<CommonLists>(DbConstants.Main);
-
-                // Minimal JSON for delete (SP uses this for data)
-                var json = JsonSerializer.Serialize(new
-                {
-                    Item_Id = id,
-                    ModifyBy = userId
-                });
-
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", (int)CrudActionType.Delete }, // MUST be separate
-                    { "@ItemJSON", json }  // JSON data as SP expects
+                    { "ActionType", (int)CrudActionType.Delete },
+                    { "@ItemJSON", null },
+                    { "ItemId", id }
                 };
+
 
                 var message = await repository.DeleteAsync(
                     ItemQueries.AddItem,
@@ -136,11 +130,7 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
         }
 
 
-
-
-
-
-        public async Task<IListsResponse<ItemResponse>> GetAll(IListsRequest request)
+        public async Task<IListsResponse<ItemListResponse>> GetAll(IListsRequest request)
         {
             var parameters = new Dictionary<string, object>
             {
@@ -148,7 +138,7 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
             };
 
             var (allResults, countResult, filterMetas) = await queryMultipleData
-                .GetMultiDetailsAsync<ItemResponse, int, FiltersMeta>(ItemQueries.GetItemList,
+                .GetMultiDetailsAsync<ItemListResponse, int, FiltersMeta>(ItemQueries.GetItemList,
                     DbConstants.Main,
                     parameters,
                     null);
@@ -163,7 +153,7 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
 
             var filteredCount = filtered.Count();
 
-            return new ListsResponse<ItemResponse>
+            return new ListsResponse<ItemListResponse>
             {
                 Count = filteredCount,
                 Results = paged.ToList(),
@@ -203,7 +193,8 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
                     }
                     catch (JsonException jex)
                     {
-                        //_logger.LogWarning(jex, "Invalid DairySpecs JSON for ItemId {ItemId}", itemId);
+                        logging.LogInfo("Invalid DairySpecs"  + jex);
+                        
                     }
                 }
 
@@ -216,7 +207,7 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
                     }
                     catch (JsonException jex)
                     {
-                        //. _logger.LogWarning(jex, "Invalid Locations JSON for ItemId {ItemId}", itemId);
+                        logging.LogInfo("Invalid DairySpecs" + jex);
                     }
                 }
 
@@ -231,18 +222,18 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
                     ItemCode = record.ItemCode,
                     ItemName = record.ItemName,
                     BaseUomId = record.BaseUomId,
-                    //IsPerishable = record.IsPerishable,
-                    //IsBatchTracked = record.IsBatchTracked,
-                    //IsSerialTracked = record.IsSerialTracked,
-                    //HsnSac = record.HsnSac,
+                    IsPerishable = record.IsPerishable,
+                    IsBatchTracked = record.IsBatchTracked,
+                    IsSerialTracked = record.IsSerialTracked,
+                    HsnSac = record.HsnSac,
                     Mrp = record.Mrp,
-                    //PurchaseRate = record.PurchaseRate,
-                    //SaleRate = record.SaleRate,
-                    //AvgRate = record.AvgRate,
+                    PurchaseRate = record.PurchaseRate,
+                    SaleRate = record.SaleRate,
+                    AvgRate = record.AvgRate,
                     Barcode = record.Barcode,
                     Brand = record.Brand,
                     Notes = record.Notes,
-                    //IsActive = record.IsActive,
+                    IsActive = record.IsActive,
                     CreatedBy = record.CreatedBy,
                     DairySpecs = dairySpecs,
                     Locations = locations

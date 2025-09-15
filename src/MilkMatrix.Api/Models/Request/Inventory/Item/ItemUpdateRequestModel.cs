@@ -25,11 +25,6 @@ namespace MilkMatrix.Api.Models.Request.Inventory.Item
         public string? Brand { get; set; }
         public string? Notes { get; set; }
         public bool? Is_Active { get; set; }
-        public bool? is_deleted { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedOn { get; set; }
-        public int? ModifyBy { get; set; }
-        public DateTime? ModifyOn { get; set; }
         public List<DairySpecUpdateRequestModel> DairySpecs { get; set; } = new();
         public List<ItemLocationUpdateRequestModel> Locations { get; set; } = new();
     }

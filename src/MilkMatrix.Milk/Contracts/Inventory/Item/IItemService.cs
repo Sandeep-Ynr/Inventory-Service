@@ -15,7 +15,7 @@ namespace MilkMatrix.Milk.Contracts.Inventory.Item
         Task AddItem(ItemInsertRequest request);
         Task UpdateItem(ItemUpdateRequest request);
         Task Delete(long id, int userId);
-        Task<IListsResponse<ItemResponse>> GetAll(IListsRequest request);
+        Task<IListsResponse<ItemListResponse>> GetAll(IListsRequest request);
         Task<ItemResponse?> GetById(long id);
     }
 }

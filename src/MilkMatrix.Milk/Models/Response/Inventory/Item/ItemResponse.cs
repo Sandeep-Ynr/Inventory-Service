@@ -79,20 +79,20 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
         public string? Standardization { get; set; }
         public decimal FatPct { get; set; }
         public decimal SnfPct { get; set; }
-        public decimal Density { get; set; }
+        public decimal DensityKgPerL { get; set; }
         public decimal PackSizeValue { get; set; }
         public string PackSizeUom { get; set; } = string.Empty;
         public string PackType { get; set; } = string.Empty;
         public string StorageClass { get; set; } = string.Empty;
-        public decimal TempMin { get; set; }
-        public decimal TempMax { get; set; }
-        public int ShelfLife { get; set; }
+        public decimal TempMinC { get; set; }
+        public decimal TempMaxC { get; set; }
+        public int ShelfLifeHours { get; set; }
         public string BatchPattern { get; set; } = string.Empty;
         public long ProductionShiftId { get; set; }
         public long SourceLevel { get; set; }
         public string SourceCode { get; set; } = string.Empty;
         public bool IsActive { get; set; }
-        public int CreatedBy { get; set; }
+        public int createdBy { get; set; }
     }
 
     public class ItemLocationResponse
@@ -110,6 +110,6 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
         public decimal MinQty { get; set; }
         public decimal MaxQty { get; set; }
         public bool IsActive { get; set; }
-        public int CreatedBy { get; set; }
+        public int createdBy { get; set; }
     }
 }
