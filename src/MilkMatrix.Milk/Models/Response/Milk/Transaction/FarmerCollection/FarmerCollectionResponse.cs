@@ -14,6 +14,8 @@ namespace MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerCollection
         public string? DumpTime { get; set; }
         public int FarmerId { get; set; }
         public string? FarmerName { get; set; }
+        public long? CId { get; set; }
+        public DateTime CDate { get; set; }
         public decimal Fat { get; set; }
         public decimal Snf { get; set; }
         public decimal LR { get; set; }
@@ -35,8 +37,6 @@ namespace MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerCollection
         public string? Shift { get; set; }
         public string? Status { get; set; }
         public int StatusId { get; set; }
-        public int CId { get; set; }
-        public DateTime CDate { get; set; }
         public int ApprovedBy { get; set; }
         public DateTime? ApprovedDate { get; set; }
         public bool IsActive { get; set; }

@@ -16,6 +16,8 @@ namespace MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection
         public long? ReferenceId { get; set; }
         public long? FarmerId { get; set; }
         public string? FName { get; set; }
+        public long? CId { get; set; }
+        public DateTime CDate { get; set; }
         public string? Shift { get; set; }
         public string? Type { get; set; }
         public decimal WeightLiter { get; set; }
