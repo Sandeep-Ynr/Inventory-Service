@@ -3,6 +3,7 @@ using Azure.Core;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Api.Models.Request.Milk.DockData;
+using MilkMatrix.Api.Models.Request.Milk.Transaction.Dispatch;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
@@ -13,6 +14,7 @@ using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
+using MilkMatrix.Milk.Models.Request.Milk.Transactions.Dispatch;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles
 {
@@ -271,7 +273,110 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.ApprovedDate, opt => opt.MapFrom(src => src.ApprovedDate))
                 .ForMember(dest => dest.IsStatus, opt => opt.MapFrom(src => src.IsStatus))
                 .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]));
-        }
 
+            CreateMap<DispatchInsertRequestModel, DispatchInsertRequest>()
+                .ForMember(dest => dest.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
+                .ForMember(dest => dest.PlantId, opt => opt.MapFrom(src => src.PlantId))
+                .ForMember(dest => dest.MccId, opt => opt.MapFrom(src => src.MccId))
+                .ForMember(dest => dest.BMC_Other_Code, opt => opt.MapFrom(src => src.BMC_Other_Code))
+                .ForMember(dest => dest.MPP_Other_Code, opt => opt.MapFrom(src => src.MPP_Other_Code))
+                .ForMember(dest => dest.CntCode, opt => opt.MapFrom(src => src.CntCode))
+                .ForMember(dest => dest.SocCode, opt => opt.MapFrom(src => src.SocCode))
+                .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                .ForMember(dest => dest.ShiftId, opt => opt.MapFrom(src => src.ShiftId))
+                .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
+                .ForMember(dest => dest.DispatchTime, opt => opt.MapFrom(src => src.DispatchTime))
+                .ForMember(dest => dest.TotalSamples, opt => opt.MapFrom(src => src.TotalSamples))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Grade))
+                .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
+                .ForMember(dest => dest.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
+                .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
+                .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
+                .ForMember(dest => dest.Lr, opt => opt.MapFrom(src => src.Lr))
+                .ForMember(dest => dest.Protein, opt => opt.MapFrom(src => src.Protein))
+                .ForMember(dest => dest.Water, opt => opt.MapFrom(src => src.Water))
+                .ForMember(dest => dest.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Can, opt => opt.MapFrom(src => src.Can))
+                .ForMember(dest => dest.IsQtyAuto, opt => opt.MapFrom(src => src.IsQtyAuto))
+                .ForMember(dest => dest.IsQltyAuto, opt => opt.MapFrom(src => src.IsQltyAuto))
+                .ForMember(dest => dest.QtyTime, opt => opt.MapFrom(src => src.QtyTime))
+                .ForMember(dest => dest.QltyTime, opt => opt.MapFrom(src => src.QltyTime))
+                .ForMember(dest => dest.KgLtrConst, opt => opt.MapFrom(src => src.KgLtrConst))
+                .ForMember(dest => dest.LtrKgConst, opt => opt.MapFrom(src => src.LtrKgConst))
+                .ForMember(dest => dest.QtyMode, opt => opt.MapFrom(src => src.QtyMode))
+                .ForMember(dest => dest.Remark, opt => opt.MapFrom(src => src.Remark))
+                .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.DeviceId))
+                .ForMember(dest => dest.AnalyzerCode, opt => opt.MapFrom(src => src.AnalyzerCode))
+                .ForMember(dest => dest.AnalyzerString, opt => opt.MapFrom(src => src.AnalyzerString))
+                .ForMember(dest => dest.CUserId, opt => opt.MapFrom(src => src.CUserId))
+                .ForMember(dest => dest.CDateTime, opt => opt.MapFrom(src => src.CDateTime))
+                .ForMember(dest => dest.MUserId, opt => opt.MapFrom(src => src.MUserId))
+                .ForMember(dest => dest.MDateTime, opt => opt.MapFrom(src => src.MDateTime))
+                .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => src.IsApproved))
+                .ForMember(dest => dest.IsRejected, opt => opt.MapFrom(src => src.IsRejected))
+                .ForMember(dest => dest.PublicIp, opt => opt.MapFrom(src => src.PublicIp))
+                .ForMember(dest => dest.LastSynchronized, opt => opt.MapFrom(src => src.LastSynchronized))
+                .ForMember(dest => dest.SyncStatus, opt => opt.MapFrom(src => src.SyncStatus))
+                .ForMember(dest => dest.SyncTime, opt => opt.MapFrom(src => src.SyncTime))
+                .ForMember(dest => dest.Batch_Id, opt => opt.MapFrom(src => src.Batch_Id))
+                .ForMember(dest => dest.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
+                .ForMember(dest => dest.Is_Status, opt => opt.MapFrom(src => src.Is_Status))
+                .ForMember(dest => dest.Created_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
+
+
+            CreateMap<DispatchUpdateRequestModel, DispatchUpdateRequest>()
+                .ForMember(dest => dest.RowId, opt => opt.MapFrom(src => src.RowId))
+                .ForMember(dest => dest.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
+                .ForMember(dest => dest.PlantId, opt => opt.MapFrom(src => src.PlantId))
+                .ForMember(dest => dest.MccId, opt => opt.MapFrom(src => src.MccId))
+                .ForMember(dest => dest.BMC_Other_Code, opt => opt.MapFrom(src => src.BMC_Other_Code))
+                .ForMember(dest => dest.MPP_Other_Code, opt => opt.MapFrom(src => src.MPP_Other_Code))
+                .ForMember(dest => dest.CntCode, opt => opt.MapFrom(src => src.CntCode))
+                .ForMember(dest => dest.SocCode, opt => opt.MapFrom(src => src.SocCode))
+                .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
+                .ForMember(dest => dest.ShiftId, opt => opt.MapFrom(src => src.ShiftId))
+                .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
+                .ForMember(dest => dest.DispatchTime, opt => opt.MapFrom(src => src.DispatchTime))
+                .ForMember(dest => dest.TotalSamples, opt => opt.MapFrom(src => src.TotalSamples))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
+                .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Grade))
+                .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
+                .ForMember(dest => dest.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
+                .ForMember(dest => dest.Fat, opt => opt.MapFrom(src => src.Fat))
+                .ForMember(dest => dest.Snf, opt => opt.MapFrom(src => src.Snf))
+                .ForMember(dest => dest.Lr, opt => opt.MapFrom(src => src.Lr))
+                .ForMember(dest => dest.Protein, opt => opt.MapFrom(src => src.Protein))
+                .ForMember(dest => dest.Water, opt => opt.MapFrom(src => src.Water))
+                .ForMember(dest => dest.Rtpl, opt => opt.MapFrom(src => src.Rtpl))
+                .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                .ForMember(dest => dest.Can, opt => opt.MapFrom(src => src.Can))
+                .ForMember(dest => dest.IsQtyAuto, opt => opt.MapFrom(src => src.IsQtyAuto))
+                .ForMember(dest => dest.IsQltyAuto, opt => opt.MapFrom(src => src.IsQltyAuto))
+                .ForMember(dest => dest.QtyTime, opt => opt.MapFrom(src => src.QtyTime))
+                .ForMember(dest => dest.QltyTime, opt => opt.MapFrom(src => src.QltyTime))
+                .ForMember(dest => dest.KgLtrConst, opt => opt.MapFrom(src => src.KgLtrConst))
+                .ForMember(dest => dest.LtrKgConst, opt => opt.MapFrom(src => src.LtrKgConst))
+                .ForMember(dest => dest.QtyMode, opt => opt.MapFrom(src => src.QtyMode))
+                .ForMember(dest => dest.Remark, opt => opt.MapFrom(src => src.Remark))
+                .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.DeviceId))
+                .ForMember(dest => dest.AnalyzerCode, opt => opt.MapFrom(src => src.AnalyzerCode))
+                .ForMember(dest => dest.AnalyzerString, opt => opt.MapFrom(src => src.AnalyzerString))
+                .ForMember(dest => dest.CUserId, opt => opt.MapFrom(src => src.CUserId))
+                .ForMember(dest => dest.CDateTime, opt => opt.MapFrom(src => src.CDateTime))
+                .ForMember(dest => dest.MUserId, opt => opt.MapFrom(src => src.MUserId))
+                .ForMember(dest => dest.MDateTime, opt => opt.MapFrom(src => src.MDateTime))
+                .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => src.IsApproved))
+                .ForMember(dest => dest.IsRejected, opt => opt.MapFrom(src => src.IsRejected))
+                .ForMember(dest => dest.PublicIp, opt => opt.MapFrom(src => src.PublicIp))
+                .ForMember(dest => dest.LastSynchronized, opt => opt.MapFrom(src => src.LastSynchronized))
+                .ForMember(dest => dest.SyncStatus, opt => opt.MapFrom(src => src.SyncStatus))
+                .ForMember(dest => dest.SyncTime, opt => opt.MapFrom(src => src.SyncTime))
+                .ForMember(dest => dest.Batch_Id, opt => opt.MapFrom(src => src.Batch_Id))
+                .ForMember(dest => dest.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
+                .ForMember(dest => dest.Is_Status, opt => opt.MapFrom(src => src.Is_Status));
+                //.ForMember(dest => dest.Modify_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["modify_by"]));
+        }
     }
 }

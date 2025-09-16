@@ -9,6 +9,7 @@ using MilkMatrix.Api.Models.AutomapperProfiles;
 using MilkMatrix.Api.Models.Request.Milk;
 using MilkMatrix.Api.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Api.Models.Request.Milk.DockData;
+using MilkMatrix.Api.Models.Request.Milk.Transaction.Dispatch;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Api.Models.Request.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Api.Models.Request.MilkCollection;
@@ -21,10 +22,13 @@ using MilkMatrix.Milk.Contracts.Milk;
 using MilkMatrix.Milk.Contracts.Milk.DeviceSetting;
 using MilkMatrix.Milk.Contracts.Milk.DockData;
 using MilkMatrix.Milk.Contracts.Milk.MilkCollection;
+using MilkMatrix.Milk.Contracts.Milk.Transaction.Dispatch;
 using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Contracts.Milk.Transaction.FarmerStagingCollection;
 using MilkMatrix.Milk.Implementations.Milk.DeviceSetting;
 using MilkMatrix.Milk.Implementations.Milk.DockData;
+using MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch;
+
 
 
 //using MilkMatrix.Milk.Implementations.Milk;
@@ -34,14 +38,16 @@ using MilkMatrix.Milk.Models.Request.Milk.DeviceSetting;
 using MilkMatrix.Milk.Models.Request.Milk.DockData;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerCollection;
 using MilkMatrix.Milk.Models.Request.Milk.Transaction.FarmerStagingCollection;
+using MilkMatrix.Milk.Models.Request.Milk.Transactions.Dispatch;
 using MilkMatrix.Milk.Models.Response.Milk;
 using MilkMatrix.Milk.Models.Response.Milk.DeviceSetting;
+using MilkMatrix.Milk.Models.Response.Milk.Transaction.Dispatch;
 using MilkMatrix.Milk.Models.Response.Milk.Transaction.FarmerCollection;
 using static MilkMatrix.Api.Common.Constants.Constants;
 
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -57,10 +63,12 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IDockDataService dockDataService;
         private readonly IFarmerStagingCollectionService farmerstgollectionservice;
         private readonly IFarmerCollectionService farmerCollectionService;
+        private readonly IDispatchService dispatchService;
 
         public MilkController(IHttpContextAccessor httpContextAccessor, ILogging logger, IMapper mapper, IMilkService milkService,
             IDeviceSettingService deviceSettingService, IMilkCollectionService milkcollectionservice, IDockDataService dockDataService,
-            IFarmerStagingCollectionService farmerstgollectionservice, IFarmerCollectionService farmerCollectionService)
+            IFarmerStagingCollectionService farmerstgollectionservice, IFarmerCollectionService farmerCollectionService,
+             IDispatchService dispatchService)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.logger = logger.ForContext("ServiceName", nameof(GeographicalController)) ?? throw new ArgumentNullException(nameof(logger));
@@ -71,6 +79,7 @@ namespace MilkMatrix.Api.Controllers.v1
             this.milkService = milkService;
             this.dockDataService = dockDataService ?? throw new ArgumentNullException(nameof(dockDataService));
             this.farmerCollectionService = farmerCollectionService ?? throw new ArgumentNullException(nameof(farmerCollectionService));
+            this.dispatchService = dispatchService ?? throw new ArgumentNullException(nameof(dispatchService));
         }
 
         [HttpPost]
@@ -839,7 +848,8 @@ namespace MilkMatrix.Api.Controllers.v1
 
         [HttpDelete("delete-farmer-collection/export/{batchno}")]
         public async Task<IActionResult> DeleteFarmerCollectionByBatchNo(string batchno)
-        {            try
+        {
+            try
             {
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
                 await farmerstgollectionservice.DeleteFarmerCollectionExportById(batchno, Convert.ToInt32(userId));
@@ -966,6 +976,119 @@ namespace MilkMatrix.Api.Controllers.v1
             {
                 logger.LogError($"Error deleting FarmerCollection with ID: {id}", ex);
                 return StatusCode(500, "An error occurred while deleting the record." + ex.Message);
+            }
+        }
+
+        #endregion
+
+
+
+
+        #region Dispatch
+        [HttpPost("list-dispatch")]
+        public async Task<IActionResult> GetDispatchList([FromBody] ListsRequest request)
+        {
+            var result = await dispatchService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("dispatch-id/{rowId}")]
+        public async Task<ActionResult<DispatchResponse?>> GetById(decimal rowId)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for Dispatch RowId: {rowId}");
+                var result = await dispatchService.GetById(rowId);
+                if (result == null)
+                {
+                    logger.LogInfo($"Dispatch with RowId {rowId} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"Dispatch with RowId {rowId} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Dispatch with RowId: {rowId}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record." + ex);
+            }
+        }
+
+        [HttpPost("add-dispatch")]
+        public async Task<IActionResult> Add([FromBody] DispatchInsertRequestModel request)
+        {
+            try
+            {
+                if ((request == null) || (!ModelState.IsValid))
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var requestParams = mapper.MapWithOptions<DispatchInsertRequest, DispatchInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
+
+                await dispatchService.AddDispatch(requestParams);
+                logger.LogInfo($"Dispatch record added successfully.");
+
+                return Ok(new { message = "Dispatch record added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error adding Dispatch record", ex);
+                return StatusCode(500, $"An error occurred while adding the Dispatch. {ex.Message}");
+            }
+        }
+
+
+        [HttpPut("update-dispatch")]
+        public async Task<IActionResult> Update([FromBody] DispatchUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.RowId <= 0)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.Map<DispatchUpdateRequest>(request);
+                mappedRequest.Modify_By = Convert.ToInt32(userId); // manually assign
+
+                await dispatchService.UpdateDispatch(mappedRequest);
+                logger.LogInfo($"Dispatch with RowId {request.RowId} updated successfully.");
+                return Ok(new { message = "Dispatch updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating Dispatch", ex);
+                return StatusCode(500, $"An error occurred while updating the Dispatch. {ex.Message}");
+            }
+        }
+
+
+        [HttpDelete("delete-dispatch/{rowId}")]
+        public async Task<IActionResult> Delete(decimal rowId)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await dispatchService.Delete(rowId, Convert.ToInt32(userId));
+                logger.LogInfo($"Dispatch with RowId {rowId} deleted successfully.");
+                return Ok(new { message = "Dispatch deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Dispatch with RowId: {rowId}", ex);
+                return StatusCode(500, $"An error occurred while deleting the Dispatch. {ex.Message}");
             }
         }
 
