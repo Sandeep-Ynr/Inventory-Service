@@ -283,11 +283,11 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.CntCode, opt => opt.MapFrom(src => src.CntCode))
                 .ForMember(dest => dest.SocCode, opt => opt.MapFrom(src => src.SocCode))
                 .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
-                .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+                .ForMember(dest => dest.ShiftId, opt => opt.MapFrom(src => src.ShiftId))
                 .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
                 .ForMember(dest => dest.DispatchTime, opt => opt.MapFrom(src => src.DispatchTime))
                 .ForMember(dest => dest.TotalSamples, opt => opt.MapFrom(src => src.TotalSamples))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
                 .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Grade))
                 .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
                 .ForMember(dest => dest.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
@@ -323,11 +323,10 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.Batch_Id, opt => opt.MapFrom(src => src.Batch_Id))
                 .ForMember(dest => dest.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
                 .ForMember(dest => dest.Is_Status, opt => opt.MapFrom(src => src.Is_Status))
-                .ForMember(dest => dest.Created_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]))
-                .ForMember(dest => dest.Modify_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifyBy"]));
+                .ForMember(dest => dest.Created_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]));
 
-            
-            CreateMap<DispatchUpdateRequestModel, DispatchInsertRequest>()
+
+            CreateMap<DispatchUpdateRequestModel, DispatchUpdateRequest>()
                 .ForMember(dest => dest.RowId, opt => opt.MapFrom(src => src.RowId))
                 .ForMember(dest => dest.BusinessEntityId, opt => opt.MapFrom(src => src.BusinessEntityId))
                 .ForMember(dest => dest.PlantId, opt => opt.MapFrom(src => src.PlantId))
@@ -337,11 +336,11 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.CntCode, opt => opt.MapFrom(src => src.CntCode))
                 .ForMember(dest => dest.SocCode, opt => opt.MapFrom(src => src.SocCode))
                 .ForMember(dest => dest.RouteId, opt => opt.MapFrom(src => src.RouteId))
-                .ForMember(dest => dest.Shift, opt => opt.MapFrom(src => src.Shift))
+                .ForMember(dest => dest.ShiftId, opt => opt.MapFrom(src => src.ShiftId))
                 .ForMember(dest => dest.DispatchDate, opt => opt.MapFrom(src => src.DispatchDate))
                 .ForMember(dest => dest.DispatchTime, opt => opt.MapFrom(src => src.DispatchTime))
                 .ForMember(dest => dest.TotalSamples, opt => opt.MapFrom(src => src.TotalSamples))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => src.TypeId))
                 .ForMember(dest => dest.Grade, opt => opt.MapFrom(src => src.Grade))
                 .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
                 .ForMember(dest => dest.WeightLiter, opt => opt.MapFrom(src => src.WeightLiter))
@@ -376,8 +375,8 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
                 .ForMember(dest => dest.SyncTime, opt => opt.MapFrom(src => src.SyncTime))
                 .ForMember(dest => dest.Batch_Id, opt => opt.MapFrom(src => src.Batch_Id))
                 .ForMember(dest => dest.InsertMode, opt => opt.MapFrom(src => src.InsertMode))
-                .ForMember(dest => dest.Is_Status, opt => opt.MapFrom(src => src.Is_Status))
-                .ForMember(dest => dest.Modify_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifyBy"]));
+                .ForMember(dest => dest.Is_Status, opt => opt.MapFrom(src => src.Is_Status));
+                //.ForMember(dest => dest.Modify_By, opt => opt.MapFrom((src, dest, member, context) => context.Items["modify_by"]));
         }
     }
 }

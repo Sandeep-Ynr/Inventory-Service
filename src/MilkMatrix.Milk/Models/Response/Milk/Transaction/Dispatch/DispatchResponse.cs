@@ -17,11 +17,11 @@ namespace MilkMatrix.Milk.Models.Response.Milk.Transaction.Dispatch
         public long CntCode { get; set; }                  
         public long SocCode { get; set; }                  
         public long RouteId { get; set; }                  
-        public string? Shift { get; set; }                  
+        public string? ShiftId { get; set; }                  
         public DateTime DispatchDate { get; set; }         
         public DateTime DispatchTime { get; set; }         
         public int TotalSamples { get; set; }              
-        public string? Type { get; set; }                  
+        public string? TypeId { get; set; }                  
         public string? Grade { get; set; }                 
         public decimal Weight { get; set; }                
         public decimal WeightLiter { get; set; }           

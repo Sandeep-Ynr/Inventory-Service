@@ -44,61 +44,57 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch
 
                 var requestParams = new Dictionary<string, object>
                 {
-                    { "ActionType", (int)CrudActionType.Create },
-                    { "RowId", request.RowId },
-                    { "BusinessEntityId", request.BusinessEntityId ?? (object)DBNull.Value},
-                    { "PlantId", request.PlantId },
-                    { "MccId", request.MccId },
-                    { "BMC_Other_Code", request.BMC_Other_Code ?? (object)DBNull.Value },
-                    { "MPP_Other_Code", request.MPP_Other_Code ?? (object)DBNull.Value },
-                    { "CntCode", request.CntCode },
-                    { "SocCode", request.SocCode },
-                    { "RouteId", request.RouteId },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
-                    { "DispatchDate", request.DispatchDate },
-                    { "DispatchTime", request.DispatchTime },
-                    { "TotalSamples", request.TotalSamples },
-                    { "Type", request.Type ?? (object)DBNull.Value },
-                    { "Grade", request.Grade ?? (object)DBNull.Value },
-                    { "Weight", request.Weight },
-                    { "WeightLiter", request.WeightLiter },
-                    { "Fat", request.Fat },
-                    { "Snf", request.Snf },
-                    { "Lr", request.Lr },
-                    { "Protein", request.Protein },
-                    { "Water", request.Water },
-                    { "Rtpl", request.Rtpl },
-                    { "TotalAmount", request.TotalAmount },
-                    { "Can", request.Can },
-                    { "IsQtyAuto", request.IsQtyAuto },
-                    { "IsQltyAuto", request.IsQltyAuto },
-                    { "QtyTime", request.QtyTime },
-                    { "QltyTime", request.QltyTime },
-                    { "KgLtrConst", request.KgLtrConst },
-                    { "LtrKgConst", request.LtrKgConst },
-                    { "QtyMode", request.QtyMode ?? (object)DBNull.Value },
-                    { "Remark", request.Remark ?? (object)DBNull.Value },
-                    { "DeviceId", request.DeviceId ?? (object)DBNull.Value },
-                    { "AnalyzerCode", request.AnalyzerCode },
-                    { "AnalyzerString", request.AnalyzerString ?? (object)DBNull.Value },
-                    { "CUserId", request.CUserId },
-                    { "CDateTime", request.CDateTime },
-                    { "MUserId", request.MUserId },
-                    { "MDateTime", request.MDateTime },
-                    { "IsApproved", request.IsApproved },
-                    { "IsRejected", request.IsRejected },
-                    { "IsDelete", request.IsDelete },
-                    { "PublicIp", request.PublicIp ?? (object)DBNull.Value },
-                    { "LastSynchronized", request.LastSynchronized },
-                    { "SyncStatus", request.SyncStatus ?? (object)DBNull.Value },
-                    { "SyncTime", request.SyncTime },
-                    { "Batch_Id", request.Batch_Id ?? (object)DBNull.Value },
-                    { "InsertMode", request.InsertMode ?? (object)DBNull.Value },
-                    { "Is_Status", request.Is_Status ?? (object)DBNull.Value },
-                    { "Created_By", request.Created_By ?? (object)DBNull.Value },
-                    { "Created_On", request.Created_On ?? (object)DBNull.Value },
-                    { "Modify_By", request.Modify_By ?? (object)DBNull.Value },
-                    { "Modify_On", request.Modify_On ?? (object)DBNull.Value }
+                { "ActionType", (int)CrudActionType.Create },
+                { "BusinessEntityId", request.BusinessEntityId ?? (object)DBNull.Value },
+                { "plantId", request.PlantId },
+                { "mccId", request.MccId },
+                { "BMC_Other_Code", request.BMC_Other_Code ?? (object)DBNull.Value },
+                { "MPP_Other_Code", request.MPP_Other_Code ?? (object)DBNull.Value },
+                { "cntCode", request.CntCode },
+                { "socCode", request.SocCode },
+                { "routeId", request.RouteId },
+                { "shiftId", request.ShiftId ?? (object)DBNull.Value },
+                { "dispatchDate", request.DispatchDate },
+                { "dispatchTime", request.DispatchTime },
+                { "totalSamples", request.TotalSamples },
+                { "typeId", request.TypeId ?? (object)DBNull.Value },
+                { "grade", request.Grade ?? (object)DBNull.Value },
+                { "weight", request.Weight },
+                { "weightLiter", request.WeightLiter },
+                { "fat", request.Fat },
+                { "snf", request.Snf },
+                { "lr", request.Lr },
+                { "protein", request.Protein },
+                { "water", request.Water },
+                { "rtpl", request.Rtpl },
+                { "totalAmount", request.TotalAmount },
+                { "can", request.Can },
+                { "isQtyAuto", request.IsQtyAuto },
+                { "isQltyAuto", request.IsQltyAuto },
+                { "qtytime", request.QtyTime },
+                { "qltytime", request.QltyTime },
+                { "kgLtrConst", request.KgLtrConst },
+                { "ltrKgConst", request.LtrKgConst },
+                { "qtyMode", request.QtyMode ?? (object)DBNull.Value },
+                { "remark", request.Remark ?? (object)DBNull.Value },
+                { "deviceId", request.DeviceId ?? (object)DBNull.Value },
+                { "analyzerCode", request.AnalyzerCode },
+                { "analyzerString", request.AnalyzerString ?? (object)DBNull.Value },
+                { "cUserId", request.CUserId },
+                { "mUserId", request.MUserId },
+                { "MDateTime", request.MDateTime },
+                { "isApproved", request.IsApproved },
+                { "isRejected", request.IsRejected },
+                { "PublicIp", request.PublicIp ?? (object)DBNull.Value },
+                { "batch_id", request.Batch_Id ?? (object)DBNull.Value },
+                { "insertMode", request.InsertMode ?? (object)DBNull.Value },
+                { "is_status", request.Is_Status ?? (object)DBNull.Value },
+                { "LastSynchronized", request.LastSynchronized },
+                { "SyncStatus", request.SyncStatus ?? (object)DBNull.Value },
+                { "SyncTime", request.SyncTime },
+                { "created_by", request.Created_By ?? 0 },
+                { "modify_by", request.Modify_By ?? (object)DBNull.Value }
+
                 };
 
                 var message = await repository.AddAsync(DispatchQueries.AddDispatch, requestParams, CommandType.StoredProcedure);
@@ -133,11 +129,11 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch
                     { "CntCode", request.CntCode },
                     { "SocCode", request.SocCode },
                     { "RouteId", request.RouteId },
-                    { "Shift", request.Shift ?? (object)DBNull.Value },
+                    { "ShiftId", request.ShiftId ?? (object)DBNull.Value },
                     { "DispatchDate", request.DispatchDate },
                     { "DispatchTime", request.DispatchTime },
                     { "TotalSamples", request.TotalSamples },
-                    { "Type", request.Type ?? (object)DBNull.Value },
+                    { "TypeId", request.TypeId ?? (object)DBNull.Value },
                     { "Grade", request.Grade ?? (object)DBNull.Value },
                     { "Weight", request.Weight },
                     { "WeightLiter", request.WeightLiter },
@@ -174,10 +170,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch
                     { "Batch_Id", request.Batch_Id ?? (object)DBNull.Value },
                     { "InsertMode", request.InsertMode ?? (object)DBNull.Value },
                     { "Is_Status", request.Is_Status ?? (object)DBNull.Value },
-                    { "Created_By", request.Created_By ?? (object)DBNull.Value },
-                    { "Created_On", request.Created_On ?? (object)DBNull.Value },
-                    { "Modify_By", request.Modify_By ?? (object)DBNull.Value },
-                    { "Modify_On", request.Modify_On ?? (object)DBNull.Value }
+                     { "modify_by", request.Modify_By ?? 0 }
                 };
 
                 var message = await repository.UpdateAsync(DispatchQueries.AddDispatch, requestParams, CommandType.StoredProcedure);
@@ -202,7 +195,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch
                 var requestParams = new Dictionary<string, object>
                 {
                     { "ActionType", (int)CrudActionType.Delete },
-                    { "DispatchId", rowId }
+                    { "RowId", rowId }
                 };
 
                 var message = await repository.DeleteAsync(DispatchQueries.AddDispatch, requestParams, CommandType.StoredProcedure);
@@ -261,7 +254,7 @@ namespace MilkMatrix.Milk.Implementations.Milk.Transaction.Dispatch
                     new Dictionary<string, object>
                     {
                         { "ActionType", (int)ReadActionType.Individual },
-                        { "DispatchId", rowId}
+                        { "RowId", rowId}
                     },
                     null);
 

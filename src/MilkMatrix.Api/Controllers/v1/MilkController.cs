@@ -1020,31 +1020,35 @@ namespace MilkMatrix.Api.Controllers.v1
         {
             try
             {
-                if (request == null || !ModelState.IsValid)
+                if ((request == null) || (!ModelState.IsValid))
                 {
                     return BadRequest(new ErrorResponse
                     {
                         StatusCode = (int)HttpStatusCode.BadRequest,
-                        ErrorMessage = "Invalid request."
+                        ErrorMessage = string.Format(ErrorMessage.InvalidRequest)
                     });
                 }
 
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
-                logger.LogInfo($"Add called for Dispatch: RowId {request}");
 
-                // Simple AutoMapper mapping
-                var mappedRequest = mapper.Map<DispatchInsertRequest>(request);
-                mappedRequest.Created_By = Convert.ToInt32(userId);
+                var requestParams = mapper.MapWithOptions<DispatchInsertRequest, DispatchInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object> {
+                { Constants.AutoMapper.CreatedBy, Convert.ToInt32(userId) }
+                    });
 
-                await dispatchService.AddDispatch(mappedRequest);
-                return Ok(new { message = "Dispatch added successfully." });
+                await dispatchService.AddDispatch(requestParams);
+                logger.LogInfo($"Dispatch record added successfully.");
+
+                return Ok(new { message = "Dispatch record added successfully." });
             }
             catch (Exception ex)
             {
-                logger.LogError("Error in Add Dispatch", ex);
+                logger.LogError("Error adding Dispatch record", ex);
                 return StatusCode(500, $"An error occurred while adding the Dispatch. {ex.Message}");
             }
         }
+
 
         [HttpPut("update-dispatch")]
         public async Task<IActionResult> Update([FromBody] DispatchUpdateRequestModel request)
@@ -1057,7 +1061,7 @@ namespace MilkMatrix.Api.Controllers.v1
                 var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
 
                 var mappedRequest = mapper.Map<DispatchUpdateRequest>(request);
-                mappedRequest.Modify_By = Convert.ToInt32(userId);
+                mappedRequest.Modify_By = Convert.ToInt32(userId); // manually assign
 
                 await dispatchService.UpdateDispatch(mappedRequest);
                 logger.LogInfo($"Dispatch with RowId {request.RowId} updated successfully.");

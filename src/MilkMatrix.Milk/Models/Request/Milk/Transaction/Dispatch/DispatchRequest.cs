@@ -16,12 +16,12 @@ namespace MilkMatrix.Milk.Models.Request.Milk.Transactions.Dispatch
         public string? MPP_Other_Code { get; set; }     
         public long CntCode { get; set; }               
         public long SocCode { get; set; }               
-        public long RouteId { get; set; }               
-        public string? Shift { get; set; }              
-        public DateTime DispatchDate { get; set; }      
-        public DateTime DispatchTime { get; set; }      
-        public int TotalSamples { get; set; }           
-        public string? Type { get; set; }               
+        public long RouteId { get; set; }
+        public string? ShiftId { get; set; }
+        public DateTime DispatchDate { get; set; }
+        public DateTime DispatchTime { get; set; }
+        public int TotalSamples { get; set; }
+        public string? TypeId { get; set; }
         public string? Grade { get; set; }              
         public decimal Weight { get; set; }             
         public decimal WeightLiter { get; set; }        
