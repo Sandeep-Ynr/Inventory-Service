@@ -45,7 +45,7 @@ namespace MilkMatrix.Api.Controllers.v1;
 /// Controller for managing administrative tasks such as user details, modules, and financial years.
 /// This controller is secured and requires authorization for access.
 /// </summary>
-//[Authorize]
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
