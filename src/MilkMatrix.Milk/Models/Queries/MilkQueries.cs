@@ -54,6 +54,11 @@ namespace MilkMatrix.Milk.Models.Queries
             public const string AddFarmerCollection = "usp_farmercollection_insupd";
             public const string GetFarmerCollectionList = "usp_farmercollection_list";
         }
+        public static class DispatchQueries
+        {
+            public const string AddDispatch = "usp_milk_dispatch_insupd";
+            public const string GetDispatchList = "usp_milk_dispatch_list";
+        }
     }
 }
 
