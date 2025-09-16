@@ -11,6 +11,8 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
             public long ItemId { get; set; }
             public int BusinessId { get; set; }      
             public int CategoryId { get; set; }      
+            public int SubCategoryId { get; set; }
+            public int baseUOMId { get; set; }
             public string? ItemCode { get; set; }   
             public string? ItemName { get; set; }   
             public string? Brand { get; set; }       
