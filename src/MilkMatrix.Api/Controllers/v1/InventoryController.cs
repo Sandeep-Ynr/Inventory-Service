@@ -23,7 +23,7 @@ using MilkMatrix.Milk.Models.Response.Inventory.ItemCategory;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -56,7 +56,7 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet("id/-item-category{id}")]
+        [HttpGet("get/-item-category{id}")]
         public async Task<ActionResult<ItemCatgResponse?>> GetById(int id)
         {
             try
@@ -169,7 +169,7 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet("id/-item{id}")]
+        [HttpGet("Get/-item{id}")]
         public async Task<ActionResult<ItemResponse?>> GetItemById(long id)
         {
             try
