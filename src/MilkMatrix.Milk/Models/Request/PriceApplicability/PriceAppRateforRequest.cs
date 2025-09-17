@@ -5,7 +5,7 @@ namespace MilkMatrix.Api.Models.Request.PriceApplicability
         public long CompanyId { get; set; }          // @company_id
         public DateTime TxDate { get; set; }         // @tx_date
         public int ShiftId { get; set; }             // @shift_id
-        public string CattleScope { get; set; }      // @cattle_scope
+        public string cattle_scope_Id { get; set; }      // @cattle_scope
         public decimal Fat { get; set; }             // @fat
         public decimal Snf { get; set; }             // @snf
         public string ViewType { get; set; }         // @view_type (e.g., TOP_MATCH)
