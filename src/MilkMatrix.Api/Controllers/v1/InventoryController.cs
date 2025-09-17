@@ -23,7 +23,7 @@ using MilkMatrix.Milk.Models.Response.Inventory.ItemCategory;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -49,14 +49,14 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         #region item-category
-        [HttpPost("list-item-category")]
+        [HttpPost("list-itemcategory")]
         public async Task<IActionResult> GetList([FromBody] ListsRequest request)
         {
             var result = await itemCatgService.GetAll(request);
             return Ok(result);
         }
 
-        [HttpGet("get/-item-category{id}")]
+        [HttpGet("get-itemcategory/{id}")]
         public async Task<ActionResult<ItemCatgResponse?>> GetById(int id)
         {
             try
@@ -80,7 +80,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        [HttpPost("add-item-category")]
+        [HttpPost("add-itemcategory")]
         public async Task<IActionResult> Add([FromBody] ItemCatgInsertRequestModel request)
         {
             try
@@ -114,7 +114,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        [HttpPut("update-item-category")]
+        [HttpPut("update-itemcategory")]
         public async Task<IActionResult> Update([FromBody] ItemCatgUpdateRequestModel request)
         {
             try
@@ -143,7 +143,7 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-        [HttpDelete("delete/-item-category{id}")]
+        [HttpDelete("delete-itemcategory/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -169,7 +169,7 @@ namespace MilkMatrix.Api.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet("Get/-item{id}")]
+        [HttpGet("get-item/{id}")]
         public async Task<ActionResult<ItemResponse?>> GetItemById(long id)
         {
             try
@@ -194,7 +194,7 @@ namespace MilkMatrix.Api.Controllers.v1
         }
 
         [HttpPost]
-        [Route("item/add")]
+        [Route("item-add")]
         public async Task<IActionResult> AddItem([FromBody] ItemInsertRequestModel request)
         {
             try
@@ -230,7 +230,7 @@ namespace MilkMatrix.Api.Controllers.v1
 
 
         [HttpPut]
-        [Route("item/update")]
+        [Route("item-update")]
         public async Task<IActionResult> UpdateItem([FromBody] ItemUpdateRequestModel request)
         {
             try
