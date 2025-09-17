@@ -15,7 +15,7 @@ namespace MilkMatrix.Api.Models.Request.PriceApplicability
         public string? RateFor { get; set; }
         public bool? IsStatus { get; set; }
         public int? Priority { get; set; }
-        public string? cattleScope { get; set; }
+        public string? cattle_scope_Id { get; set; }
         public string? applied_for { get; set; }
         public string? applied_shift_scope { get; set; }
         public List<RateMappingTarget>? Targets { get; set; }

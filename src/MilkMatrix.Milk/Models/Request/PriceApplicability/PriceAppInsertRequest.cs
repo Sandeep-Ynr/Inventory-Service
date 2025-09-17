@@ -18,7 +18,7 @@ namespace MilkMatrix.Milk.Models.Request.PriceApplicability
         public bool? IsActive { get; set; }
         public int? CreatedBy { get; set; }
         public int? Priority { get; set; }
-        public string? cattleScope { get; set; }
+        public string? cattle_scope_Id { get; set; }
         public string? applied_for { get; set; }
         public string? applied_shift_scope { get; set; }
         public string? Description { get; set; }
