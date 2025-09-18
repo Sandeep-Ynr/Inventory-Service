@@ -231,7 +231,7 @@ namespace MilkMatrix.Milk.Implementations.Inventory.Item
                     SaleRate = record.SaleRate,
                     AvgRate = record.AvgRate,
                     Barcode = record.Barcode,
-                    Brand = record.Brand,
+                    BrandId = record.BrandId,
                     Notes = record.Notes,
                     IsActive = record.IsActive,
                     CreatedBy = record.CreatedBy,

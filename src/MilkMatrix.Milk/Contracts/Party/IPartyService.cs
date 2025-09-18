@@ -16,5 +16,7 @@ namespace MilkMatrix.Milk.Contracts.Party
        
         Task AddParty(PartyInsertRequest request);
         Task UpdateParty(long id,PartyUpdateRequest request);
+
+        Task Delete(long id, long userId);
     }
 }

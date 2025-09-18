@@ -120,7 +120,8 @@ namespace MilkMatrix.Milk.Implementations
                 {
                     { "ActionType", (int)CrudActionType.Delete },
                     { "PartyID", id },
-                    { "ModifyBy", userId }
+                    { "PartyJSON" , ""},
+                    { "Deletedby", userId }
                 };
 
                 await repository.DeleteAsync(PartyQueries.AddParty, requestParams, CommandType.StoredProcedure);
