@@ -242,7 +242,26 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
-      
+
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteParty(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await partyService.Delete(id, Convert.ToInt32(userId));
+                logger.LogInfo($"PartyGroup with ID {id} deleted successfully.");
+                return Ok(new { message = "Party deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting PartyGroup with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while deleting the record." + ex);
+            }
+        }
+
+
         #endregion
 
     }

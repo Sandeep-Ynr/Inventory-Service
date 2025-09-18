@@ -16,6 +16,8 @@ namespace MilkMatrix.Milk.Models.Request.Inventory.Item
         public int? SubCategoryId { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
+
+        public int? brand_id { get; set; }
         public int BaseUomId { get; set; }
         public bool Is_Perishable { get; set; }
         public bool Is_Batch_Tracked { get; set; }
@@ -26,7 +28,6 @@ namespace MilkMatrix.Milk.Models.Request.Inventory.Item
         public decimal? Sale_Rate { get; set; }
         public decimal? Avg_Rate { get; set; }
         public string Barcode { get; set; }
-        public string Brand { get; set; }
         public string Notes { get; set; }
         public bool Is_Active { get; set; }
         public bool? is_deleted { get; set; }

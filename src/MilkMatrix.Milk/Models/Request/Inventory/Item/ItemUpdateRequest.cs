@@ -17,6 +17,8 @@ namespace MilkMatrix.Milk.Models.Request.Inventory.Item
         public string? ItemCode { get; set; }
         public string? ItemName { get; set; }
         public int? BaseUomId { get; set; }
+
+        public int? brand_id { get; set; }
         public bool? Is_Perishable { get; set; }
         public bool? Is_Batch_Tracked { get; set; }
         public bool? Is_Serial_Tracked { get; set; }
@@ -26,7 +28,6 @@ namespace MilkMatrix.Milk.Models.Request.Inventory.Item
         public decimal? Sale_Rate { get; set; }
         public decimal? Avg_Rate { get; set; }
         public string? Barcode { get; set; }
-        public string? Brand { get; set; }
         public string? Notes { get; set; }
         public bool? Is_Active { get; set; }
         public bool? is_deleted { get; set; }
@@ -63,9 +64,8 @@ namespace MilkMatrix.Milk.Models.Request.Inventory.Item
     public class ItemLocationUpdateRequest
     {
         public int? BusinessId { get; set; }
-        public string? LocationCode { get; set; } = string.Empty;
-        public string? LocationName { get; set; } = string.Empty;
         public long? LocationId { get; set; }   // BIGINT
+        public long? bin_id { get; set; }   // BIGINT
         public decimal? MaxCapacity { get; set; }       // DECIMAL(18,3)
         public decimal? OpeningBalance { get; set; }    // DECIMAL(18,3)
         public decimal? CurrentBalance { get; set; }    // DECIMAL(18,3)

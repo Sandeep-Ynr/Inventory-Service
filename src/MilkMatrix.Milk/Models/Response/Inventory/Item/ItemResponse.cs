@@ -26,7 +26,7 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
         public decimal? SaleRate { get; set; }
         public decimal? AvgRate { get; set; }
         public string? Barcode { get; set; }
-        public string? Brand { get; set; }
+        public int? BrandId { get; set; }
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
         public bool? IsDeleted { get; set; }
@@ -60,7 +60,7 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
         public decimal? SaleRate { get; set; }
         public decimal? AvgRate { get; set; }
         public string? Barcode { get; set; }
-        public string? Brand { get; set; }
+        public int? BrandId { get; set; }
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
         public int CreatedBy { get; set; }
@@ -100,9 +100,8 @@ namespace MilkMatrix.Milk.Models.Response.Inventory.Item
         public int BusinessId { get; set; }
         public int ItemLocationId { get; set; }
         public int ItemId { get; set; }
-        public string LocationCode { get; set; } = string.Empty;
-        public string LocationName { get; set; } = string.Empty;
         public int LocationId { get; set; }
+        public int BinId { get; set; }
         public decimal MaxCapacity { get; set; }
         public decimal OpeningBalance { get; set; }
         public decimal CurrentBalance { get; set; }
