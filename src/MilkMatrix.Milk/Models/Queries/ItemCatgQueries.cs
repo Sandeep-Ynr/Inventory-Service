@@ -19,6 +19,15 @@ namespace MilkMatrix.Milk.Models.Queries
         public const string GetItemList = "usp_item_list";
 
     }
+
+    public class ItemBrand
+    {
+        public const string InsUpdItem = "usp_brand_master_insupd";
+        public const string GetItemList = "usp_brand_list";
+
+    }
+
+    //usp_brand_master_insupd
 }
 
 
