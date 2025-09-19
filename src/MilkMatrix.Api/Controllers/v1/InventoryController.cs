@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MilkMatrix.Api.Models.Request.Inventory.Item;
+using MilkMatrix.Api.Models.Request.Inventory.ItemBrand;
 using MilkMatrix.Api.Models.Request.Inventory.ItemCategory;
 using MilkMatrix.Core.Abstractions.Logger;
 using MilkMatrix.Core.Entities.Enums;
@@ -16,9 +17,12 @@ using MilkMatrix.Milk.Contracts.Inventory.Item;
 using MilkMatrix.Milk.Contracts.Inventory.ItemCategory;
 using MilkMatrix.Milk.Implementations;
 using MilkMatrix.Milk.Models;
+using MilkMatrix.Milk.Models.Queries;
 using MilkMatrix.Milk.Models.Request.Inventory.Item;
+using MilkMatrix.Milk.Models.Request.Inventory.ItemBrand;
 using MilkMatrix.Milk.Models.Request.Inventory.ItemCategory;
 using MilkMatrix.Milk.Models.Response.Inventory.Item;
+using MilkMatrix.Milk.Models.Response.Inventory.ItemBrand;
 using MilkMatrix.Milk.Models.Response.Inventory.ItemCategory;
 using static MilkMatrix.Api.Common.Constants.Constants;
 namespace MilkMatrix.Api.Controllers.v1
@@ -34,10 +38,13 @@ namespace MilkMatrix.Api.Controllers.v1
         private readonly IMapper mapper;
         private readonly IItemCatgService itemCatgService;
         private readonly IItemService itemService;
+        private readonly IItemBrandService itemBrandService;
         public InventoryController(
            IHttpContextAccessor httpContextAccessor,
            ILogging logging,
            IItemCatgService itemCatgService,
+           IItemBrandService itemBrandService,
+
            IItemService itemService,
            IMapper mapper)
         {
@@ -46,6 +53,8 @@ namespace MilkMatrix.Api.Controllers.v1
             this.itemCatgService = itemCatgService ?? throw new ArgumentNullException(nameof(itemCatgService));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.itemService = itemService ?? throw new ArgumentNullException(nameof(itemService));
+            this.itemBrandService = itemBrandService ?? throw new ArgumentNullException(nameof(itemBrandService));
+
         }
 
         #region item-category
@@ -283,6 +292,119 @@ namespace MilkMatrix.Api.Controllers.v1
             }
         }
 
+        #endregion
+
+        #region item-Brand
+        [HttpPost("list-item-Brand")]
+        public async Task<IActionResult> GetBrandList([FromBody] ListsRequest request)
+        {
+            var result = await itemBrandService.GetAll(request);
+            return Ok(result);
+        }
+
+        [HttpGet("get-item-Brand/{id}")]
+        public async Task<ActionResult<ItemBrandResponse?>> GetByIdforbrand(int id)
+        {
+            try
+            {
+                logger.LogInfo($"GetById called for Item Brand ID: {id}");
+                var result = await itemBrandService.GetById(id);
+
+                if (result == null)
+                {
+                    logger.LogInfo($"Item Brand with ID {id} not found.");
+                    return NotFound();
+                }
+
+                logger.LogInfo($"Item Brand with ID {id} retrieved successfully.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error retrieving Item Brand with ID: {id}", ex);
+                return StatusCode(500, "An error occurred while retrieving the record." + ex.Message);
+            }
+        }
+
+        [HttpPost("add-item-Brand")]
+        public async Task<IActionResult> AddBrand([FromBody] ItemBrandInsertRequestModel request)
+        {
+            try
+            {
+                if (request == null || !ModelState.IsValid)
+                {
+                    return BadRequest(new ErrorResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        ErrorMessage = "Invalid request."
+                    });
+                }
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                logger.LogInfo($"Add called for ItemBrand: {request.Name}");
+
+                var mappedRequest = mapper.MapWithOptions<ItemBrandInsertRequest, ItemBrandInsertRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                         { Constants.AutoMapper.CreatedBy, Convert.ToInt64(userId) }
+                    });
+
+                await itemBrandService.AddItemBrand(mappedRequest);
+                return Ok(new { message = "Item Brand added successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in Add Item Brand", ex);
+                return StatusCode(500, $"An error occurred while adding the Item Brand. {ex.Message}");
+            }
+        }
+
+        [HttpPut("update-item-Brand")]
+        public async Task<IActionResult> UpdateBrand([FromBody] ItemBrandUpdateRequestModel request)
+        {
+            try
+            {
+                if (!ModelState.IsValid || request.BrandId <= 0)
+                    return BadRequest("Invalid request.");
+
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+
+                var mappedRequest = mapper.MapWithOptions<ItemBrandUpdateRequest, ItemBrandUpdateRequestModel>(
+                    request,
+                    new Dictionary<string, object>
+                    {
+                        { Constants.AutoMapper.ModifiedBy, Convert.ToInt64(userId) }
+
+                    });
+
+                await itemBrandService.UpdateItemBrand(mappedRequest);
+                logger.LogInfo($"Item Brand with ID {request.BrandId} updated successfully.");
+                return Ok(new { message = "Item Brand  updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error in updating Item Brand ", ex);
+                return StatusCode(500, $"An error occurred while updating the Item Brand . {ex.Message}");
+            }
+        }
+
+        [HttpDelete("delete-item-brand/{id}")]
+        public async Task<IActionResult> Deletebrand(int id)
+        {
+            try
+            {
+                var userId = httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.UserData)?.Value;
+                await itemBrandService.Delete (id, Convert.ToInt32(userId));
+                logger.LogInfo($"Item brand with ID {id} deleted successfully.");
+                return Ok(new { message = "Item brand  deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error deleting Item brand with ID: {id}", ex);
+                return StatusCode(500, $"An error occurred while deleting the Item brand. {ex.Message}");
+            }
+        }
         #endregion
     }
 }

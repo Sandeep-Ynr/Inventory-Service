@@ -1,7 +1,9 @@
 using AutoMapper;
 using MilkMatrix.Api.Models.Request.Inventory.Item;
+using MilkMatrix.Api.Models.Request.Inventory.ItemBrand;
 using MilkMatrix.Api.Models.Request.Inventory.ItemCategory;
 using MilkMatrix.Milk.Models.Request.Inventory.Item;
+using MilkMatrix.Milk.Models.Request.Inventory.ItemBrand;
 using MilkMatrix.Milk.Models.Request.Inventory.ItemCategory;
 
 namespace MilkMatrix.Api.Models.AutomapperProfiles
@@ -147,6 +149,28 @@ namespace MilkMatrix.Api.Models.AutomapperProfiles
               .ForMember(dest => dest.ReorderLevel, opt => opt.MapFrom(src => src.ReorderLevel))
               .ForMember(dest => dest.MinQty, opt => opt.MapFrom(src => src.MinQty))
               .ForMember(dest => dest.MaxQty, opt => opt.MapFrom(src => src.MaxQty));
+
+            // Mapping for Insert
+            CreateMap<ItemBrandInsertRequestModel, ItemBrandInsertRequest>()
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)) // handled internally
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["CreatedBy"]))
+                .ForMember(dest => dest.CreatedOn, opt => opt.MapFrom(src => DateTime.Now));
+
+            // Mapping for Update
+            CreateMap<ItemBrandUpdateRequestModel, ItemBrandUpdateRequest>()
+                .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.BrandId))
+                .ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.BusinessId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                //.ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsDeleted)) // handled internally
+                .ForMember(dest => dest.ModifyBy, opt => opt.MapFrom((src, dest, member, context) => context.Items["ModifiedBy"]))
+                .ForMember(dest => dest.ModifyOn, opt => opt.MapFrom(src => DateTime.Now));
+
         }
     }
 }

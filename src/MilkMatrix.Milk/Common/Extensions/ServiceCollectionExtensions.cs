@@ -62,6 +62,8 @@ using MilkMatrix.Milk.Implementations.PriceApplicability;
 using MilkMatrix.Milk.Implementations.Route.RouteContractor;
 using MilkMatrix.Milk.Implementations.Route.RouteTiming;
 using MilkMatrix.Milk.Implementations.Shift;
+using MilkMatrix.Milk.Implementations.Inventory;
+
 
 namespace MilkMatrix.Milk.Common.Extensions
 {
@@ -116,6 +118,8 @@ namespace MilkMatrix.Milk.Common.Extensions
                     .AddScoped<IItemCatgService, ItemCatgService>()
                     .AddScoped<IItemService, ItemService>()
                     .AddScoped<IDispatchService, DispatchService>()
+                    .AddScoped<IItemBrandService, ItemBrandService>()
+
             ;
 
 
