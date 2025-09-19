@@ -31,6 +31,7 @@ public class RepositoryFactory : IRepositoryFactory
 
     public IBaseRepository<T> ConnectDapper<T>(string connectionStringName) where T : class
     {
+        //var econnectionString = encryptKey.EncryptString("server=DESKTOP-KB3J5PN\\SQLEXPRESS;database=MMBeta;user id=prince;password=jks1988@1122;Min Pool Size=10;Max Pool Size=200;Connect Timeout=1000; trusted_connection=true;Encrypt=false;");
         var connectionString = encryptKey.DecryptString(configurationSection.GetValue<string>(connectionStringName)!);
         return new DapperRepository<T>(connectionString, logger);
     }
